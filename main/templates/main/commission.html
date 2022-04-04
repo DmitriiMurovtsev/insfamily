@@ -1,0 +1,83 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/commission.css' %}">
+
+<div class="cont_1">
+    <form name="create_commission" method="post" action="{% url 'commission' %}">
+        {% csrf_token %}
+        <div class="str1">
+            <div class="col">
+                <select name="id">
+                    {% for channel in channel %}
+                    <option value="{{ channel.id }}">{{ channel }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col">
+                <select name="type">
+                    {% for type in type %}
+                    <option value="{{ type.id }}">{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div hidden id="bank" class="col">
+                <select name="bank">
+                    {% for bank in bank %}
+                    <option value="{{ bank.id }}">{{ bank }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col">
+                <input type="text" value="0.00" name="value">
+            </div>
+            <div class="col">
+                <input type="date" value="2022-03-01" name="date_start">
+            </div>
+            <div class="col">
+                <button>Сохранить</button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="line"></div>
+<div class="cont_2">
+    {% for commission in commission %}
+    <div class="str1">
+        <div class="col">{{ commission.channel }}</div>
+        <div class="col">
+            {{ commission.type }}
+            {{ commission.bank }}
+        </div>
+        <div class="col">{{ commission.value }}</div>
+        <div class="col">{{ commission.date_start }}</div>
+        <div class="col">
+            <form action="{% url 'commission_delete' %}" method="post">
+                {% csrf_token %}
+                <input hidden name="id" type="number" value="{{ commission.id }}">
+                <button>Удалить</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    var type = create_commission.type;
+
+    function changeBank(){
+        var selectedType = type.options[type.selectedIndex];
+        if (selectedType.text == 'Ипотечный') {
+        document.getElementById("bank").hidden = false;
+        } else {
+        document.getElementById("bank").hidden=true;
+        }
+    }
+
+    type.addEventListener("change", changeBank);
+</script>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Комиссия
+{% endblock %}

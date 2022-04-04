@@ -1,0 +1,20 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'prolongations/css/status_change.css' %}">
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Загрузить</button>
+    {{ text }}
+</form>
+
+{% for key, value in datas.items %}
+{{ key }} - {{ value }}
+{% endfor %}
+
+{% endblock %}
+{% block title %}
+    InsFamily - Отчётность
+{% endblock %}

@@ -1,0 +1,38 @@
+.table_2 {
+    font-size: calc(8px + (15 - 8) * ((100vw - 320px) / (1900 - 320)));
+    text-align: left;
+    width: calc(20% + (80% - 20%) * ((100vw - 320px) / (1900 - 320)));
+    caption-side: top;
+}
+
+.table_1 td {
+    vertical-align: top;
+    padding: 3px 3px;
+}
+
+.table_2 {
+    margin-right: 30px;
+    margin-left: 10px;
+}
+
+.table_2 h6 {
+    font-size: calc(8px + (18 - 8) * ((100vw - 320px) / (1900 - 320)));
+}
+
+input, select {
+    width: calc(50px + (250 - 50) * ((100vw - 320px) / (1900 - 320)));
+    height: calc(5px + (30 - 5) * ((100vw - 320px) / (1900 - 320)));
+}
+
+.col1 {
+    width: 20px;
+    height: 15px;
+}
+
+.btn-success {
+    margin-left: 10px;
+    margin-top: 50px;
+    width: calc(80px + (150 - 80) * ((100vw - 320px) / (1900 - 320)));
+    height: calc(20px + (40 - 20) * ((100vw - 320px) / (1900 - 320)));
+    font-size: calc(8px + (14 - 8) * ((100vw - 320px) / (1900 - 320)));
+}

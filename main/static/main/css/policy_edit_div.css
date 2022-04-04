@@ -1,0 +1,21 @@
+.cont {
+    width: 500px;
+    float: left;
+}
+
+.col {
+    width: 43%;
+    height: 45px;
+    padding: 5px;
+    float: left;
+}
+
+input, select {
+    width: 120%;
+    height: 70%;
+}
+
+.str1 {
+    clear: left;
+}
+

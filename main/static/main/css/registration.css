@@ -1,0 +1,14 @@
+.table_1 {
+    text-align: left;
+}
+
+.table_1 td {
+    padding: 7px;
+}
+
+.btn-success {
+    margin-left: 10px;
+    width: calc(80px + (150 - 80) * ((100vw - 320px) / (1900 - 320)));
+    height: calc(20px + (40 - 20) * ((100vw - 320px) / (1900 - 320)));
+    font-size: calc(8px + (14 - 8) * ((100vw - 320px) / (1900 - 320)));
+}

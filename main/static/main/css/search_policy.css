@@ -1,0 +1,48 @@
+.col {
+    padding: 2px;
+    float: left;
+}
+
+input, select {
+    width: 100%;
+    height: 30px;
+}
+
+.col1 {
+    padding: 2px;
+    float: left;
+}
+
+.col2 {
+    padding: 2px;
+}
+
+.table_2 {
+    font-size: calc(8px + (14 - 8) * ((100vw - 320px) / (1900 - 320)));
+    text-align: center;
+    width: calc(20% + (100% - 20%) * ((100vw - 320px) / (1900 - 320)));
+}
+
+.table_2 th {
+  font-weight: normal;
+  border-bottom: 2px solid #6678b1;
+  border-top: 2px solid #6678b1;
+  border-left: 1px solid #B0C4DE;
+  border-right: 1px solid #B0C4DE;
+  padding: 3px 3px;
+}
+
+.table_2 tr:hover td {
+  background: #E6E6FA;
+}
+
+.table_2 tr:nth-child(2n) {
+  background: #FFEBCD;
+}
+
+.table_2 td {
+  border-top: 1px solid #e8edff;
+  border-left: 1px solid #B0C4DE;
+  border-right: 1px solid #B0C4DE;
+  padding: 5px;
+}

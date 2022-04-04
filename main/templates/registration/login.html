@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>InsFamily - Вход</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'main/css/login.css' %}">
+</head>
+<body>
+    <img src="{% static 'main/img/insfamily.png' %}">
+    <span class="logo">InsFamily</span><br>
+    <span class="logo_text">семейное страхование</span>
+      {% if user.is_authenticated %}
+        <meta http-equiv="refresh" content="0;URL={% url 'statistic' %}" />
+      {% else %}
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        Имя пользователя:<br>
+        {{ form.username }}<br>
+        Пароль:<br>
+        {{ form.password }}
+        <br><br>
+        <button type="submit" class="btn btn-success">Войти</button>
+    </form>
+      {% endif %}
+</body>
+</html>

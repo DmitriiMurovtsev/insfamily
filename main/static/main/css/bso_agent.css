@@ -1,0 +1,54 @@
+.table_2 {
+    margin-top: 15px;
+    font-size: calc(8px + (14 - 8) * ((100vw - 320px) / (1900 - 320)));
+    text-align: center;
+    width: calc(20% + (80% - 20%) * ((100vw - 320px) / (1900 - 320)));
+}
+
+.table_2 th {
+  font-weight: normal;
+  border-bottom: 2px solid #6678b1;
+  border-top: 2px solid #6678b1;
+  border-left: 1px solid #B0C4DE;
+  border-right: 1px solid #B0C4DE;
+  padding: 3px 3px;
+}
+
+.table_2 tr:nth-child(2n) {
+  background: #FFEBCD;
+}
+
+.table_2 td {
+  border-top: 1px solid #e8edff;
+  border-left: 1px solid #B0C4DE;
+  border-right: 1px solid #B0C4DE;
+  padding: 5px;
+}
+
+.btn-success {
+    margin-left: 10px;
+    width: calc(50px + (100 - 50) * ((100vw - 320px) / (1900 - 320)));
+    height: calc(15px + (35 - 15) * ((100vw - 320px) / (1900 - 320)));
+    font-size: calc(8px + (14 - 8) * ((100vw - 320px) / (1900 - 320)));
+}
+
+input, select {
+    width: calc(50px + (180 - 50) * ((100vw - 320px) / (1900 - 320)));
+    height: calc(5px + (25 - 5) * ((100vw - 320px) / (1900 - 320)));
+}
+
+.col1 {
+    width: calc(60px + (90 - 60) * ((100vw - 320px) / (1900 - 320)));
+    height: calc(18px + (25 - 18) * ((100vw - 320px) / (1900 - 320)));
+    font-size: calc(8px + (12 - 8) * ((100vw - 320px) / (1900 - 320)));
+}
+
+.col2 {
+    width: calc(60px + (90 - 60) * ((100vw - 320px) / (1900 - 320)));
+    height: calc(18px + (25 - 18) * ((100vw - 320px) / (1900 - 320)));
+    font-size: calc(8px + (12 - 8) * ((100vw - 320px) / (1900 - 320)));
+}
+
+.table_2 th, td {
+    width: calc(30px + (200 - 30) * ((100vw - 320px) / (1900 - 320)));
+}

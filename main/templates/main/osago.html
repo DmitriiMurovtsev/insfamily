@@ -1,0 +1,149 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+
+<span style="color:red; position: relative; font-size: 15px; font-weight: bold;">{{ error }}</span>
+<link rel="stylesheet" href="{% static 'main/css/osago.css' %}">
+<form name="policy" class="add-policy" method="post">
+    {% csrf_token %}
+    <table class="table_1">
+        <tr>
+            <td>
+                <table class="table_2">
+                    <caption><h5>Полис</h5></caption>
+                    <tr><td><b>Статус полиса</b></td>
+                        <td>
+                            <select name="Статус полиса">
+                                <option value="newbiz">Новый бизнес</option>
+                                <option value="prolongation">Пролонгация</option>
+                                <option value="transition">Переход</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td><b>Тип полиса</b></td>
+                        <td>
+                            <select name="Тип_полиса">
+                                {% for type in types %}
+                                    <option value="{{ type.id }}">{{ type }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr id="bank" hidden><td><b>Банк</b></td>
+                        <td>
+                            <select name="bank">
+                                {% for bank in banks %}
+                                    <option value="{{ bank }}">{{ bank }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td><b>Серия полиса</b></td><td><input name="series" placeholder="серия"></td></tr>
+                    <tr><td><b>Номер полиса</b></td><td><input name="number" placeholder="номер" required></td></tr>
+                    <tr><td><b>Страховая премия</b></td><td><input name="sp" pattern="\d+(.\d{2})?" placeholder="1234.05"></td></tr>
+                    <tr><td><b>Страховая компания</b></td>
+                        <td>
+                            <select name="Страховая_компания">
+                                {% for company in companys %}
+                                    <option value="{{ company.id }}">{{ company }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td><b>Канал продаж</b></td>
+                        <td>
+                            <select name="Канал_продаж">
+                                {% for channel in channels %}
+                                    <option id="channel" value="{{ channel.id }}">{{ channel }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    {% if user.agent == True %}
+                        <tr><td><b>КВ в %</b></td><td><input name="commission" pattern="\d+(.\d{2})?" placeholder="КВ %" required></td></tr>
+                    {% else %}
+                        <tr><td><b id="com" hidden>КВ в %</b></td><td><input value="0" hidden id="commission" name="commission" pattern="\d+(,\d{2})?" placeholder="КВ %" required></td></tr>
+                    {% endif %}
+                    <tr><td><b>Дата оформления</b></td><td><input id="date_at" type="date" name="date_registration" required></td></tr>
+                    <tr><td><b>Дата начала действия</b></td><td><input id="date_start" type="date" name="date_start" required></td></tr>
+                    <tr><td><b>Дата окончания действия</b></td><td><input id="date_end" type="date" name="date_end" required></td></tr>
+                </table>
+            </td>
+            <td>
+                <table class="table_2">
+                    <caption><h5>Клиент</h5></caption>
+                    <tr><td><b>Фамилия</b></td><td><input name="last_name" placeholder="фамилия" required></td></tr>
+                    <tr><td><b>Имя</b></td><td><input name="first_name" placeholder="имя" required></td></tr>
+                    <tr><td><b>Отчество</b></td><td><input name="middle_name" placeholder="отчество"></td></tr>
+                    <tr><td><b>Дата рождения</b></td><td><input type="date" name="birthday" required></td></tr>
+                    {% if user.agent == False %}
+                        <tr><tr><td><b>Телефон</b></td><td><input name="phone" pattern="[0-9]{10}" value="9111111111"></td></tr>
+                        <tr><td><b>Почта</b></td><td><input type="email" name="email" value="1@mail.ru"></td></tr>
+                    {% endif %}
+                </table>
+            </td>
+        </tr>
+    </table>
+    <button class="btn btn-success" type="submit">Внести продажу</button>
+    <span style="color:green; position: relative; font-size: 15px; font-weight: bold;">{{ text }}</span>
+</form>
+<script>
+    var date = new Date();
+    year = date.getFullYear() + '';
+    month = date.getMonth() + 1;
+    if (month < 10){
+        month = '0' + month;
+    }
+    day = date.getDate();
+    if (day < 10){
+        day = '0' + day;
+    }
+    document.getElementById("date_at").value = year + "-" + month + "-" + day;
+    document.getElementById("date_start").oninput = function() {
+        dateStart = new Date(Date.parse(document.getElementById("date_start").value));
+        dateEnd = new Date(dateStart.setYear(dateStart.getFullYear() + 1));
+        dateEnd.setDate(dateEnd.getDate() - 1);
+        yearEnd = dateEnd.getFullYear() + '';
+        monthEnd = dateEnd.getMonth() + 1;
+        if (monthEnd < 10){
+            monthEnd = '0' + monthEnd;
+        }
+        dayEnd = dateEnd.getDate();
+        if (dayEnd < 10){
+        dayEnd = '0' + dayEnd;
+    }
+    document.getElementById("date_end").value = yearEnd + "-" + monthEnd + "-" + dayEnd;
+    }
+</script>
+<script>
+    var lan = policy.Канал_продаж;
+    var bank = policy.Тип_полиса;
+
+    function changeOption(){
+        var selectedOption = lan.options[lan.selectedIndex];
+        if (selectedOption.text == 'ООО "НЭП"' || selectedOption.text.indexOf('регион') != -1) {
+        document.getElementById("commission").hidden = false;
+        document.getElementById("com").hidden = false;
+        } else {
+        document.getElementById("commission").hidden=true;
+        document.getElementById("com").hidden = true;
+        }
+    }
+
+    function changeBank(){
+        var selectedType = bank.options[bank.selectedIndex];
+        if (selectedType.text == 'Ипотечный') {
+        document.getElementById("bank").hidden = false;
+        } else {
+        document.getElementById("bank").hidden=true;
+        }
+    }
+
+    lan.addEventListener("change", changeOption);
+    bank.addEventListener("change", changeBank);
+</script>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Добавить полис
+{% endblock %}

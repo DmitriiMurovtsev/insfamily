@@ -1,0 +1,81 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/policy_edit_div.css' %}">
+
+<form class="form_1" method="post">
+    {% csrf_token %}
+    <div class="cont">
+        <div class="str1">
+            <div class="col">Серия</div>
+            <div class="col">
+                <input type="text" name="series" value="{{ policy.series }}">
+            </div>
+        </div>
+        <div class="str1">
+            <div class="col">Номер</div>
+            <div class="col">
+                <input type="text" name="number" value="{{ policy.number }}">
+            </div>
+        </div>
+        <div class="str1">
+            <div class="col">Компания</div>
+            <div class="col">
+                <select name="company">
+                    {% for company in company %}
+                        {% if company == policy.company %}
+                            <option value="{{ company.id }}" selected>{{ company }}</option>
+                        {% else %}
+                            <option value="{{ company.id }}">{{ company }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="str1">
+            <div class="col">Канал</div>
+            <div class="col">
+                <select name="channel">
+                    {% for channel in channel %}
+                        {% if channel == policy.channel %}
+                            <option value="{{ channel.id }}" selected>{{ channel }}</option>
+                        {% else %}
+                            <option value="{{ channel.id }}">{{ channel }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="str1">
+            <div class="col">СП</div>
+            <div class="col">
+                <input type="text" name="sp" value='{{ sp }}'>
+            </div>
+        </div>
+        <div class="str1">
+            <div class="col">Дата начала</div>
+            <div class="col">
+                <input type="date" name="date_start" value="{{ date_start }}">
+            </div>
+        </div>
+        <div class="str1">
+            <div class="col">Дата окончания</div>
+            <div class="col">
+                <input type="date" name="date_end" value="{{ date_end }}">
+            </div>
+        </div>
+        <div class="str1">
+            <div class="col">
+                <input hidden name="id" value="{{ policy.id }}">
+                <button type="submit">Сохранить</button>
+            </div>
+            <div class="col">
+                {{ text }}
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+{% block title %}
+    InsFamily - Редактирование
+{% endblock %}

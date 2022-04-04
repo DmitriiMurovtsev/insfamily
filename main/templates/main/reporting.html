@@ -1,0 +1,135 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/accept.css' %}">
+    <form class="reporting" method="get">
+        {% csrf_token %}
+        <table class="table_1">
+            <tr>
+                <th>Тип полиса:</th>
+                <th>Канал продаж:</th>
+                <th>Страховая компания:</th>
+                <th>Менеджер:</th>
+                <th>Оформлено с:</th>
+                <th>Оформлено по:</th>
+            </tr>
+            <tr>
+                <td>
+                    <select name="Тип полиса" >
+                        <option value="all">Все</option>
+                        {% for type in types %}
+                            {% if type.id == selected.type %}
+                                <option value="{{ type.id }}" selected>{{ type }}</option>
+                            {% else %}
+                                <option value="{{ type.id }}">{{ type }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="Канал продаж" >
+                        <option value="all">Все</option>
+                    {% for channel in channels %}
+                        {% if selected.channel == channel.id %}
+                        <option value="{{ channel.id }}" selected>{{ channel }}</option>
+                        {% else %}
+                        <option value="{{ channel.id }}">{{ channel }}</option>
+                        {% endif %}
+                    {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="Страховая компания">
+                        <option value="all">Все</option>
+                    {% for company in companies %}
+                        {% if selected.company == company.id %}
+                        <option value="{{ company.id }}" selected>{{ company }}</option>
+                        {% else %}
+                        <option value="{{ company.id }}">{{ company }}</option>
+                        {% endif %}
+                    {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="Менеджер">
+                        <option value="all">Все</option>
+                    {% for user in users %}
+                        {% if selected.manager == user.id %}
+                        <option value="{{ user.id }}" selected>{{ user }}</option>
+                        {% else %}
+                        <option value="{{ user.id }}">{{ user }}</option>
+                        {% endif %}
+                    {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <input type="date" value="{{ date_start }}" name="date_start">
+                </td>
+                <td>
+                    <input type="date" value="{{ date_end }}" name="date_end">
+                </td>
+                <td>
+                    <input class="btn btn-success" formaction="{% url 'reporting' %}" type="submit" formmethod="get" value="Просмотр">
+                </td>
+                {% if user.admin == True or user.agent == True %}
+                <td>
+                    <input class="btn btn-success" formaction="{% url 'unload_files' %}" type="submit" formmethod="get" value="Выгрузить">
+                </td>
+                {% endif %}
+            </tr>
+
+        </table>
+    </form>
+    <table class="table_2">
+        <tr>
+            <th>Статус</th>
+            <th>Тип</th>
+            <th>Серия и номер</th>
+            <th>Компания</th>
+            <th>Канал продаж</th>
+            <th>Премия</th>
+            <th>Комиссия</th>
+            <th>Клиент</th>
+            <th>Менеджер</th>
+            <th>Оформлен</th>
+            <th>Начало действия</th>
+            <th>Окончание действия</th>
+            <th colspan="2">Действия</th>
+        </tr>
+        {% for policy in result %}
+        <tr>
+            <td>
+                {% if policy.status == 'newbiz' %}
+                Новый бизнес
+                {% elif policy.status == 'prolongation' %}
+                Пролонгация
+                {% elif policy.status == 'transition' %}
+                Переход
+                {% endif %}
+            </td>
+            <td>{{ policy.type }}</td>
+            <td>{{ policy.series }} {{ policy.number }}</td>
+            <td>{{ policy.company }}</td>
+            <td>{{ policy.channel }}</td>
+            <td>{{ policy.sp }}</td>
+            <td>{{ policy.commission }}</td>
+            <td>{{ policy.client }}</td>
+            <td>{{ policy.user }}</td>
+            <td>{{ policy.date_registration }}</td>
+            <td>{{ policy.date_start }}</td>
+            <td>{{ policy.date_end }}</td>
+            <td><a target="_blank" href="../policy_edit/?id={{ policy.id }}">Редактировать</a></td>
+            <td>
+                <form method="post">
+                    {% csrf_token %}
+                    <input hidden name="id" value="{{ policy.id }}">
+                    <button>Провести</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
+{% block title %}
+    InsFamily - Отчётность
+{% endblock %}

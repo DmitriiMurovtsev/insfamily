@@ -1,0 +1,40 @@
+.cont_1 {
+    width: 1200px;
+    float: left;
+    margin-left: 25px;
+    margin-top: 25px;
+}
+
+.line {
+    border-bottom: 1px dashed #88a0bf;
+    margin-top: 10px;
+    width: 1200px;
+    float: left;
+}
+
+.col {
+    width: 200px;
+    height: 40px;
+    float: left;
+}
+
+input, select {
+    width: 75%;
+    height: 30px;
+}
+
+button {
+    width: 100px;
+    height: 30px;
+}
+
+.str1 {
+    clear: left;
+}
+
+.cont_2 {
+    width: 1200px;
+    float: left;
+    margin-left: 25px;
+    margin-top: 50px;
+}

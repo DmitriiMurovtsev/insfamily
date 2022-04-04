@@ -1,0 +1,147 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/mortgage.css' %}">
+<table class="table_0">
+    <tr>
+        <td>
+            <form class="add_mortgage" method="post">
+            {% csrf_token %}
+            <table class="table_1">
+                <tr>
+                    <td><h6>Банк:</h6></td>
+                    <td>
+                        <select name="bank">
+                            {% for bank in banks %}
+                            <option value="{{ bank.id }}">{{ bank }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><h6>Месяц окончания:</h6></td>
+                    <td>
+                        <select name="month">
+                            <option value="01">Январь</option>
+                            <option value="02">Февраль</option>
+                            <option value="03">Март</option>
+                            <option value="04">Апрель</option>
+                            <option value="05">Май</option>
+                            <option value="06">Июнь</option>
+                            <option value="07">Июль</option>
+                            <option value="08">Август</option>
+                            <option value="09">Сентябрь</option>
+                            <option value="10">Октябрь</option>
+                            <option value="11">Ноябрь</option>
+                            <option value="12">Декабрь</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><h6>Год окончания:</h6></td>
+                    <td>
+                        <select name="year">
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <tr><td><h6>Фамилия:</h6></td><td><input name="last_name" placeholder="фамилия" required></td></tr>
+                    <tr><td><h6>Имя:</h6></td><td><input name="first_name" placeholder="имя" required></td></tr>
+                    <tr><td><h6>Отчество:</h6></td><td><input name="middle_name" placeholder="отчество"></td></tr>
+                    <tr><td><h6>Дата рождения:</h6></td><td><input type="date" name="birthday" required></td></tr>
+                    {% if user.agent == False %}
+                        <tr><tr><td><h6>Телефон:</h6></td><td><input name="phone" pattern="[0-9]{10}" value="9111111111"></td></tr>
+                        <tr><td><h6>Почта:</h6></td><td><input type="email" name="email" value="1@mail.ru"></td></tr>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td>
+                        <button class="btn btn-success" type="submit">Внести полис</button>
+                        <span style="color:green; position: relative; font-size: 15px; font-weight: bold;">{{ text }}</span>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        </td>
+        {% if user.admin == True %}
+            <td>
+                <table class="table_2">
+                    <tr>
+                        <th>Месяц</th>
+                        <th>2022 ({{ statistic_2022.all_count }})</th>
+                        <th>2023 ({{ statistic_2023.all_count }})</th>
+                    </tr>
+                    <tr><td>Январь:</td><td>{{ statistic_2022.01 }}</td><td>{{ statistic_2023.01 }}</td></tr>
+                    <tr><td>Февраль:</td><td>{{ statistic_2022.02 }}</td><td>{{ statistic_2023.02 }}</td></tr>
+                    <tr><td>Март:</td><td>{{ statistic_2022.03 }}</td><td>{{ statistic_2023.03 }}</td></tr>
+                    <tr><td>Апрель:</td><td>{{ statistic_2022.04 }}</td><td>{{ statistic_2023.04 }}</td></tr>
+                    <tr><td>Май:</td><td>{{ statistic_2022.05 }}</td><td>{{ statistic_2023.05 }}</td></tr>
+                    <tr><td>Июнь:</td><td>{{ statistic_2022.06 }}</td><td>{{ statistic_2023.06 }}</td></tr>
+                    <tr><td>Июль:</td><td>{{ statistic_2022.07 }}</td><td>{{ statistic_2023.07 }}</td></tr>
+                    <tr><td>Август:</td><td>{{ statistic_2022.08 }}</td><td>{{ statistic_2023.08 }}</td></tr>
+                    <tr><td>Сентябрь:</td><td>{{ statistic_2022.09 }}</td><td>{{ statistic_2023.09 }}</td></tr>
+                    <tr><td>Октябрь:</td><td>{{ statistic_2022.10 }}</td><td>{{ statistic_2023.10 }}</td></tr>
+                    <tr><td>Ноябрь:</td><td>{{ statistic_2022.11 }}</td><td>{{ statistic_2023.11 }}</td></tr>
+                    <tr><td>Декабрь:</td><td>{{ statistic_2022.12 }}</td><td>{{ statistic_2023.12 }}</td></tr>
+                </table>
+            </td>
+    </tr>
+    <tr>
+        <form>
+            <table class="table_3">
+                <tr>
+                    <td><h6>Банк:</h6></td>
+                    <td>
+                        <select name="bank">
+                            <option value="all">Все</option>
+                            {% for bank in banks %}
+                            <option value="{{ bank.id }}">{{ bank }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><h6>Месяц окончания:</h6></td>
+                    <td>
+                        <select name="month">
+                            <option value="01">Январь</option>
+                            <option value="02">Февраль</option>
+                            <option value="03">Март</option>
+                            <option value="04">Апрель</option>
+                            <option value="05">Май</option>
+                            <option value="06">Июнь</option>
+                            <option value="07">Июль</option>
+                            <option value="08">Август</option>
+                            <option value="09">Сентябрь</option>
+                            <option value="10">Октябрь</option>
+                            <option value="11">Ноябрь</option>
+                            <option value="12">Декабрь</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><h6>Год окончания:</h6></td>
+                    <td>
+                        <select name="year">
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="btn btn-success" formaction="{% url 'unload_mortgage' %}" type="submit" formmethod="get" value="Выгрузить">
+                    </td>
+                </tr>
+            </table>
+        </form>
+        {% endif %}
+    </tr>
+</table>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Ипотека
+{% endblock %}

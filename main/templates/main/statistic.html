@@ -1,0 +1,71 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/statistic.css' %}">
+    <table class="table_1">
+        <td>
+            <table class="table_2">
+                <thead>
+                    <th>Тип полиса</th>
+                    <th>Продано шт.</th>
+                    <th>Сборы</th>
+                    <th>Новый бизнес</th>
+                    <th>Пролонгация</th>
+                    <th>Переход</th>
+                </thead>
+                <tbody>
+                    {% for type, value in all_statistic.items %}
+                    <tr>
+                        <td class="type">{{ type }}</td>
+                        <td>{{ value.count }}</td>
+                        <td>{{ value.sum_sp }}</td>
+                        <td>{{ value.newbiz }}</td>
+                        <td>{{ value.prolongation }}</td>
+                        <td>{{ value.transition }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="all_sp">
+                        <td>Сборы всего: </td>
+                        <td>{{ all_sp }}р.</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </td>
+        {% if user.admin == True %}
+            <td>
+            <table class="table_2">
+                <th>Менеджер</th>
+                <th>Продано шт.</th>
+                <th>Сборы</th>
+                {% for user, value in user_statistic.items %}
+                <tr>
+                    <td class="type">{{ user }}</td>
+                    <td>{{ value.count }}</td>
+                    <td>{{ value.sp }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            </td>
+            <td>
+                <table class="table_2">
+                    <th>Агент</th>
+                    <th>Продано шт.</th>
+                    <th>Сборы</th>
+                    {% for agent, value in agent_statistic.items %}
+                    <tr>
+                        <td class="type">{{ agent }}</td>
+                        <td>{{ value.count }}</td>
+                        <td>{{ value.sp }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </td>
+        {% endif %}
+    </table>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Статистика
+{% endblock %}
