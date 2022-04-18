@@ -333,6 +333,9 @@ def addpolicy(request):
             if request.POST.get('Оплата') == 'cash':
                 policy.type_pay = True
                 policy.save()
+            if request.POST.get('credit') == 'credit':
+                policy.credit = True
+                policy.save()
 
     data = {
         'types': type,

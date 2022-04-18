@@ -47,6 +47,14 @@
                             </select>
                         </td>
                     </tr>
+                    <tr id="credit" hidden><td><b>ТС в кредите</b></td>
+                        <td>
+                            <select name="credit">
+                                <option value="no_credit">Нет</option>
+                                <option value="credit">Да</option>
+                            </select>
+                        </td>
+                    </tr>
                     <tr><td><b>Серия полиса</b></td><td><input name="series" placeholder="серия"></td></tr>
                     <tr><td><b>Номер полиса</b></td><td><input name="number" placeholder="номер" required></td></tr>
                     <tr><td><b>Страховая премия</b></td><td><input name="sp" pattern="\d+(.\d{2})?" placeholder="1234.05"></td></tr>
@@ -132,6 +140,7 @@
 <script>
     var lan = policy.Канал_продаж;
     var bank = policy.Тип_полиса;
+    var credit = policy.Тип_полиса;
 
     function changeOption(){
         var selectedOption = lan.options[lan.selectedIndex];
@@ -153,8 +162,18 @@
         }
     }
 
+    function changeCredit(){
+        var selectedType = credit.options[credit.selectedIndex];
+        if (selectedType.text == 'КАСКО') {
+        document.getElementById("credit").hidden = false;
+        } else {
+        document.getElementById("credit").hidden=true;
+        }
+    }
+
     lan.addEventListener("change", changeOption);
     bank.addEventListener("change", changeBank);
+    bank.addEventListener("change", changeCredit);
 </script>
 
 {% endblock %}
