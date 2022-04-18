@@ -115,6 +115,7 @@ class Policy(models.Model):
     status = models.CharField(max_length=30, verbose_name='Статус полиса', default='newbiz')
     bank = models.CharField(max_length=30, verbose_name='Банк', blank=True, null=True)
     accept = models.BooleanField(verbose_name='Проведен', default=False)
+    type_pay = models.BooleanField(verbose_name='Наличные', default=False)
 
     class Meta:
         verbose_name = 'Полис'

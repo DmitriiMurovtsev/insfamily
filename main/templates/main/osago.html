@@ -11,12 +11,21 @@
             <td>
                 <table class="table_2">
                     <caption><h5>Полис</h5></caption>
-                    <tr><td><b>Статус полиса</b></td>
+                    <tr><td><b>Вид полиса</b></td>
                         <td>
-                            <select name="Статус полиса">
+                            <select name="Тип продажи">
                                 <option value="newbiz">Новый бизнес</option>
                                 <option value="prolongation">Пролонгация</option>
                                 <option value="transition">Переход</option>
+                                <option value="addendum">Аддендум</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td><b>Оплата</b></td>
+                        <td>
+                            <select name="Оплата">
+                                <option value="non_cash">Безнал</option>
+                                <option value="cash">Наличные</option>
                             </select>
                         </td>
                     </tr>
@@ -83,9 +92,14 @@
                 </table>
             </td>
         </tr>
+        <tr>
+            <td><button class="btn btn-success" type="submit">Внести продажу</button></td>
+        </tr>
+        <tr><td>
+            <span style="color:green; position: relative; font-size: 15px; font-weight: bold;">{{ text }}</span>
+            </td>
+        </tr>
     </table>
-    <button class="btn btn-success" type="submit">Внести продажу</button>
-    <span style="color:green; position: relative; font-size: 15px; font-weight: bold;">{{ text }}</span>
 </form>
 <script>
     var date = new Date();

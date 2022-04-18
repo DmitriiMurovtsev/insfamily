@@ -295,51 +295,44 @@ def addpolicy(request):
     company = Company.objects.all()
     channel = Channel.objects.all()
     if request.method == 'POST':
-        client = Client.objects.filter(first_name=request.POST.get('first_name'),
-                                       middle_name=request.POST.get('middle_name'),
-                                       last_name=request.POST.get('last_name'),
-                                       birthday=request.POST.get('birthday'))
+        client, created = Client.objects.get_or_create(
+            first_name=request.POST.get('first_name'),
+            middle_name=request.POST.get('middle_name'),
+            last_name=request.POST.get('last_name'),
+            birthday=request.POST.get('birthday'),
+            defaults={
+                'phone': request.POST.get('phone'),
+                'email': request.POST.get('email')
+            }
+        )
+        policy, created = Policy.objects.get_or_create(
+            number=request.POST.get('number'),
+            series=request.POST.get('series'),
+            company_id=request.POST.get('Страховая_компания'),
+            defaults={
+                'user_id': request.user.id,
+                'client_id': client.id,
+                'channel_id': request.POST.get('Канал_продаж'),
+                'type_id': request.POST.get('Тип_полиса'),
+                'date_registration': request.POST.get('date_registration'),
+                'date_start': request.POST.get('date_start'),
+                'date_end': request.POST.get('date_end'),
+                'commission': request.POST.get('commission'),
+                'sp': float(request.POST.get('sp').replace(',', '.')),
+                'status': request.POST.get('Тип продажи'),
+                }
+            )
 
-        if len(client) > 0:
-            client_id = client[0].id
-        else:
-            Client(first_name=request.POST.get('first_name'),
-                   middle_name=request.POST.get('middle_name'),
-                   last_name=request.POST.get('last_name'),
-                   phone=request.POST.get('phone'),
-                   email=request.POST.get('email'),
-                   birthday=request.POST.get('birthday')).save()
-
-            client_id = Client.objects.get(first_name=request.POST.get('first_name'),
-                                           middle_name=request.POST.get('middle_name'),
-                                           last_name=request.POST.get('last_name'),
-                                           birthday=request.POST.get('birthday')).id
-        policy = Policy.objects.filter(number=request.POST.get('number'),
-                                       series=request.POST.get('series'),
-                                       company=request.POST.get('Страховая компания'))
-        if len(policy) > 0:
+        if created == False:
             error = f'Полис с номером {request.POST.get("series")} {request.POST.get("number")} уже есть в базе'
         else:
-            if 'Ипотечный' in str(Type.objects.get(id=request.POST.get('Тип_полиса'))):
-                bank = request.POST.get('bank')
-            else:
-                bank = ''
-            Policy(user_id=request.user.id,
-                   client_id=client_id,
-                   number=request.POST.get('number'),
-                   series=request.POST.get('series'),
-                   channel_id=request.POST.get('Канал_продаж'),
-                   company_id=request.POST.get('Страховая_компания'),
-                   type_id=request.POST.get('Тип_полиса'),
-                   date_registration=request.POST.get('date_registration'),
-                   date_start=request.POST.get('date_start'),
-                   date_end=request.POST.get('date_end'),
-                   commission=request.POST.get('commission'),
-                   sp=request.POST.get('sp'),
-                   status=request.POST.get('Статус полиса'),
-                   bank=bank,
-                   ).save()
             text = 'Запись успешно добавлена'
+            if 'Ипотечный' in str(Type.objects.get(id=request.POST.get('Тип_полиса'))):
+                policy.bank = request.POST.get('bank')
+                policy.save()
+            if request.POST.get('Оплата') == 'cash':
+                policy.type_pay = True
+                policy.save()
 
     data = {
         'types': type,
@@ -349,6 +342,7 @@ def addpolicy(request):
         'error': error,
         'text': text,
     }
+
     return render(request, 'main/osago.html', data)
 
 
@@ -358,33 +352,29 @@ def register_user(request):
     if request.user.admin:
         error = ''
         if request.method == 'POST':
-            username = request.POST.get('username')
-            if len(User.objects.filter(username=username)) > 0:
+            if len(User.objects.filter(username=request.POST.get('username'))) > 0:
                 error = 'Этот логин уже используется'
             else:
-                password = request.POST.get('password')
-                last_name = request.POST.get('last_name')
-                first_name = request.POST.get('first_name')
+                user = User.objects.create_user(
+                    username=request.POST.get('username'),
+                    password=request.POST.get('password'),
+                    last_name=request.POST.get('last_name'),
+                    first_name=request.POST.get('first_name'),
+                    middle_name='',
+                    agent=False,
+                )
                 if request.POST.get('middle_name'):
-                    middle_name = request.POST.get('middle_name')
-                else:
-                    middle_name = ''
+                    user.middle_name = request.POST.get('middle_name')
+                    user.save()
                 if request.POST.get('agent') == '1':
-                    agent = True
-                else:
-                    agent = False
-                User.objects.create_user(
-                    username=username,
-                    password=password,
-                    last_name=last_name,
-                    first_name=first_name,
-                    middle_name=middle_name,
-                    agent=agent,
-                ).save()
+                    user.agent = True
+                    user.save()
         return render(request, 'registration/registration.html', context={'error': error})
+
     else:
         return render(request, 'registration/registration.html',
                       context={'error': 'Для регистрации обратитесь к администратору!'})
+
 
 
 @login_required(login_url='login')
@@ -461,29 +451,21 @@ def unload_mortgage(request):
 def mortgage(request):
     text = ''
     if request.method == 'POST':
-        client = Client.objects.filter(first_name=request.POST.get('first_name'),
-                                       middle_name=request.POST.get('middle_name'),
-                                       last_name=request.POST.get('last_name'),
-                                       birthday=request.POST.get('birthday'))
-        if len(client) > 0:
-            client_id = client[0].id
-        else:
-            Client(first_name=request.POST.get('first_name'),
+        client, created = Client.objects.get_or_create(
+            first_name=request.POST.get('first_name'),
             middle_name=request.POST.get('middle_name'),
             last_name=request.POST.get('last_name'),
-            phone=request.POST.get('phone'),
-            email=request.POST.get('email'),
-            birthday=request.POST.get('birthday')).save()
-
-            client_id = Client.objects.get(first_name=request.POST.get('first_name'),
-                                       middle_name=request.POST.get('middle_name'),
-                                       last_name=request.POST.get('last_name'),
-                                       birthday=request.POST.get('birthday')).id
+            birthday=request.POST.get('birthday'),
+            defaults={
+                'phone': request.POST.get('phone'),
+                'email': request.POST.get('email')
+            }
+        )
 
         date_end = datetime.datetime.strptime(f'{request.POST.get("year")}-{request.POST.get("month")}-01', '%Y-%m-%d')
         MortgagePolicy(bank_id=request.POST.get('bank'),
                        user_id=request.user.id,
-                       client_id=client_id,
+                       client_id=client.id,
                        date_end=date_end).save()
         text = 'Полис добавлен'
     if request.user.admin:
@@ -672,7 +654,7 @@ def accept(request):
         result = Policy.objects.filter(accept=True)
     else:
         users = User.objects.filter(id=request.user.id)
-        result = Policy.objects.filter(user_id=request.user.id)
+        result = Policy.objects.filter(user_id=request.user.id, accept=True)
     company = Company.objects.all()
     channel = Channel.objects.all()
     type = Type.objects.all()
@@ -813,3 +795,14 @@ def bso_add(request):
             'bso': bso
         }
         return render(request, 'main/bso_agent.html', context)
+
+
+@login_required(login_url='login')
+def debitor(request):
+    text = 'В разработке'
+
+    context = {
+        'text': text,
+    }
+
+    return render(request, 'main/debitor.html', context)

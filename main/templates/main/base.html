@@ -33,12 +33,13 @@
         </ul>
         {% if user.admin == True %}
         <ul class="ul">
-            <a href="{% url 'bso_agent' %}"><li>БСО агент</li></a>
+            <a href="{% url 'bso_agent' %}"><li>Статистика БСО</li></a>
+            <a href="{% url 'debitor' %}"><li>Дебиторка</li></a>
         </ul>
         <ul class="ul">
             <a href="{% url 'motivation' %}"><li>План мотивации</li></a>
             <a href="{% url 'bonuses' %}"><li>Премии штрафы</li></a>
-            <a href="{% url 'commission' %}"><li>КВ по КП</li></a>
+            <a href="{% url 'commission' %}"><li>Входящее КВ</li></a>
         </ul>
         <ul class="ul">
             <a href="{% url 'register_user' %}"><li>Добавить пользователя</li></a>
