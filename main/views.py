@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from .models import Policy, Client, Channel, Company, User, Type, Bso, MortgagePolicy, Bank, Commission
+from .forms import UploadFileForm
 
 
 def redirect_login(request):
@@ -350,6 +351,27 @@ def addpolicy(request):
 
 
 @login_required(login_url='login')
+def upload_policy(request):
+    form = UploadFileForm()
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            text = 'Загружено'
+            with open('main/file/date.csv', 'wb') as file:
+                for row in request.FILES['file'].chunks():
+                    file.write(row)
+
+            with open('main/file/date.csv', 'r', encoding='cp1251', newline='') as file_1:
+                reader = csv.DictReader(file_1, delimiter=';')
+                for row in reader:
+                    pass
+
+    context = {}
+
+    return render(request, 'main/upload_policy.html', context)
+
+
+@login_required(login_url='login')
 def register_user(request):
     # Регистрация нового пользователя
     if request.user.admin:
@@ -377,7 +399,6 @@ def register_user(request):
     else:
         return render(request, 'registration/registration.html',
                       context={'error': 'Для регистрации обратитесь к администратору!'})
-
 
 
 @login_required(login_url='login')

@@ -1,0 +1,37 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'prolongations/css/statistic.css' %}">
+
+<table class="table_2">
+    <tr>
+        <th>Тип полиса</th>
+        <th>Всего залито</th>
+        <th colspan="2">В работе</th>
+        <th colspan="2">Оформлено</th>
+        <th colspan="2">В отказе</th>
+    </tr>
+    {% for key, value in type_statistic.items %}
+    <tr>
+        <td>{{ key }}</td>
+        <td>{{ value.count }} шт.</td>
+        <td>{{ value.count_r }} шт.</td>
+        <td>{{ value.percent_count_r }}</td>
+        <td>{{ value.count_p }} шт.</td>
+        <td>{{ value.percent_count_p }}</td>
+        <td>{{ value.count_d }} шт.</td>
+        <td>{{ value.percent_count_d }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<table class="table_2">
+    <tr>
+        <th colspan="2">Причина отказа</th>
+    </tr>
+    {% for key, value in status_statistic.items %}
+    <tr>
+        <td>{{ key }}</td>
+        <td>{{ value }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>

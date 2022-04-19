@@ -20,9 +20,10 @@
             <a href="{% url 'add_policy' %}"><li>Внести продажу</li></a>
             <a href="{% url 'mortgage' %}"><li>Заявки ипотека</li></a>
         </ul>
-        {% if user.agent == False %}
+        {% if user.agent == False and user.admin == True or user.username == 'OSamohvalova' %}
         <ul class="ul">
             <a href="{% url 'status_change' %}"><li>Пролонгация</li></a>
+            <a href="{% url 'statistic_p' %}"><li>Статистика</li></a>
         </ul>
         {% endif %}
         <ul class="ul">

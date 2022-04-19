@@ -3,18 +3,78 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'prolongations/css/status_change.css' %}">
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Загрузить</button>
-    {{ text }}
-</form>
+{% if user.username == 'DMurovtsev' %}
+<br>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">Загрузить</button>
+        {{ text }}
+    </form>
+<br>
+{% endif %}
 
-{% for key, value in datas.items %}
-{{ key }} - {{ value }}
+<table class="table_2">
+    <tr>
+        <th>Тип полиса</th>
+        <th>БСО</th>
+        <th>Компания</th>
+        <th>Дата окончания</th>
+        <th>Клиент</th>
+        <th colspan="2">Статус</th>
+    </tr>
+    {% for policy in policy_base %}
+    <tr>
+        <form action="upload_policy" method="post">
+            {% csrf_token %}
+            <td>{{ policy.type }}</td>
+            <td>{{ policy.bso }}</td>
+            <td>{{ policy.company }}</td>
+            <td>{{ policy.date_end|slice:":10" }}</td>
+            <td>{{ policy.client }}</td>
+            <td>
+                {% if user.admin == False %}
+                <select name="status">
+                    {% for status in status %}
+                        {% if status.name == 'В работе' %}
+                            <option value="{{ status.id }}" selected>{{ status }}</option>
+                        {% else %}
+                            <option value="{{ status.id }}">{{ status }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <input hidden type="text" name="policy" value="{{ policy.id }}">
+            </td>
+            <td>
+                <input type="submit" formmethod="post" formaction="{% url 'upload_policy' %}" value="Сохранить">
+            </td>
+            {% else %}
+            {{ policy.status }}
+            {% endif %}
+        </form>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>---<br>
+
+{% if page.has_previous %}
+    <a href="?page={{ page.previous_page_number }}">Назад</a>
+{% endif %}
+
+{% for p in paginator.page_range %}
+    {% if p != page.number %}
+        <a href="?page={{ p }}">{{ p }}</a>
+    {% else %}
+        <b>{{ p }}</b>
+    {% endif %}
 {% endfor %}
+
+{% if page.has_next %}
+    <a href="?page={{ page.next_page_number }}">Далее</a>
+{% endif %}
 
 {% endblock %}
 {% block title %}
-    InsFamily - Отчётность
+    InsFamily - Пролонгация
 {% endblock %}

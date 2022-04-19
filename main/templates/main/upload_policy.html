@@ -1,0 +1,15 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/upload_policy.css' %}">
+
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="file" id="">
+    <button type="submit">отпарвить</button>
+</form>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Загрузка
+{% endblock %}
