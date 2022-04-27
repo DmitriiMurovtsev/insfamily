@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import statistic, a_reporting, addpolicy, redirect_login, unload_files, \
     register_user, bso_delete, mortgage, unload_mortgage, policy_edit, search_policy, commission, accept, unload_accept, \
-    commission_delete, motivation, bonuses, bso_add, bso_agent, bso_stock, debitor, upload_policy
+    commission_delete, motivation, bonuses, bso_add, bso_agent, bso_stock, debitor, upload_policy, upload_mortgage
 
 urlpatterns = [
     path('', redirect_login, name='redirect_login'),
@@ -27,4 +27,5 @@ urlpatterns = [
     path('bso_delete/', bso_delete, name='bso_delete'),
     path('debitor/', debitor, name='debitor'),
     path('upload_policy/', upload_policy, name='upload_policy'),
+    path('upload_mortgage/', upload_mortgage, name='upload_mortgage'),
 ]

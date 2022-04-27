@@ -47,7 +47,9 @@
         <div class="col">{{ commission.channel }}</div>
         <div class="col">
             {{ commission.type }}
-            {{ commission.bank }}
+            {% if commission.bank != None %}
+                {{ commission.bank }}
+            {% endif %}
         </div>
         <div class="col">{{ commission.value }}</div>
         <div class="col">{{ commission.date_start }}</div>

@@ -251,7 +251,7 @@ def a_reporting(request):
         result = Policy.objects.filter(accept=False)
     else:
         users = User.objects.filter(id=request.user.id)
-        result = Policy.objects.filter(user_id=request.user.id)
+        result = Policy.objects.filter(user_id=request.user.id, accept=False)
     company = Company.objects.all()
     channel = Channel.objects.all()
     type = Type.objects.all()
@@ -328,7 +328,7 @@ def addpolicy(request):
             error = f'Полис с номером {request.POST.get("series")} {request.POST.get("number")} уже есть в базе'
         else:
             text = 'Запись успешно добавлена'
-            if 'Ипотечный' in str(Type.objects.get(id=request.POST.get('Тип_полиса'))):
+            if Type.objects.get(id=request.POST.get('Тип_полиса')).name == 'Ипотечный':
                 policy.bank = request.POST.get('bank')
                 policy.save()
             if request.POST.get('Оплата') == 'cash':
@@ -337,6 +337,20 @@ def addpolicy(request):
             if request.POST.get('credit') == 'credit':
                 policy.credit = True
                 policy.save()
+
+            commission_objects = Commission.objects.filter(
+                type=policy.type,
+                channel=policy.channel,
+                date_start__lte=policy.date_registration,
+            )
+
+            if len(commission_objects) > 0:
+                if Type.objects.get(id=request.POST.get('Тип_полиса')).name == 'Ипотечный':
+                    commission_objects = commission_objects.objects.filter(bank=Bank.objects.get(name=policy.bank))
+
+                if len(commission_objects) > 0:
+                    policy.commission = commission_objects.order_by('-date_start')[0].value
+                    policy.save()
 
     data = {
         'types': type,
@@ -472,6 +486,54 @@ def unload_mortgage(request):
 
 
 @login_required(login_url='login')
+def upload_mortgage(request):
+    # Загрузка заявок ипотечных заявок
+    text = ',e'
+    form = UploadFileForm()
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            text = 'Загружено'
+            with open('main/file/mortgage.csv', 'wb') as file:
+                for row in request.FILES['file'].chunks():
+                    file.write(row)
+
+            with open('main/file/mortgage.csv', 'r', encoding='cp1251', newline='') as file_1:
+                reader = csv.DictReader(file_1, delimiter=';')
+                for row in reader:
+                    if len(row['Дата рождения']) > 0:
+                        birthday = datetime.datetime.strptime(row['Дата рождения'], "%d.%m.%Y")
+                    client, created = Client.objects.get_or_create(
+                        first_name=row['Имя'],
+                        middle_name=row['Отчество'],
+                        last_name=row['Фамилия'],
+                        birthday=birthday,
+                        defaults={
+                            'phone': row['Телефон'],
+                            'email': row['Почта'],
+                        }
+                    )
+
+                    bank, created = Bank.objects.get_or_create(name=row['Банк'])
+
+                    MortgagePolicy.objects.get_or_create(
+                        date_end=datetime.datetime.strptime(row['Дата окончания'], "%d.%m.%Y"),
+                        bank=bank,
+                        client=client,
+                        defaults={
+                            'user': request.user,
+                        }
+                    )
+
+    context = {
+        'form': form,
+        'text': text,
+    }
+
+    return render(request, 'main/upload_mortgage.html', context)
+
+
+@login_required(login_url='login')
 def mortgage(request):
     text = ''
     if request.method == 'POST':
@@ -597,48 +659,54 @@ def search_policy(request):
 @login_required(login_url='login')
 def commission(request):
     if request.method == 'POST':
-        commission_edit = Commission.objects.filter(
-            channel_id=request.POST.get('id'),
-            type_id=request.POST.get('type'),
-            date_start=request.POST.get('date_start'),
-        )
-        if len(commission_edit) > 0:
-            if 'Ипотечный' in str(Type.objects.get(id=request.POST.get('type'))):
-                commission_edit = commission_edit.filter(bank_id=request.POST.get('bank'))
-                if len(commission_edit) > 0:
-                    com_edit = Commission.objects.get(
-                        channel_id=request.POST.get('id'),
-                        type_id=request.POST.get('type'),
-                        bank_id=request.POST.get('bank'),
-                        date_start=request.POST.get('date_start'),
-                    )
-                    com_edit.value = request.POST.get('value')
-                    com_edit.save()
-            else:
-                com_edit = Commission.objects.get(
-                    channel_id=request.POST.get('id'),
-                    type_id=request.POST.get('type'),
-                    date_start=request.POST.get('date_start'),
-                )
-                com_edit.value = request.POST.get('value')
-                com_edit.save()
+        if Type.objects.get(id=request.POST.get('type')).name == 'Ипотечный':
+            commission, created = Commission.objects.get_or_create(
+                channel_id=request.POST.get('id'),
+                type_id=request.POST.get('type'),
+                bank_id=request.POST.get('bank'),
+                date_start=request.POST.get('date_start'),
+                defaults={
+                    'value': float(request.POST.get('value').replace(',', '.')),
+                }
+            )
+        else:
+            commission, created = Commission.objects.get_or_create(
+                channel_id=request.POST.get('id'),
+                type_id=request.POST.get('type'),
+                date_start=request.POST.get('date_start'),
+                defaults={
+                    'value': float(request.POST.get('value').replace(',', '.')),
+                }
+            )
 
-        if len(commission_edit) == 0:
-            if 'Ипотечный' in str(Type.objects.get(id=request.POST.get('type'))):
-                new_commission = Commission(
-                        channel_id=request.POST.get('id'),
-                        type_id=request.POST.get('type'),
-                        bank_id=request.POST.get('bank'),
-                        value=request.POST.get('value'),
-                        date_start=request.POST.get('date_start'),
-                    ).save()
+        if created == False:
+            commission.value = float(request.POST.get('value').replace(',', '.'))
+            commission.save()
+
+        policyes = Policy.objects.filter(date_registration__gte=commission.date_start,
+                                         channel=commission.channel,
+                                         type=commission.type,
+                                         accept=False)
+
+        if len(policyes) > 0:
+            if commission.type.name == 'Ипотечный':
+                policyes = policyes.filter(bank=commission.bank)
+
+                if len(policyes) > 0:
+                    for policy in policyes:
+                        policy.commission = (Commission.objects.filter(
+                            type=commission.type,
+                            channel=commission.channel,
+                            date_start__lte=policy.date_registration,
+                            bank=commission.bank)).order_by('-date_start')[0].value
+                        policy.save()
             else:
-                new_commission = Commission(
-                    channel_id=request.POST.get('id'),
-                    type_id=request.POST.get('type'),
-                    value=request.POST.get('value'),
-                    date_start=request.POST.get('date_start'),
-                ).save()
+                for policy in policyes:
+                    policy.commission = (Commission.objects.filter(
+                        type=commission.type,
+                        date_start__lte=policy.date_registration,
+                        channel=commission.channel)).order_by('-date_start')[0].value
+                    policy.save()
 
     channel = Channel.objects.all()
     commission = Commission.objects.all()

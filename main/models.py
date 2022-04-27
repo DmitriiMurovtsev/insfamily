@@ -18,7 +18,7 @@ class Client(models.Model):
     last_name = models.CharField(max_length=100, verbose_name='Фамилия')
     phone = models.CharField(max_length=10, verbose_name='Телефон', blank=True, null=True)
     email = models.EmailField(max_length=100, verbose_name='Почта', blank=True, null=True)
-    birthday = models.DateField(verbose_name='Дата рождения')
+    birthday = models.DateField(verbose_name='Дата рождения', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Клиент'
