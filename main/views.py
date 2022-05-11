@@ -462,7 +462,8 @@ def unload_mortgage(request):
         if request.GET.get('bank') != 'all':
             result = result.filter(bank_id=request.GET.get('bank'))
 
-    result_list = [[policy.bank, policy.date_end, policy.client, policy.client.phone] for policy in result]
+    result_list = [[policy.bank, policy.date_end, policy.client, policy.client.birthday, policy.client.phone,
+                    policy.client.email] for policy in result]
 
     with open('./report/reporting_mortgage.csv', 'w', encoding='cp1251', newline='') as file:
         writer = csv.writer(file, delimiter=';')
@@ -471,7 +472,9 @@ def unload_mortgage(request):
                 'Банк',
                 'Дата окончания',
                 'Клиент',
+                'Дата рождения',
                 'Телефон',
+                'Почта',
             )
         )
         writer.writerows(result_list)
