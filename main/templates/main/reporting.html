@@ -88,7 +88,8 @@
             <th>Компания</th>
             <th>Канал продаж</th>
             <th>Премия</th>
-            <th>Входящее КВ</th>
+            <th>Входящее КВ %</th>
+            <th>Входящее КВ руб.</th>
             <th>Клиент</th>
             <th>Менеджер</th>
             <th>Оформлен</th>
@@ -96,7 +97,7 @@
             <th>Окончание действия</th>
             <th colspan="2">Действия</th>
         </tr>
-        {% for policy in result %}
+        {% for policy in policy_list %}
         <tr>
             <td>
                 {% if policy.status == 'newbiz' %}
@@ -113,6 +114,7 @@
             <td>{{ policy.channel }}</td>
             <td>{{ policy.sp }}</td>
             <td>{{ policy.commission }}%</td>
+            <td>{{ policy.commission_rur }}р.</td>
             <td>{{ policy.client }}</td>
             <td>{{ policy.user }}</td>
             <td>{{ policy.date_registration }}</td>

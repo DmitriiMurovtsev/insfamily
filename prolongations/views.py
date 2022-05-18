@@ -32,11 +32,15 @@ def upload_policy(request):
 @login_required(login_url='login')
 def status_change(request):
     # Статистика по пролонгации
-    if request.user.agent == False and request.user.admin == True or request.user.username == 'OSamohvalova':
+    if request.user.agent == False and request.user.admin == True or request.user.username == 'APuchkova':
         text = ''
         form = UploadFileForm()
         status = Status.objects.all()
         policy_base = PolicyBase.objects.filter(status__name='В работе').order_by('date_end')
+
+        mounths = {datetime.datetime.strptime(
+            policy.date_end[0:10], "%Y-%m-%d").strftime("%B") for policy in policy_base}
+
         if request.method == 'POST':
             form = UploadFileForm(request.POST, request.FILES)
             if form.is_valid():
@@ -94,6 +98,7 @@ def status_change(request):
         context = {
             'text': text,
             'form': form,
+            'mounths': mounths,
             'page': page,
             'policy_base': page.object_list,
             'paginator': paginator,

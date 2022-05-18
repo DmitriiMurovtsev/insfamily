@@ -239,6 +239,7 @@ def a_reporting(request):
         policy_for_accept.accept = True
         policy_for_accept.save()
     selected = {}
+    policy_list = []
     if request.GET.get('date_start') == None and request.GET.get('date_end') == None:
         date_start, date_end = get_start_end_date()
         date_start = date_start.strftime("%Y-%m-%d")
@@ -273,16 +274,40 @@ def a_reporting(request):
             selected['type'] = int(request.GET.get('Тип полиса'))
             result = result.filter(type=request.GET.get('Тип полиса'))
 
+    if len(result) > 0:
+        for policy in result:
+            commission_rur = '{:.2f}'.format(policy.commission / 100 * policy.sp)
+            temp_dict = {
+                'status': policy.status,
+                'type': policy.type,
+                'series': policy.series,
+                'number': policy.number,
+                'company': policy.company,
+                'channel': policy.channel,
+                'sp': policy.sp,
+                'commission': policy.commission,
+                'commission_rur': commission_rur,
+                'client': policy.client,
+                'user': policy.user,
+                'date_registration': policy.date_registration,
+                'date_start': policy.date_start,
+                'date_end': policy.date_end,
+                'id': policy.id,
+            }
+            print(policy.user)
+            policy_list.append(temp_dict)
+
     data = {
         'users': users,
         'companies': company,
         'channels': channel,
         'types': type,
-        'result': result,
+        'policy_list': policy_list,
         'date_start': date_start,
         'date_end': date_end,
         'selected': selected,
     }
+
     return render(request, 'main/reporting.html', data)
 
 
