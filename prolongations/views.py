@@ -111,7 +111,7 @@ def status_change(request):
 @login_required(login_url='login')
 def get_statistic(request):
     # Статистика по пролонгации
-    if request.user.agent == False and request.user.admin == True or request.user.username == 'OSamohvalova':
+    if request.user.agent == False and request.user.admin == True or request.user.username == 'APuchkova':
         type_statistic = {}
         status_statistic = {}
         status_all = Status.objects.all()
