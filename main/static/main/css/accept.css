@@ -104,7 +104,7 @@ pop_up_body {
 }
 
 input, select {
-    width: 120%;
+    width: 100%;
 }
 
 .str1 {

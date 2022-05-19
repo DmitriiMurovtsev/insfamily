@@ -190,7 +190,7 @@ def statistic(request):
     if request.user.admin:
         police_for_type = Policy.objects.filter(date_registration__lt=date_end,
                                                 date_registration__gte=date_start)
-        users = User.objects.filter(agent=False)
+        users = User.objects.filter(agent=False, admin=False)
         agents = User.objects.filter(agent=True)
         for user in users:
             temp_dict = {}
@@ -265,7 +265,7 @@ def a_reporting(request):
         date_start = request.GET.get('date_start')
         date_end = request.GET.get('date_end')
     if request.user.admin:
-        users = User.objects.all()
+        users = User.objects.filter(admin=False, agent=False)
         result = Policy.objects.filter(accept=False)
     else:
         users = User.objects.filter(id=request.user.id)
