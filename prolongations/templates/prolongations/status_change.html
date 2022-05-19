@@ -35,7 +35,6 @@
             <td>{{ policy.date_end|slice:":10" }}</td>
             <td>{{ policy.client }}</td>
             <td>
-                {% if user.admin == False %}
                 <select name="status">
                     {% for status in status %}
                         {% if status.name == 'В работе' %}
@@ -50,9 +49,6 @@
             <td>
                 <input type="submit" formmethod="post" formaction="{% url 'upload_policy' %}" value="Сохранить">
             </td>
-            {% else %}
-            {{ policy.status }}
-            {% endif %}
         </form>
     </tr>
     {% endfor %}
