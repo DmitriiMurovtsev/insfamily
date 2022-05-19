@@ -1,7 +1,10 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'prolongations/css/statistic.css' %}">
 
+{% for month, type_statistic in month_statistic.items %}
 <table class="table_2">
+    <br>
+    {{ month }}<br>
     <tr>
         <th>Тип полиса</th>
         <th>Всего залито</th>
@@ -10,17 +13,18 @@
         <th colspan="2">В отказе</th>
     </tr>
     {% for key, value in type_statistic.items %}
-    <tr>
-        <td>{{ key }}</td>
-        <td>{{ value.count }} шт.</td>
-        <td>{{ value.count_r }} шт.</td>
-        <td>{{ value.percent_count_r }}</td>
-        <td>{{ value.count_p }} шт.</td>
-        <td>{{ value.percent_count_p }}</td>
-        <td>{{ value.count_d }} шт.</td>
-        <td>{{ value.percent_count_d }}</td>
-    </tr>
+        <tr>
+            <td>{{ key }}</td>
+            <td>{{ value.count }} шт.</td>
+            <td>{{ value.count_r }} шт.</td>
+            <td>{{ value.percent_count_r }}</td>
+            <td>{{ value.count_p }} шт.</td>
+            <td>{{ value.percent_count_p }}</td>
+            <td>{{ value.count_d }} шт.</td>
+            <td>{{ value.percent_count_d }}</td>
+        </tr>
     {% endfor %}
+{% endfor %}
 </table>
 <br>
 <table class="table_2">

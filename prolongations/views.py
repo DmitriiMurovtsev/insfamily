@@ -38,9 +38,6 @@ def status_change(request):
         status = Status.objects.all()
         policy_base = PolicyBase.objects.filter(status__name='В работе').order_by('date_end')
 
-        mounths = {datetime.datetime.strptime(
-            policy.date_end[0:10], "%Y-%m-%d").strftime("%B") for policy in policy_base}
-
         if request.method == 'POST':
             form = UploadFileForm(request.POST, request.FILES)
             if form.is_valid():
@@ -98,7 +95,6 @@ def status_change(request):
         context = {
             'text': text,
             'form': form,
-            'mounths': mounths,
             'page': page,
             'policy_base': page.object_list,
             'paginator': paginator,
@@ -112,28 +108,41 @@ def status_change(request):
 def get_statistic(request):
     # Статистика по пролонгации
     if request.user.agent == False and request.user.admin == True or request.user.username == 'APuchkova':
-        type_statistic = {}
         status_statistic = {}
+        month_statistic = {}
         status_all = Status.objects.all()
         types = Type.objects.all()
         policy_d = PolicyBase.objects.exclude(status__name='Оформлен')
         policy_d = policy_d.exclude(status__name='В работе')
-        for type in types:
-            policy_type = PolicyBase.objects.filter(type=type)
-            if len(policy_type) > 0:
-                temp_dict = {}
-                count = len(policy_type)
-                count_r = len(policy_type.filter(status__name='В работе'))
-                count_p = len(policy_type.filter(status__name='Оформлен'))
-                count_d = count - count_p - count_r
-                temp_dict['count'] = count
-                temp_dict['count_r'] = count_r
-                temp_dict['percent_count_r'] = f'{format(float((count_r / count) * 100), ".1f")}%'
-                temp_dict['count_p'] = count_p
-                temp_dict['percent_count_p'] = f'{format(float((count_p / count) * 100), ".1f")}%'
-                temp_dict['count_d'] = count_d
-                temp_dict['percent_count_d'] = f'{format(float((count_d / count) * 100), ".1f")}%'
-                type_statistic[type] = temp_dict
+        months = {
+            datetime.datetime.strptime(policy.date_end[0:10], "%Y-%m-%d").month: datetime.datetime.strptime(
+                policy.date_end[0:10], "%Y-%m-%d").strftime("%B")
+            for policy in PolicyBase.objects.all()
+        }
+        for month_number, month in months.items():
+            date_start = datetime.date(datetime.datetime.today().year, month_number, 1)
+            if month_number != 12:
+                date_end = datetime.date(datetime.datetime.today().year, month_number+1, 1) - datetime.timedelta(days=1)
+            else:
+                date_end = datetime.date(datetime.datetime.today().year, month_number, 31)
+            type_statistic = {}
+            for type in types:
+                policy_type = PolicyBase.objects.filter(type=type, date_end__range=(date_start, date_end))
+                if len(policy_type) > 0:
+                    temp_dict = {}
+                    count = len(policy_type)
+                    count_r = len(policy_type.filter(status__name='В работе'))
+                    count_p = len(policy_type.filter(status__name='Оформлен'))
+                    count_d = count - count_p - count_r
+                    temp_dict['count'] = count
+                    temp_dict['count_r'] = count_r
+                    temp_dict['percent_count_r'] = f'{format(float((count_r / count) * 100), ".1f")}%'
+                    temp_dict['count_p'] = count_p
+                    temp_dict['percent_count_p'] = f'{format(float((count_p / count) * 100), ".1f")}%'
+                    temp_dict['count_d'] = count_d
+                    temp_dict['percent_count_d'] = f'{format(float((count_d / count) * 100), ".1f")}%'
+                    type_statistic[type] = temp_dict
+            month_statistic[month] = type_statistic
 
         for status in status_all:
             if status.name == 'Оформлен' or status.name == 'В работе':
@@ -147,8 +156,10 @@ def get_statistic(request):
         current_page = request.GET.get('page', 1)
         page = paginator.get_page(current_page)
 
+        print(months)
+
         context = {
-            'type_statistic': type_statistic,
+            'month_statistic': month_statistic,
             'status_statistic': status_statistic,
             'page': page,
             'policy_base': page.object_list,
