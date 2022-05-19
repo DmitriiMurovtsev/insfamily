@@ -122,9 +122,9 @@ def get_statistic(request):
         for month_number, month in months.items():
             date_start = datetime.date(datetime.datetime.today().year, month_number, 1)
             if month_number != 12:
-                date_end = datetime.date(datetime.datetime.today().year, month_number+1, 1) - datetime.timedelta(days=1)
+                date_end = datetime.date(datetime.datetime.today().year, month_number+1, 1)
             else:
-                date_end = datetime.date(datetime.datetime.today().year, month_number, 31)
+                date_end = datetime.date(datetime.datetime.today().year, 1, 1)
             type_statistic = {}
             for type in types:
                 policy_type = PolicyBase.objects.filter(type=type, date_end__range=(date_start, date_end))
