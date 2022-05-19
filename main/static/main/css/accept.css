@@ -50,3 +50,64 @@ input, select {
     width: calc(50px + (150 - 50) * ((100vw - 320px) / (1900 - 320)));
     height: calc(5px + (30 - 5) * ((100vw - 320px) / (1900 - 320)));
 }
+
+.pop_up {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: rgba(80, 80, 80, 0.7);
+    display: none;
+    z-index: 2;
+}
+
+.pop_up.active {
+    display: block;
+}
+
+.pop_up_container {
+    border-radius: 10px;
+    width: 500px;
+    margin: 0 auto;
+    left: 0;
+    top: 0;
+    background-color: #FFFFFF;
+    transform: translate(0, 25%);
+}
+
+.pop_up_body input:focus {
+    outline: none;
+}
+
+.pop_up_body button {
+    cursor: pointer;
+    margin: 15px;
+}
+
+.pop_up_close {
+    cursor: pointer;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+pop_up_body {
+    background-color: #FFFFFF;
+}
+
+.col {
+    width: 40%;
+    height: 80%;
+    padding: 5px;
+    float: left;
+}
+
+input, select {
+    width: 120%;
+}
+
+.str1 {
+    clear: left;
+}
+

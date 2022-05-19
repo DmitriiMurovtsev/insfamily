@@ -235,9 +235,26 @@ def statistic(request):
 def a_reporting(request):
     # Просмотр и выгрузка сверок
     if request.method == 'POST':
-        policy_for_accept = Policy.objects.get(id=request.POST.get('id'))
-        policy_for_accept.accept = True
-        policy_for_accept.save()
+        if 'id_policy_for_accept' in request.POST:
+            policy_for_accept = Policy.objects.get(id=request.POST.get('id_policy_for_accept'))
+            policy_for_accept.accept = True
+            policy_for_accept.save()
+        else:
+            policy_for_edit = Policy.objects.get(id=request.POST.get('id_policy_for_edit'))
+            policy_for_edit.type = Type.objects.get(id=request.POST.get('type'))
+            policy_for_edit.status = request.POST.get('Тип_продажи')
+            policy_for_edit.number = request.POST.get('number')
+            policy_for_edit.series = request.POST.get('series')
+            policy_for_edit.company = Company.objects.get(id=request.POST.get('company'))
+            policy_for_edit.channel = Channel.objects.get(id=request.POST.get('channel'))
+            policy_for_edit.sp = float(request.POST.get('sp').replace(',', '.'))
+            policy_for_edit.commission = float(request.POST.get('commission').replace(',', '.'))
+            policy_for_edit.date_registration = request.POST.get('date_registration')
+            policy_for_edit.date_start = request.POST.get('date_start')
+            policy_for_edit.date_end = request.POST.get('date_end')
+            policy_for_edit.user = User.objects.get(id=request.POST.get('user'))
+            policy_for_edit.save()
+
     selected = {}
     policy_list = []
     if request.GET.get('date_start') == None and request.GET.get('date_end') == None:
@@ -290,11 +307,13 @@ def a_reporting(request):
                 'client': policy.client,
                 'user': policy.user,
                 'date_registration': policy.date_registration,
+                'date_registration_for_edit': policy.date_registration.strftime("%Y-%m-%d"),
                 'date_start': policy.date_start,
+                'date_start_for_edit': policy.date_start.strftime("%Y-%m-%d"),
                 'date_end': policy.date_end,
+                'date_end_for_edit': policy.date_end.strftime("%Y-%m-%d"),
                 'id': policy.id,
             }
-            print(policy.user)
             policy_list.append(temp_dict)
 
     data = {
