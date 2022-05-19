@@ -156,8 +156,6 @@ def get_statistic(request):
         current_page = request.GET.get('page', 1)
         page = paginator.get_page(current_page)
 
-        print(months)
-
         context = {
             'month_statistic': month_statistic,
             'status_statistic': status_statistic,
