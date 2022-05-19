@@ -14,7 +14,7 @@ from main.models import Client, Type, Company
 
 
 # Установка родной локации для вывода кириллицей
-locale.setlocale(locale.LC_ALL, "ru_RU")
+locale.setlocale(locale.LC_ALL, "")
 
 
 @login_required(login_url='login')
