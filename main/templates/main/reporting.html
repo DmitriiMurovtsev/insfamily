@@ -95,7 +95,9 @@
             <th>Оформлен</th>
             <th>Начало действия</th>
             <th>Окончание действия</th>
+            {% if user.admin == True %}
             <th colspan="2">Действия</th>
+            {% endif %}
         </tr>
         {% for policy in policy_list %}
         <tr>
@@ -120,6 +122,7 @@
             <td>{{ policy.date_registration }}</td>
             <td>{{ policy.date_start }}</td>
             <td>{{ policy.date_end }}</td>
+            {% if user.admin == True %}
             <td>
                 <div class="button" data-path="{{ policy.id }}">
                     <a href="#" id="open_pop_up">Редактировать</a>
@@ -132,7 +135,9 @@
                     <button>Провести</button>
                 </form>
             </td>
+            {% endif %}
         </tr>
+        {% if user.admin == True %}
         <div class="pop_up" id="{{ policy.id }}">
             <div class="pop_up_container">
                 <div class="pop_up_body" id="pop_up_body">
@@ -282,6 +287,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         {% endfor %}
         </table>
 
