@@ -517,7 +517,7 @@ def unload_mortgage(request):
     # Выгрузка статистики в файл csv
     if request.user.admin:
         date_end = datetime.datetime.strptime(f'{request.GET.get("year")}-{request.GET.get("month")}-01', '%Y-%m-%d')
-        result = MortgagePolicy.objects.filter(date_end=date_end)
+        result = MortgagePolicy.objects.filter(date_end=date_end, date_at__gte=request.GET.get('date_at'))
         if request.GET.get('bank') != 'all':
             result = result.filter(bank_id=request.GET.get('bank'))
 
@@ -618,6 +618,7 @@ def mortgage(request):
         text = 'Полис добавлен'
     if request.user.admin:
         mortgage_policy = MortgagePolicy.objects.all()
+        users = User.objects.filter(admin=False, agent=False)
     else:
         mortgage_policy = MortgagePolicy.objects.filter(user_id=request.user.id)
 
