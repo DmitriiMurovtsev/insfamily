@@ -40,11 +40,13 @@
                 <th>Продано шт.</th>
                 <th>Сборы</th>
                 {% for user, value in user_statistic.items %}
+                {% if user.is_active %}
                 <tr>
                     <td class="type">{{ user }}</td>
                     <td>{{ value.count }}</td>
                     <td>{{ value.sp }}</td>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </table>
             </td>
