@@ -377,7 +377,7 @@ def addpolicy(request):
                 'date_registration': request.POST.get('date_registration'),
                 'date_start': request.POST.get('date_start'),
                 'date_end': request.POST.get('date_end'),
-                'commission': request.POST.get('commission'),
+                'commission': float(request.POST.get('commission').replace(',', '.')),
                 'sp': float(request.POST.get('sp').replace(',', '.')),
                 'status': request.POST.get('Тип продажи'),
                 }
@@ -598,6 +598,7 @@ def upload_mortgage(request):
 @login_required(login_url='login')
 def mortgage(request):
     text = ''
+    users = ''
     if request.method == 'POST':
         client, created = Client.objects.get_or_create(
             first_name=request.POST.get('first_name'),
@@ -681,6 +682,7 @@ def mortgage(request):
         'statistic_2023': statistic_2023,
         'statistic_2022': statistic_2022,
         'text': text,
+        'users': users,
     }
 
     return render(request, 'main/Mortgage.html', context)
