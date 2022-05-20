@@ -291,6 +291,24 @@
         {% endfor %}
         </table>
 
+<br>---<br>
+
+{% if page.has_previous %}
+    <a href="{{ link }}page={{ page.previous_page_number }}">Назад</a>
+{% endif %}
+
+{% for p in paginator.page_range %}
+    {% if p != page.number %}
+        <a href="{{ link }}page={{ p }}">{{ p }}</a>
+    {% else %}
+        <b>{{ p }}</b>
+    {% endif %}
+{% endfor %}
+
+{% if page.has_next %}
+    <a href="{{ link }}page={{ page.next_page_number }}">Далее</a>
+{% endif %}
+
 <script>
     const openPopUp = document.querySelectorAll('.button');
     const closePopUp = document.querySelectorAll('.pop_up_close');

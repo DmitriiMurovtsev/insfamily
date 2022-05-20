@@ -1,6 +1,7 @@
 import datetime
 import csv
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from .models import Policy, Client, Channel, Company, User, Type, Bso, MortgagePolicy, Bank, Commission
@@ -316,15 +317,27 @@ def a_reporting(request):
             }
             policy_list.append(temp_dict)
 
+    # ссылка с параметрами для пагинации
+    link = '?'
+    for key, value in request.GET.items():
+        link = link + f'{key}={value}&'
+
+    paginator = Paginator(policy_list, 15)
+    current_page = request.GET.get('page', 1)
+    page = paginator.get_page(current_page)
+
     data = {
         'users': users,
         'companies': company,
         'channels': channel,
         'types': type,
-        'policy_list': policy_list,
+        'policy_list': page.object_list,
         'date_start': date_start,
         'date_end': date_end,
         'selected': selected,
+        'page': page,
+        'link': link,
+        'paginator': paginator,
     }
 
     return render(request, 'main/reporting.html', data)
@@ -815,15 +828,27 @@ def accept(request):
             selected['type'] = int(request.GET.get('Тип полиса'))
             result = result.filter(type=request.GET.get('Тип полиса'))
 
+    # ссылка с параметрами для пагинации
+    link = '?'
+    for key, value in request.GET.items():
+        link = link + f'{key}={value}&'
+
+    paginator = Paginator(result, 15)
+    current_page = request.GET.get('page', 1)
+    page = paginator.get_page(current_page)
+
     data = {
         'users': users,
         'companies': company,
         'channels': channel,
         'types': type,
-        'result': result,
+        'result': page.object_list,
+        'paginator': paginator,
+        'page': page,
         'date_start': date_start,
         'date_end': date_end,
         'selected': selected,
+        'link': link,
     }
     return render(request, 'main/accept.html', data)
 
