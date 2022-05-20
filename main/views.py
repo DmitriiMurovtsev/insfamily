@@ -491,7 +491,7 @@ def policy_edit(request):
             policy.series = request.POST.get('series')
             policy.company = Company.objects.get(id=request.POST.get('company'))
             policy.channel = Channel.objects.get(id=request.POST.get('channel'))
-            policy.sp = request.POST.get('sp')
+            policy.sp = float(request.POST.get('sp').replace(',', '.'))
             policy.date_start = request.POST.get('date_start')
             policy.date_end = request.POST.get('date_end')
             policy.save()

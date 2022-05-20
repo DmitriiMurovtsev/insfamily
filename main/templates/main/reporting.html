@@ -108,6 +108,8 @@
                 Пролонгация
                 {% elif policy.status == 'transition' %}
                 Переход
+                {% elif policy.status == 'addendum' %}
+                Аддендум
                 {% endif %}
             </td>
             <td>{{ policy.type }}</td>
