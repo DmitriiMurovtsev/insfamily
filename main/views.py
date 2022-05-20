@@ -320,6 +320,8 @@ def a_reporting(request):
     # ссылка с параметрами для пагинации
     link = '?'
     for key, value in request.GET.items():
+        if key == 'page':
+            continue
         link = link + f'{key}={value}&'
 
     paginator = Paginator(policy_list, 15)
@@ -831,9 +833,11 @@ def accept(request):
     # ссылка с параметрами для пагинации
     link = '?'
     for key, value in request.GET.items():
+        if key == 'page':
+            continue
         link = link + f'{key}={value}&'
 
-    paginator = Paginator(result, 15)
+    paginator = Paginator(result, 3)
     current_page = request.GET.get('page', 1)
     page = paginator.get_page(current_page)
 
