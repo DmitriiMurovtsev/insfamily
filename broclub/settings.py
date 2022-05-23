@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
     'main',
     'prolongations',
+    'agents',
 ]
 
 MIDDLEWARE = [

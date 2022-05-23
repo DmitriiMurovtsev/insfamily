@@ -1,0 +1,43 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'agents/css/get_statistic.css' %}">
+
+<form action="" method="get">
+    <select name="agent" id="">
+        <option value="all">Все</option>
+        {% for agent in agents %}
+        <option value="{{ agent.id }}">{{ agent }}</option>
+        {% endfor %}
+    </select>
+    <button>Просмотр</button>
+</form>
+<form action="" method="get">
+    <input type="text" name="search">
+    <button>Найти</button>
+    {{ text_search }}
+</form>
+<br>
+<table>
+    <tr>
+        <th>Серия</th>
+        <th>Номер</th>
+        <th>Дата создания</th>
+        <th>Дата выдачи агенту</th>
+        <th>Агент</th>
+    </tr>
+    {% for bso in bso %}
+    <tr>
+        <td>{{ bso.series }}</td>
+        <td>{{ bso.number }}</td>
+        <td>{{ bso.date_add }}</td>
+        <td>{{ bso.date_at }}</td>
+        <td>{{ bso.agent }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Добавление агента
+{% endblock %}

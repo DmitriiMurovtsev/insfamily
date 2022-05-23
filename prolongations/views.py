@@ -1,11 +1,12 @@
 import datetime
 import locale
+import csv
 
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-import csv
+from django.db.models import Q
 
 from .forms import UploadFileForm
 
@@ -37,6 +38,13 @@ def status_change(request):
         form = UploadFileForm()
         status = Status.objects.all()
         policy_base = PolicyBase.objects.filter(status__name='В работе').order_by('date_end')
+
+        if 'search' in request.GET:
+            policy_base = policy_base.filter(
+                Q(client__first_name__iregex=request.GET.get('search')) |
+                Q(client__middle_name__iregex=request.GET.get('search')) |
+                Q(client__last_name__iregex=request.GET.get('search'))
+            )
 
         if request.method == 'POST':
             form = UploadFileForm(request.POST, request.FILES)

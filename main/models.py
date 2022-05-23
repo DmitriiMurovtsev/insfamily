@@ -34,7 +34,6 @@ class User(AbstractUser):
     admin = models.BooleanField(verbose_name='Админ', default=False)
     middle_name = models.CharField(max_length=100, verbose_name='Отчество', blank=True)
 
-
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
@@ -127,25 +126,6 @@ class Policy(models.Model):
         return f'{self.series} {self.number} {self.company}'
 
 
-class Bso(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.DO_NOTHING, related_name='bso',
-                                verbose_name='Страховая компания', default='')
-    series = models.CharField(max_length=20, verbose_name='Серия', blank=True)
-    number = models.CharField(max_length=30, verbose_name='Номер')
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='bso', verbose_name='Агент',
-                             blank=True, null=True)
-    date_at = models.DateField(auto_now=True, verbose_name='Дата выдачи')
-    status = models.CharField(max_length=30, verbose_name='Статус', default='В работе')
-
-    class Meta:
-        verbose_name = 'БСО'
-        verbose_name_plural = 'БСО'
-        ordering = ['status']
-
-    def __str__(self):
-        return f'{self.series} {self.number}'
-
-
 class MortgagePolicy(models.Model):
     date_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     date_end = models.DateField(verbose_name='Дата окончания полиса')
@@ -188,4 +168,3 @@ class Commission(models.Model):
 
     def __str__(self):
         return f'{self.channel} с {self.date_start}'
-

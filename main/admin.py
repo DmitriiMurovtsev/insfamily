@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Company, Channel, Client, Policy, Type, Bso, Bank, MortgagePolicy
+from .models import User, Company, Channel, Client, Policy, Type, Bank, MortgagePolicy
 
 
 class PolicyInline(admin.TabularInline):
@@ -16,11 +16,6 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Policy)
 class PolicyAdmin(admin.ModelAdmin):
     list_display = ['id', 'number', 'client', 'user', 'company', 'channel']
-
-
-@admin.register(Bso)
-class PolicyBso(admin.ModelAdmin):
-    list_display = ['id', 'series', 'number', 'date_at', 'user']
 
 
 @admin.register(Company)

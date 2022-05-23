@@ -32,10 +32,11 @@
             <a href="{% url 'reporting' %}"><li>Сверки</li></a>
             <a href="{% url 'accept' %}"><li>Проведено</li></a>
         </ul>
-        {% if user.admin == True %}
+        {% if user.username == 'DMurovtsev' %}
         <ul class="ul">
-            <a href="{% url 'bso_agent' %}"><li>Статистика БСО</li></a>
-            <a href="{% url 'debitor' %}"><li>Дебиторка</li></a>
+            <a href="{% url 'add_agent' %}"><li>Добавить агента</li></a>
+            <a href="{% url 'issuance_bso' %}"><li>Выдача БСО</li></a>
+            <a href="{% url 'get_statistic' %}"><li>Статистика БСО</li></a>
         </ul>
         <ul class="ul">
             <a href="{% url 'commission' %}"><li>Входящее КВ</li></a>
