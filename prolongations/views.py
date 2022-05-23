@@ -20,7 +20,7 @@ locale.setlocale(locale.LC_ALL, "")
 @login_required(login_url='login')
 def upload_policy(request):
     # Изменение статуса полиса
-    if request.user.agent == False and request.user.admin == True or request.user.username == 'OSamohvalova':
+    if request.user.agent == False and request.user.admin == True or request.user.username == 'APuchkova':
         if request.method == 'POST':
             policy_up = PolicyBase.objects.get(id=request.POST.get('policy'))
             policy_up.status = Status.objects.get(id=request.POST.get('status'))

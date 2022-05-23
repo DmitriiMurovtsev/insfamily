@@ -598,7 +598,7 @@ def upload_mortgage(request):
 @login_required(login_url='login')
 def mortgage(request):
     text = ''
-    users = ''
+    users_statistic = {}
     if request.method == 'POST':
         client, created = Client.objects.get_or_create(
             first_name=request.POST.get('first_name'),
@@ -619,7 +619,14 @@ def mortgage(request):
         text = 'Полис добавлен'
     if request.user.admin:
         mortgage_policy = MortgagePolicy.objects.all()
-        users = User.objects.filter(admin=False, agent=False)
+        date_target = datetime.datetime.today().date()
+        for i in range(1, 7):
+            policyes = MortgagePolicy.objects.filter(date_at=date_target)
+            if len(policyes) > 0:
+                users_set = {policy.user for policy in policyes}
+                temp_dict = {user: len(MortgagePolicy.objects.filter(user=user)) for user in users_set}
+                users_statistic[date_target] = temp_dict
+            date_target = date_target - datetime.timedelta(days=-1)
     else:
         mortgage_policy = MortgagePolicy.objects.filter(user_id=request.user.id)
 
@@ -676,13 +683,14 @@ def mortgage(request):
                 date_end__lt=datetime.datetime.strptime(f'2024-{"0" + str(i - 11)}-01', '%Y-%m-%d')))
 
     banks = Bank.objects.all()
+
     context = {
         'banks': banks,
         'mortgage_policy': mortgage_policy,
         'statistic_2023': statistic_2023,
         'statistic_2022': statistic_2022,
         'text': text,
-        'users': users,
+        'users_statistic': users_statistic,
     }
 
     return render(request, 'main/Mortgage.html', context)
