@@ -39,9 +39,9 @@ class Agent(models.Model):
 class PolicyAgents(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.DO_NOTHING, verbose_name='Агент', related_name='policy')
     type = models.ForeignKey(Type, verbose_name='Тип полиса', on_delete=models.DO_NOTHING)
-    company = models.ForeignKey(Company, verbose_name='Тип полиса', on_delete=models.DO_NOTHING)
     policy = models.CharField(max_length=50, verbose_name='Полис')
     client = models.CharField(max_length=100, verbose_name='Страхователь')
+    type_client = models.CharField(max_length=20, verbose_name='Тип страхователя')
     agent_commission = models.DecimalField(decimal_places=2, max_digits=5)
     agent_commission_rub = models.DecimalField(decimal_places=2, max_digits=8)
     date_registration = models.DateField(verbose_name='Дата подписания договора')
@@ -49,6 +49,7 @@ class PolicyAgents(models.Model):
     date_end = models.DateField(verbose_name='Дата окончания действия')
     price = models.DecimalField(decimal_places=2, max_digits=8, verbose_name='Общая премия')
     type_pay = models.CharField(max_length=20, verbose_name='Тип оплаты')
+    status = models.CharField(max_length=20, verbose_name='Статус полиса', default='reconciliation')
 
     class Meta:
         verbose_name = 'Полис'

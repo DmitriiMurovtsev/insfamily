@@ -550,7 +550,7 @@ def unload_mortgage(request):
 @login_required(login_url='login')
 def upload_mortgage(request):
     # Загрузка заявок ипотечных заявок
-    text = ',e'
+    text = ''
     form = UploadFileForm()
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)

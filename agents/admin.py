@@ -14,4 +14,4 @@ class BsoAdmin(admin.ModelAdmin):
 
 @admin.register(PolicyAgents)
 class PolicyAgentsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'policy', 'type', 'company', 'agent']
+    list_display = ['id', 'policy', 'agent']

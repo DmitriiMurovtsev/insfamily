@@ -3,34 +3,178 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'agents/css/issuance_bso.css' %}">
 
-<form method="post">
-    {% csrf_token %}
-    Компания:
-    <select name="company">
-        {% for company in company %}
-        <option value="{{ company.id }}">{{ company }}</option>
-        {% endfor %}
-    </select>
-    Агент:
-    <select name="agent" id="">
-        {% for agent in agents %}
-        <option value="{{ agent.id }}">{{ agent }}</option>
-        {% endfor %}
-    </select>
-    Серия: <input type="text" name="series">
-    Номер: <input type="text" name="number">
-    Диапазон: <input type="number" value="1" name="range">
-    <button>Выдать</button>
-</form>
+<div class="pop_up" id="1">
+    <div class="pop_up_container">
+        <div class="pop_up_body">
+            <form class="issuance_bso" method="post">
+            {% csrf_token %}
+                <table>
+                    <tr>
+                        <td>Агент:</td>
+                        <td>
+                            <select name="agent" id="">
+                            {% for agent in agents %}
+                            <option value="{{ agent.id }}">{{ agent }}</option>
+                            {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Компания:</td>
+                        <td>
+                            <select name="company">
+                            {% for company in company %}
+                            <option value="{{ company.id }}">{{ company }}</option>
+                            {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Серия:</td>
+                        <td>
+                            <input type="text" name="series">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Номер:</td>
+                        <td>
+                            <input type="text" name="number">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Диапазон:</td>
+                        <td>
+                            <input type="number" value="1" name="range">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button class="button">Выдать</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            <div class="pop_up_close" data-close="1">&#10006</div>
+        </div>
+    </div>
+</div>
 
-<br>
-{{ text }}<br>
-{% if text_errors != 0 %}
-{{ text_errors }}:<br>
-{% for policy, agent in errors.items %}
-{{ policy }} уже у агента {{ agent }}<br>
-{% endfor %}
+<table>
+    <tr>
+        <td>Агент</td>
+        <td>
+            <form action="" method="get">
+            <select name="agent">
+                <option value="all">Все</option>
+                {% for agent in agents %}
+                <option value="{{ agent.id }}">{{ agent }}</option>
+                {% endfor %}
+            </select>
+            <button class="button">Просмотр</button>
+            </form>
+        </td>
+        <td>Номер</td>
+        <td>
+            <form action="" method="get">
+            <input type="text" name="search">
+            <button class="button">Найти</button>
+            {{ text_search }}
+            </form>
+        </td>
+        <td>
+            <div class="button" data-path="1">
+    <a href="#">Выдать БСО</a>
+</div>
+        </td>
+        <td>
+            {{ text_bso }}
+            {% if text_errors_bso != 0 %}
+                {{ text_errors_bso }}
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+<table class="table_2">
+    <tr>
+        <th>Серия</th>
+        <th>Номер</th>
+        <th>Дата создания</th>
+        <th>Дата выдачи агенту</th>
+        <th>Агент</th>
+    </tr>
+    {% for bso in bso %}
+    <tr id="{{ bso.id }}">
+        <td>{{ bso.series }}</td>
+        <td>{{ bso.number }}</td>
+        <td>{{ bso.date_add }}</td>
+        <td class="date-at" data-path="{{ bso.id }}" storage_time="{{ bso.agent.storage_time }}">{{ bso.date_at }}</td>
+        <td>{{ bso.agent }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>---<br>
+
+{% if page.has_previous %}
+    <a href="{{ link }}page={{ page.previous_page_number }}" class="button">Назад</a>
 {% endif %}
+
+{% for p in paginator.page_range %}
+    {% if p != page.number %}
+        <a href="{{ link }}page={{ p }}" class="button">{{ p }}</a>
+    {% else %}
+        <b class="button check">{{ p }}</b>
+    {% endif %}
+{% endfor %}
+
+{% if page.has_next %}
+    <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
+{% endif %}
+
+
+<script>
+    const dateAt = document.querySelectorAll('.date-at');
+    var i = 0;
+    for (i = 0; i < dateAt.length; ++i) {
+        day = dateAt[i].textContent.slice(0, 2);
+        day_now = new Date().getDate();
+        storage_time = dateAt[i].getAttribute('storage_time');
+        if ((storage_time - (day_now - day)) <= 2) {
+            let path = dateAt[i].getAttribute('data-path');
+            document.getElementById(path).classList.add('orange');
+        }
+        if ((storage_time - (day_now - day)) <= 0) {
+            let path = dateAt[i].getAttribute('data-path');
+            document.getElementById(path).classList.add('red');
+            document.getElementById(path).classList.remove('orange');
+        }
+    }
+</script>
+<script>
+    const openPopUp = document.querySelectorAll('.button');
+    const closePopUp = document.querySelectorAll('.pop_up_close');
+    const popUp = document.querySelectorAll('.pop_up');
+
+    openPopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-path');
+
+            popUp.forEach((el) => {
+                el.classList.remove('active');
+            })
+
+            document.getElementById(path).classList.add('active');
+        });
+    });
+
+    closePopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-close');
+            document.getElementById(path).classList.remove('active');
+        });
+    });
+</script>
 
 {% endblock %}
 {% block title %}

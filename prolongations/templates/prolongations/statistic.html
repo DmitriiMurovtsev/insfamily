@@ -29,19 +29,19 @@
 <br>---<br>
 
 {% if page.has_previous %}
-    <a href="?page={{ page.previous_page_number }}">Назад</a>
+    <a href="?page={{ page.previous_page_number }}" class="button">Назад</a>
 {% endif %}
 
 {% for p in paginator.page_range %}
     {% if p != page.number %}
-        <a href="?page={{ p }}">{{ p }}</a>
+        <a href="?page={{ p }}" class="button">{{ p }}</a>
     {% else %}
-        <b>{{ p }}</b>
+        <b class="button check">{{ p }}</b>
     {% endif %}
 {% endfor %}
 
 {% if page.has_next %}
-    <a href="?page={{ page.next_page_number }}">Далее</a>
+    <a href="?page={{ page.next_page_number }}" class="button">Далее</a>
 {% endif %}
 
 {% endblock %}

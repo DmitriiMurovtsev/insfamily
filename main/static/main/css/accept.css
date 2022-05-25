@@ -111,3 +111,50 @@ input, select {
     clear: left;
 }
 
+.button {
+    border: 1px solid #333; /* Рамка */
+    display: inline-block;
+    background: #FFFFFF;
+    padding: 5px 15px; /* Поля */
+    color: #000; /* Цвет текста */
+  }
+.button:hover {
+    box-shadow: 0 0 5px rgba(0,0,0,0.3); /* Тень */
+    background: linear-gradient(to bottom, #fcfff4, #e9e9ce); /* Градиент */
+    color: #000; /* Цвет текста */
+   }
+
+   a {
+    text-decoration: none;
+        color: #000; /* Цвет текста */
+}
+
+.form_1 {
+    padding: 20px;
+    font-size: calc(6px + (12 - 6) * ((100vw - 320px) / (1900 - 320)));
+
+}
+
+.button {
+    border: 1px solid #333; /* Рамка */
+    border-radius: 5px;
+    font-size: 12px;
+    display: inline-block;
+    padding: 5px 15px; /* Поля */
+    color: #000; /* Цвет текста */
+  }
+.button:hover {
+    box-shadow: 0 0 5px rgba(0,0,0,0.3); /* Тень */
+    background: linear-gradient(to bottom, #fcfff4, #e9e9ce); /* Градиент */
+    color: #000; /* Цвет текста */
+   }
+
+  .check {
+    background: #808080;
+  }
+
+
+a {
+    text-decoration: none;
+        color: #000; /* Цвет текста */
+}

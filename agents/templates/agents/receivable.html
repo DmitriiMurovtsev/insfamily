@@ -1,0 +1,237 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'agents/css/issuance_bso.css' %}">
+
+<div class="pop_up" id="1">
+    <div class="pop_up_container">
+        <div class="pop_up_body">
+            <form class="upload" action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <table class="upload">
+                <tr>
+                    <td>
+                        <select name="agent" id="">
+                        {% for agent in agents %}
+                        <option value="{{ agent.id }}">{{ agent }}</option>
+                        {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="file" name="file" id="id_file">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="button" type="submit" value="Сохранить">
+                    </td>
+                </tr>
+                </table>
+                </form>
+            <div class="pop_up_close" data-close="1" id="pop_up_close">&#10006</div>
+        </div>
+    </div>
+</div>
+<div class="pop_up" id="2">
+        <div class="pop_up_container">
+            <div class="pop_up_body">
+                <form class="add_agent" method="post">
+                    {% csrf_token %}
+                    <table>
+                        <tr>
+                            <td>Наименование агента</td>
+                            <td>Дней хранения бланков</td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" name="name"><br></td>
+                            <td><input type="number" name="storage_time"></td>
+                        </tr>
+                    </table>
+                    <button class="button">Сохранить</button>
+                </form>
+                <div class="pop_up_close" data-close="2">&#10006</div>
+            </div>
+        </div>
+    </div>
+
+<table>
+    <form method="get">
+    <tr>
+        <th>Статус</th>
+        <th>Агент</th>
+        <th colspan="2">Дата оформления</th>
+    </tr>
+    <tr>
+        <td>
+            <select name="status">
+                {% if selected.status == 'receivable' %}
+                <option value="all">Все</option>
+                <option value="receivable" selected>Дебиторка</option>
+                <option value="reconciliation">Сверки</option>
+                <option value="accept">Акцепт</option>
+                {% elif selected.status == 'reconciliation' %}
+                <option value="all">Все</option>
+                <option value="receivable">Дебиторка</option>
+                <option value="reconciliation" selected>Сверки</option>
+                <option value="accept">Акцепт</option>
+                {% elif selected.status == 'accept' %}
+                <option value="all">Все</option>
+                <option value="receivable">Дебиторка</option>
+                <option value="reconciliation">Сверки</option>
+                <option value="accept" selected>Акцепт</option>
+                {% else %}
+                <option value="all" selected>Все</option>
+                <option value="receivable">Дебиторка</option>
+                <option value="reconciliation">Сверки</option>
+                <option value="accept">Акцепт</option>
+                {% endif %}
+            </select>
+        </td>
+        <td>
+            <select name="agent">
+                <option value="all">Все</option>
+                {% for agent in agents %}
+                {% if selected.agent == agent.id %}
+                <option value="{{ agent.id }}" selected>{{ agent }}</option>
+                {% else %}
+                <option value="{{ agent.id }}">{{ agent }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </td>
+        <td><input type="date" name="date_start" value="{{ date_start }}"></td>
+        <td><input type="date" name="date_end" value="{{ date_end }}"></td>
+        <td><button class="button">Фильтр</button></td>
+        </form>
+        <td>
+            <form method="get">
+                <input name="search" type="text">
+                <button class="button">Поиск</button>
+            </form>
+        </td>
+        <td>
+            <div class="button" data-path="1">
+        <a href="#" id="open_pop_up">Загрузить продажи</a>
+    </div>
+            {{ text }}
+            {% if text_errors != 0 %}
+            {{ text_errors }}
+            {% endif %}
+        </td>
+        <td>
+            <div class="button" data-path="2">
+    <a href="#">Добавить агента</a>
+</div>
+            {{ text_agent }}
+        </td>
+    </tr>
+</table>
+
+<table class="table_2">
+    <tr>
+        <th>Агент</th>
+        <th>Тип полиса</th>
+        <th>Полис</th>
+        <th>Тип страхователя</th>
+        <th>Страхователь</th>
+        <th>КВ агента %</th>
+        <th>КВ агента руб.</th>
+        <th>Дата подписания</th>
+        <th>Начало</th>
+        <th>Окончание</th>
+        <th>Общая премия</th>
+        <th>Тип оплаты</th>
+        <th colspan="2">Статус полиса</th>
+    </tr>
+    {% for policy in policy %}
+    <tr>
+        <td>{{ policy.agent }}</td>
+        <td>{{ policy.type }}</td>
+        <td>{{ policy.policy }}</td>
+        <td>{{ policy.type_client }}</td>
+        <td>{{ policy.client }}</td>
+        <td>{{ policy.agent_commission }}</td>
+        <td>{{ policy.agent_commission_rub }}</td>
+        <td>{{ policy.date_registration }}</td>
+        <td>{{ policy.date_start }}</td>
+        <td>{{ policy.date_end }}</td>
+        <td>{{ policy.price }}</td>
+        <td>{{ policy.type_pay}}</td>
+        <form method="post">
+            {% csrf_token %}
+            <td>
+                <select name="status_for_change">
+                    {% if policy.status == 'receivable' %}
+                    <option value="receivable" selected>Дебиторка</option>
+                    <option value="reconciliation">Сверки</option>
+                    <option value="accept">Акцепт</option>
+                    {% elif policy.status == 'reconciliation' %}
+                    <option value="receivable">Дебиторка</option>
+                    <option value="reconciliation" selected>Сверки</option>
+                    <option value="accept">Акцепт</option>
+                    {% elif policy.status == 'accept' %}
+                    <option value="receivable">Дебиторка</option>
+                    <option value="reconciliation">Сверки</option>
+                    <option value="accept" selected>Акцепт</option>
+                    {% endif %}
+                </select>
+            </td>
+            <td>
+                <input hidden value="{{ policy.id }}" type="text" name="if_policy_for_change">
+                <button class="button">Сохранить</button>
+            </td>
+        </form>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>---<br>
+
+{% if page.has_previous %}
+    <a href="{{ link }}page={{ page.previous_page_number }}" class="button">Назад</a>
+{% endif %}
+
+{% for p in paginator.page_range %}
+    {% if p != page.number %}
+        <a href="{{ link }}page={{ p }}" class="button">{{ p }}</a>
+    {% else %}
+        <b class="button check">{{ p }}</b>
+    {% endif %}
+{% endfor %}
+
+{% if page.has_next %}
+    <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
+{% endif %}
+
+
+<script>
+    const openPopUp = document.querySelectorAll('.button');
+    const closePopUp = document.querySelectorAll('.pop_up_close');
+    const popUp = document.querySelectorAll('.pop_up');
+
+    openPopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-path');
+
+            popUp.forEach((el) => {
+                el.classList.remove('active');
+            })
+
+            document.getElementById(path).classList.add('active');
+        });
+    });
+
+    closePopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-close');
+            document.getElementById(path).classList.remove('active');
+        });
+    });
+</script>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Добавление агента
+{% endblock %}

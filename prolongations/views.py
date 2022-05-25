@@ -57,11 +57,13 @@ def status_change(request):
                 with open('prolongations/file/date.csv', 'r', encoding='cp1251', newline='') as file_1:
                     reader = csv.DictReader(file_1, delimiter=';')
                     for row in reader:
+                        if len(row['Дата рождения']) > 0:
+                            birthday = datetime.datetime.strptime(row['Дата рождения'], "%d.%m.%Y")
                         client, created = Client.objects.get_or_create(
                             first_name=row['Имя'],
                             middle_name=row['Отчество'],
                             last_name=row['Фамилия'],
-                            birthday=datetime.datetime.strptime(row['Дата рождения'], "%d.%m.%Y"),
+                            birthday=birthday,
                             defaults={
                                 'phone': row['Телефон'],
                                 'email': row['Почта'],

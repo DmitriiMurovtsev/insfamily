@@ -5,18 +5,17 @@
 
 {% if user.username == 'DMurovtsev' %}
 <br>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form }}
-        <button type="submit">Загрузить</button>
-        {{ text }}
+    <form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="file" id="id_file">
+    <button type="submit">Отправить</button>
     </form>
 <br>
 {% endif %}
 
 <form action="" method="get">
     <input type="text" name="search">
-    <button>Найти</button>
+    <button class="button">Найти</button>
     {{ text_search }}
 </form>
 
@@ -61,19 +60,19 @@
 <br>---<br>
 
 {% if page.has_previous %}
-    <a href="?page={{ page.previous_page_number }}">Назад</a>
+    <a href="?page={{ page.previous_page_number }}" class="button">Назад</a>
 {% endif %}
 
 {% for p in paginator.page_range %}
     {% if p != page.number %}
-        <a href="?page={{ p }}">{{ p }}</a>
+        <a href="?page={{ p }}" class="button">{{ p }}</a>
     {% else %}
-        <b>{{ p }}</b>
+        <b class="button check">{{ p }}</b>
     {% endif %}
 {% endfor %}
 
 {% if page.has_next %}
-    <a href="?page={{ page.next_page_number }}">Далее</a>
+    <a href="?page={{ page.next_page_number }}" class="button">Далее</a>
 {% endif %}
 
 {% endblock %}

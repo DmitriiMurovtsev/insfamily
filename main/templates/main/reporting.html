@@ -134,7 +134,7 @@
                 <form method="post">
                     {% csrf_token %}
                     <input hidden name="id_policy_for_accept" value="{{ policy.id }}">
-                    <button>Провести</button>
+                    <button class="button">Провести</button>
                 </form>
             </td>
             {% endif %}
@@ -278,7 +278,7 @@
                             </div>
                         </div>
                         <div class="str1">
-                            <button type="submit">Сохранить</button>
+                            <button class="button" type="submit">Сохранить</button>
                             {{ text }}
                         </div>
                         <div class="str1">
@@ -296,19 +296,19 @@
 <br>---<br>
 
 {% if page.has_previous %}
-    <a href="{{ link }}page={{ page.previous_page_number }}">Назад</a>
+    <a href="{{ link }}page={{ page.previous_page_number }}" class="button">Назад</a>
 {% endif %}
 
 {% for p in paginator.page_range %}
     {% if p != page.number %}
-        <a href="{{ link }}page={{ p }}">{{ p }}</a>
+        <a href="{{ link }}page={{ p }}" class="button">{{ p }}</a>
     {% else %}
-        <b>{{ p }}</b>
+        <b class="button check">{{ p }}</b>
     {% endif %}
 {% endfor %}
 
 {% if page.has_next %}
-    <a href="{{ link }}page={{ page.next_page_number }}">Далее</a>
+    <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
 {% endif %}
 
 <script>
