@@ -48,6 +48,18 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Дата получения от СК: </td>
+                        <td>
+                            <input type="date" name="date_add" value="{{ date_now }}">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Дата выдачи агенту: </td>
+                        <td>
+                            <input type="date" name="date_at" value="{{ date_now }}">
+                        </td>
+                    </tr>
+                    <tr>
                         <td>
                             <button class="button">Выдать</button>
                         </td>
@@ -209,8 +221,6 @@
         dateNow = new Date();
         storageTime = dateAt[i].getAttribute('storage_time');
         dateRange = Math.ceil(Math.abs(dateNow.getTime() - dateAtAgent.getTime()) / (1000 * 2400 * 60));
-
-        console.log(dateRange);
 
         if ((storageTime - dateRange) <= 2) {
             let path = dateAt[i].getAttribute('data-path');

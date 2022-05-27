@@ -19,6 +19,7 @@ def issuance_bso(request):
     company = Company.objects.all()
     errors = {}
     selected = {}
+    date_now = datetime.datetime.now().strftime("%Y-%m-%d")
     text_bso = ''
     text_errors_bso = 0
     if request.method == 'POST':
@@ -30,7 +31,8 @@ def issuance_bso(request):
                 defaults={
                     'company': Company.objects.get(id=request.POST.get('company')),
                     'agent': Agent.objects.get(id=request.POST.get('agent')),
-                    'date_at': datetime.datetime.today().date(),
+                    'date_add': request.POST.get('date_add'),
+                    'date_at': request.POST.get('date_at'),
                 }
             )
 
@@ -79,6 +81,7 @@ def issuance_bso(request):
 
     context = {
         'agents': agents,
+        'date_now': date_now,
         'selected': selected,
         'company': company,
         'text_bso': text_bso,
