@@ -128,19 +128,19 @@
 
 <table class="table_2">
     <tr>
+        <th>Агент</th>
         <th>Серия</th>
         <th>Номер</th>
         <th>Дата получения от СК</th>
         <th>Дата выдачи агенту</th>
-        <th>Агент</th>
     </tr>
     {% for bso in bso %}
     <tr id="{{ bso.id }}">
+        <td>{{ bso.agent }}</td>
         <td>{{ bso.series }}</td>
         <td>{{ bso.number }}</td>
         <td>{{ bso.date_add }}</td>
         <td class="date-at" data-path="{{ bso.id }}" storage_time="{{ bso.agent.storage_time }}">{{ bso.date_at }}</td>
-        <td>{{ bso.agent }}</td>
     </tr>
     {% endfor %}
 </table>
