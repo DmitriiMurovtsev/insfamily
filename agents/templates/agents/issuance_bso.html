@@ -64,12 +64,31 @@
         <td>Агент</td>
         <td>
             <form action="" method="get">
-            <select name="agent">
-                <option value="all">Все</option>
-                {% for agent in agents %}
-                <option value="{{ agent.id }}">{{ agent }}</option>
-                {% endfor %}
-            </select>
+                <select name="agent">
+                    <option value="all">Все</option>
+                    {% for agent in agents %}
+                    {% if selected.agent == agent.id %}
+                    <option value="{{ agent.id }}" selected>{{ agent }}</option>
+                    {% else %}
+                    <option value="{{ agent.id }}">{{ agent }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <select name="shelf_life">
+                    {% if selected.shelf_life == 'suitable' %}
+                    <option value="all">Любой срок</option>
+                    <option value="suitable" selected>Подходящие</option>
+                    <option value="overdue">Просроченные</option>
+                    {% elif selected.shelf_life == 'overdue' %}
+                    <option value="all">Любой срок</option>
+                    <option value="suitable">Подходящие</option>
+                    <option value="overdue" selected>Просроченные</option>
+                    {% else %}
+                    <option value="all">Любой срок</option>
+                    <option value="suitable">Подходящие</option>
+                    <option value="overdue">Просроченные</option>
+                    {% endif %}
+                </select>
             <button class="button">Просмотр</button>
             </form>
         </td>

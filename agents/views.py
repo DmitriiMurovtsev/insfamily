@@ -18,6 +18,7 @@ def issuance_bso(request):
     agents = Agent.objects.all()
     company = Company.objects.all()
     errors = {}
+    selected = {}
     text_bso = ''
     text_errors_bso = 0
     if request.method == 'POST':
@@ -48,16 +49,22 @@ def issuance_bso(request):
         bso = bso.filter(number__icontains=request.GET.get('search'))
         text_search = f'Найдено {len(bso)} БСО'
 
-    # elif 'suitable ' in request.GET:
-    #     date_now = datetime.datetime.today().date()
-    #     for b in bso:
-    #         if bso.agent.storage_time - date_now.day + bso.date_at.day
-
     elif 'agent' in request.GET and request.GET.get('agent') != 'all':
         bso = bso.filter(agent_id=request.GET.get('agent'))
+        selected['agent'] = int(request.GET.get('agent'))
 
+    if 'shelf_life' in request.GET and request.GET.get('shelf_life') != 'all':
+        date_now = datetime.datetime.today().date()
 
+        if request.GET.get('shelf_life') == 'suitable':
+            selected['shelf_life'] = 'suitable'
+            bso_list = [b for b in bso if 0 < b.agent.storage_time - (date_now - b.date_at).days <= 2]
+            bso = bso_list
 
+        elif request.GET.get('shelf_life') == 'overdue':
+            selected['shelf_life'] = 'overdue'
+            bso_list = [b for b in bso if (b.agent.storage_time - (date_now - b.date_at).days) <= 0]
+            bso = bso_list
 
     # ссылка с параметрами для пагинации
     link = '?'
@@ -72,6 +79,7 @@ def issuance_bso(request):
 
     context = {
         'agents': agents,
+        'selected': selected,
         'company': company,
         'text_bso': text_bso,
         'text_errors_bso': text_errors_bso,
