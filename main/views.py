@@ -464,9 +464,7 @@ def register_user(request):
                 if request.POST.get('middle_name'):
                     user.middle_name = request.POST.get('middle_name')
                     user.save()
-                if request.POST.get('agent') == '1':
-                    user.agent = True
-                    user.save()
+
         return render(request, 'registration/registration.html', context={'error': error})
 
     else:
