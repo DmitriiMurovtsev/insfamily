@@ -10,7 +10,7 @@ class Bso(models.Model):
     number = models.CharField(max_length=30, verbose_name='Номер')
     agent = models.ForeignKey('Agent', on_delete=models.DO_NOTHING, related_name='bso', verbose_name='Агент',
                               blank=True, null=True)
-    date_add = models.DateField(auto_now_add=True, verbose_name='Дата создания')
+    date_add = models.DateField(verbose_name='Дата получения от СК')
     date_at = models.DateField(verbose_name='Дата выдачи агенту')
 
     class Meta:

@@ -99,7 +99,7 @@
     <tr>
         <th>Серия</th>
         <th>Номер</th>
-        <th>Дата создания</th>
+        <th>Дата получения от СК</th>
         <th>Дата выдачи агенту</th>
         <th>Агент</th>
     </tr>
@@ -132,19 +132,72 @@
     <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
 {% endif %}
 
-
 <script>
     const dateAt = document.querySelectorAll('.date-at');
     var i = 0;
     for (i = 0; i < dateAt.length; ++i) {
         day = dateAt[i].textContent.slice(0, 2);
-        day_now = new Date().getDate();
-        storage_time = dateAt[i].getAttribute('storage_time');
-        if ((storage_time - (day_now - day)) <= 2) {
+        if (dateAt[i].textContent.slice(3, 6) == 'янв'){
+            month = 00;
+            year = dateAt[i].textContent.slice(10, 14);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'фев'){
+            month = 01;
+            year = dateAt[i].textContent.slice(11, 15);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'мар'){
+            month = 02;
+            year = dateAt[i].textContent.slice(6, 10);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'апр'){
+            month = 03;
+            year = dateAt[i].textContent.slice(10, 14);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'мая'){
+            month = 04;
+            year = dateAt[i].textContent.slice(7, 11);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'июн'){
+            month = 05;
+            year = dateAt[i].textContent.slice(8, 12);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'июл'){
+            month = 06;
+            year = dateAt[i].textContent.slice(8, 12);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'авг'){
+            month = 07;
+            year = dateAt[i].textContent.slice(11, 15);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'сен'){
+            month = 08;
+            year = dateAt[i].textContent.slice(11, 15);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'окт'){
+            month = 09;
+            year = dateAt[i].textContent.slice(11, 15);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'ноя'){
+            month = 10;
+            year = dateAt[i].textContent.slice(10, 14);
+        }
+        if (dateAt[i].textContent.slice(3, 6) == 'дек'){
+            month = 11;
+            year = dateAt[i].textContent.slice(11, 15);
+        }
+
+        dateAtAgent = new Date(year, month, day);
+        dateNow = new Date();
+        storageTime = dateAt[i].getAttribute('storage_time');
+        dateRange = Math.ceil(Math.abs(dateNow.getTime() - dateAtAgent.getTime()) / (1000 * 2400 * 60));
+
+        console.log(dateRange);
+
+        if ((storageTime - dateRange) <= 2) {
             let path = dateAt[i].getAttribute('data-path');
             document.getElementById(path).classList.add('orange');
         }
-        if ((storage_time - (day_now - day)) <= 0) {
+        if ((storageTime - dateRange) <= 0) {
             let path = dateAt[i].getAttribute('data-path');
             document.getElementById(path).classList.add('red');
             document.getElementById(path).classList.remove('orange');

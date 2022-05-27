@@ -44,11 +44,20 @@ def issuance_bso(request):
 
     bso = Bso.objects.all()
     text_search = ''
-    if 'agent' in request.GET and request.GET.get('agent') != 'all':
-        bso = bso.filter(agent_id=request.GET.get('agent'))
     if 'search' in request.GET:
         bso = bso.filter(number__icontains=request.GET.get('search'))
         text_search = f'Найдено {len(bso)} БСО'
+
+    # elif 'suitable ' in request.GET:
+    #     date_now = datetime.datetime.today().date()
+    #     for b in bso:
+    #         if bso.agent.storage_time - date_now.day + bso.date_at.day
+
+    elif 'agent' in request.GET and request.GET.get('agent') != 'all':
+        bso = bso.filter(agent_id=request.GET.get('agent'))
+
+
+
 
     # ссылка с параметрами для пагинации
     link = '?'
