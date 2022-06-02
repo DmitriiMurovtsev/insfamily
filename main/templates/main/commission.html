@@ -8,6 +8,13 @@
         {% csrf_token %}
         <div class="str1">
             <div class="col">
+                <select name="company">
+                    {% for company in company %}
+                    <option value="{{ company.id }}">{{ company }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col">
                 <select name="id">
                     {% for channel in channel %}
                     <option value="{{ channel.id }}">{{ channel }}</option>
@@ -32,7 +39,7 @@
                 <input type="text" value="0.00" name="value">
             </div>
             <div class="col">
-                <input type="date" value="2022-03-01" name="date_start">
+                <input type="date" value="{{ date_now }}" name="date_start">
             </div>
             <div class="col">
                 <button>Сохранить</button>
@@ -44,6 +51,7 @@
 <div class="cont_2">
     {% for commission in commission %}
     <div class="str1">
+        <div class="col">{{ commission.company }}</div>
         <div class="col">{{ commission.channel }}</div>
         <div class="col">
             {{ commission.type }}

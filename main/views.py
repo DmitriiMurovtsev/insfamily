@@ -400,12 +400,13 @@ def addpolicy(request):
             commission_objects = Commission.objects.filter(
                 type=policy.type,
                 channel=policy.channel,
+                company=policy.company,
                 date_start__lte=policy.date_registration,
             )
 
             if len(commission_objects) > 0:
                 if Type.objects.get(id=request.POST.get('Тип_полиса')).name == 'Ипотечный':
-                    commission_objects = commission_objects.objects.filter(bank=Bank.objects.get(name=policy.bank))
+                    commission_objects = commission_objects.filter(bank=Bank.objects.get(name=policy.bank))
 
                 if len(commission_objects) > 0:
                     policy.commission = commission_objects.order_by('-date_start')[0].value
@@ -733,6 +734,7 @@ def commission(request):
         if Type.objects.get(id=request.POST.get('type')).name == 'Ипотечный':
             commission, created = Commission.objects.get_or_create(
                 channel_id=request.POST.get('id'),
+                company_id=request.POST.get('company'),
                 type_id=request.POST.get('type'),
                 bank_id=request.POST.get('bank'),
                 date_start=request.POST.get('date_start'),
@@ -743,6 +745,7 @@ def commission(request):
         else:
             commission, created = Commission.objects.get_or_create(
                 channel_id=request.POST.get('id'),
+                company_id=request.POST.get('company'),
                 type_id=request.POST.get('type'),
                 date_start=request.POST.get('date_start'),
                 defaults={
@@ -756,6 +759,7 @@ def commission(request):
 
         policyes = Policy.objects.filter(date_registration__gte=commission.date_start,
                                          channel=commission.channel,
+                                         company=commission.company,
                                          type=commission.type,
                                          accept=False)
 
@@ -768,6 +772,7 @@ def commission(request):
                         policy.commission = (Commission.objects.filter(
                             type=commission.type,
                             channel=commission.channel,
+                            company=commission.company,
                             date_start__lte=policy.date_registration,
                             bank=commission.bank)).order_by('-date_start')[0].value
                         policy.save()
@@ -776,16 +781,22 @@ def commission(request):
                     policy.commission = (Commission.objects.filter(
                         type=commission.type,
                         date_start__lte=policy.date_registration,
-                        channel=commission.channel)).order_by('-date_start')[0].value
+                        channel=commission.channel,
+                        company=commission.company,
+                    )).order_by('-date_start')[0].value
                     policy.save()
 
     channel = Channel.objects.all()
     commission = Commission.objects.all()
+    company = Company.objects.all()
     bank = Bank.objects.all()
     type = Type.objects.all()
+    date_now = datetime.datetime.now().strftime("%Y-%m-%d")
 
     context = {
         'channel': channel,
+        'company': company,
+        'date_now': date_now,
         'commission': commission,
         'bank': bank,
         'type': type,

@@ -157,6 +157,7 @@ class Bank(models.Model):
 class Commission(models.Model):
     date_start = models.DateField(verbose_name='Дата начала действия')
     channel = models.ForeignKey(Channel, on_delete=models.DO_NOTHING, verbose_name='Канал продаж')
+    company = models.ForeignKey(Company, on_delete=models.DO_NOTHING, verbose_name='Компания')
     type = models.ForeignKey(Type, on_delete=models.DO_NOTHING, verbose_name='Тип полиса', default='')
     bank = models.ForeignKey(Bank, on_delete=models.DO_NOTHING, verbose_name='Банк', null=True, default='')
     value = models.DecimalField(verbose_name='КВ', decimal_places=2, max_digits=8)
