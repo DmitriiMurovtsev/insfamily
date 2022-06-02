@@ -218,7 +218,8 @@
         dateAtAgent = new Date(year, month, day);
         dateNow = new Date();
         storageTime = dateAt[i].getAttribute('storage_time');
-        dateRange = Math.ceil(Math.abs(dateNow.getTime() - dateAtAgent.getTime()) / (1000 * 2400 * 60));
+        timeRange = Math.abs(dateNow.getTime() - dateAtAgent.getTime());
+        dateRange = Math.ceil(timeRange / (1000 * 3600 * 24));
 
         if ((storageTime - dateRange) <= 2) {
             let path = dateAt[i].getAttribute('data-path');
