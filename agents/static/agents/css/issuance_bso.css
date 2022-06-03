@@ -96,9 +96,13 @@ a {
     color: #000; /* Цвет текста */
    }
 
-.upload, .add_agent, .issuance_bso {
+.upload, .add_agent, .issuance_bso, .unload {
     padding: 20px;
 }
   .check {
     background: #959595;
   }
+
+.unload input, .unload select, .upload .upload select {
+    width: 200px;
+}

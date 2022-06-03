@@ -1,5 +1,8 @@
 import csv
 import datetime
+
+import openpyxl
+from django.http import HttpResponse
 from openpyxl import load_workbook
 
 from django.core.paginator import Paginator
@@ -103,6 +106,7 @@ def receivable(request):
     errors = []
     selected = {}
     text_agent = ''
+    type = Type.objects.all()
 
     if request.method == 'POST':
         if 'status_for_change' in request.POST:
@@ -232,6 +236,7 @@ def receivable(request):
 
     context = {
         'agents': agents,
+        'type': type,
         'policy': page.object_list,
         'date_start': date_start,
         'date_end': date_end,
@@ -246,3 +251,74 @@ def receivable(request):
     }
 
     return render(request, 'agents/receivable.html', context)
+
+
+@login_required(login_url='login')
+def unload_receivable(request):
+    if request.user.admin:
+        if request.method == 'POST':
+            policy = PolicyAgents.objects.filter(
+                date_registration__gte=request.POST['date_start'],
+                date_registration__lt=request.POST['date_end'],
+            )
+
+            if request.POST['status'] != 'all':
+                policy = policy.filter(status=request.POST['status'])
+            if request.POST['agent'] != 'all':
+                policy = policy.filter(agent_id=request.POST['agent'])
+            if request.POST['type'] != 'all':
+                policy = policy.filter(type_id=request.POST['type'])
+
+            wb = openpyxl.Workbook()
+            sheet = wb['Sheet']
+
+            sheet['A1'] = '№'
+            sheet['B1'] = 'Агент'
+            sheet['C1'] = 'Тип полиса'
+            sheet['D1'] = 'Полис'
+            sheet['E1'] = 'Клиент'
+            sheet['F1'] = 'Тип клиента'
+            sheet['G1'] = 'Комиссия агента в %'
+            sheet['H1'] = 'Комиссия агента в руб.'
+            sheet['I1'] = 'Дата подписания договора'
+            sheet['J1'] = 'Дата начала действия'
+            sheet['K1'] = 'Дата окончания действия'
+            sheet['L1'] = 'Общая премия'
+            sheet['M1'] = 'Тип оплаты'
+            sheet['N1'] = 'Статус полиса'
+
+            wb.save('agents/file/receivable.xlsx')
+
+            wb = openpyxl.load_workbook('agents/file/receivable.xlsx')
+            sheet = wb['Sheet']
+
+            str_number = 2
+            for policy in policy:
+                sheet[str_number][0].value = str_number - 1
+                sheet[str_number][1].value = policy.agent.name
+                sheet[str_number][2].value = policy.type.name
+                sheet[str_number][3].value = policy.policy
+                sheet[str_number][4].value = policy.client
+                sheet[str_number][5].value = policy.type_client
+                sheet[str_number][6].value = policy.agent_commission
+                sheet[str_number][7].value = policy.agent_commission_rub
+                sheet[str_number][8].value = policy.date_registration
+                sheet[str_number][9].value = policy.date_start
+                sheet[str_number][10].value = policy.date_end
+                sheet[str_number][11].value = policy.price
+                sheet[str_number][12].value = policy.type_pay
+                if policy.status == 'receivable':
+                    sheet[str_number][13].value = 'Дебиторка'
+                elif policy.status == 'reconciliation':
+                    sheet[str_number][13].value = 'Сверки'
+                elif policy.status == 'accept':
+                    sheet[str_number][13].value = 'Акцепт'
+
+                str_number += 1
+
+            response = HttpResponse(content_type='application/vnd.ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="receivable.xlsx"'
+
+            wb.save(response)
+
+            return response

@@ -41,11 +41,11 @@
                     {% csrf_token %}
                     <table>
                         <tr>
-                            <td>Наименование агента</td>
-                            <td>Дней хранения бланков</td>
+                            <td>Наименование агента: </td>
+                            <td><input type="text" name="name"></td>
                         </tr>
                         <tr>
-                            <td><input type="text" name="name"><br></td>
+                            <td>Дней хранения бланков: </td>
                             <td><input type="number" name="storage_time"></td>
                         </tr>
                     </table>
@@ -55,6 +55,60 @@
             </div>
         </div>
     </div>
+<div class="pop_up" id="3">
+    <div class="pop_up_container">
+        <div class="pop_up_body">
+            <form class="unload" action="/agents/unload_receivable/" method="post">
+                {% csrf_token %}
+                <table>
+                <tr>
+                    <td>Оформлен с: </td>
+                    <td><input type="date" name="date_start" value="{{ date_start }}"></td>
+                </tr>
+                <tr>
+                    <td>Оформлен по: </td>
+                    <td><input type="date" name="date_end" value="{{ date_end }}"></td>
+                </tr>
+                <tr>
+                    <td>Статус</td>
+                    <td>
+                        <select name="status">
+                            <option value="all">Все</option>
+                            <option value="receivable">Дебиторка</option>
+                            <option value="reconciliation">Сверки</option>
+                            <option value="accept">Акцепт</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Агент</td>
+                    <td>
+                        <select name="agent">
+                            <option value="all">Все</option>
+                            {% for agent in agents %}
+                            <option value="{{ agent.id }}">{{ agent }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Тип полиса</td>
+                    <td>
+                        <select name="type">
+                            <option value="all">Все</option>
+                            {% for type in type %}
+                            <option value="{{ type.id }}">{{ type }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+            </table>
+                <button class="button">Выгрузить</button>
+            </form>
+            <div class="pop_up_close" data-close="3">&#10006</div>
+        </div>
+    </div>
+</div>
 
 <table>
     <form method="get">
@@ -99,6 +153,11 @@
         <td><input type="date" name="date_start" value="{{ date_start }}"></td>
         <td><input type="date" name="date_end" value="{{ date_end }}"></td>
         <td><button class="button">Фильтр</button></td>
+        <td>
+            <div class="button" data-path="3">
+                <a href="#" class="open_pop_up">Выгрузить продажи</a>
+            </div>
+        </td>
         </form>
         <td>
             <form method="get">
@@ -108,7 +167,7 @@
         </td>
         <td>
             <div class="button" data-path="1">
-        <a href="#" id="open_pop_up">Загрузить продажи</a>
+        <a href="#" class="open_pop_up">Загрузить продажи</a>
     </div>
             {{ text }}
             {% if text_errors != 0 %}
@@ -117,7 +176,7 @@
         </td>
         <td>
             <div class="button" data-path="2">
-    <a href="#">Добавить агента</a>
+        <a href="#" class="open_pop_up">Добавить агента</a>
 </div>
             {{ text_agent }}
         </td>
