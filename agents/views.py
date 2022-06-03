@@ -109,12 +109,14 @@ def receivable(request):
     type = Type.objects.all()
 
     if request.method == 'POST':
+        # смена статуса по полису
         if 'status_for_change' in request.POST:
             policy_for_change = PolicyAgents.objects.get(id=request.POST.get('if_policy_for_change'))
             policy_for_change.status = request.POST.get('status_for_change')
             policy_for_change.save()
 
         elif 'name' in request.POST:
+            # добавление агента
             agent, created = Agent.objects.get_or_create(
                 name=request.POST.get('name'),
                 defaults={
@@ -128,6 +130,7 @@ def receivable(request):
                 text_agent = 'Агент с таким именем уже есть в системе'
 
         else:
+            # загрузка агентских продаж из файла
             wb = load_workbook(filename=request.FILES['file'])
             sheet = wb.worksheets[0]
             number = 0
@@ -194,7 +197,7 @@ def receivable(request):
             if len(errors) > 0:
                 text_errors = f'Пропущенно {len(errors)}'
 
-    if request.GET.get('date_start') == None and request.GET.get('date_end') == None:
+    if 'date_start' not in request.GET and 'date_end' not in request.GET:
         date_start, date_end = get_start_end_date()
         date_start = date_start.strftime("%Y-%m-%d")
         date_end = date_end.strftime("%Y-%m-%d")
@@ -205,12 +208,14 @@ def receivable(request):
     agents = Agent.objects.all()
 
     if 'search' in request.GET:
+        # поиск по страхователю или по номеру полиса
         policy = PolicyAgents.objects.filter(
             Q(client__iregex=request.GET.get('search')) |
             Q(policy__iregex=request.GET.get('search'))
         )
 
     else:
+        # отбор полисов, оформленных за период (текущий месяц по умолчанию)
         policy = PolicyAgents.objects.filter(
             date_registration__lt=date_end,
             date_registration__gte=date_start,
@@ -230,6 +235,7 @@ def receivable(request):
             continue
         link = link + f'{key}={value}&'
 
+    # пагинация результата
     paginator = Paginator(policy, 15)
     current_page = request.GET.get('page', 1)
     page = paginator.get_page(current_page)
@@ -255,6 +261,7 @@ def receivable(request):
 
 @login_required(login_url='login')
 def unload_receivable(request):
+    # выгрузка агентских продаж в xlsx
     if request.user.admin:
         if request.method == 'POST':
             policy = PolicyAgents.objects.filter(

@@ -1,5 +1,7 @@
 import datetime
 import csv
+
+import openpyxl
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect
@@ -39,71 +41,60 @@ def unload_files(request):
             result = result.filter(company=request.GET.get('Страховая компания'))
         if request.GET.get('Тип полиса') != 'all':
             result = result.filter(type=request.GET.get('Тип полиса'))
-    else:
-        result = Policy.objects.filter(
-            user=request.user.id,
-            date_registration__lt=request.GET.get('date_end'),
-            date_registration__gte=request.GET.get('date_start')
-        )
-        if request.GET.get('Канал продаж') != 'all':
-            result = result.filter(channel=request.GET.get('Канал продаж'))
-        if request.GET.get('Страховая компания') != 'all':
-            result = result.filter(company=request.GET.get('Страховая компания'))
-        if request.GET.get('Тип полиса') != 'all':
-            result = result.filter(type=request.GET.get('Тип полиса'))
 
-    result_list = [
-        [
-            policy.type.name,
-            policy.bank,
-            policy.series,
-            policy.number,
-            policy.company.name,
-            policy.sp,
-            policy.commission,
-            policy.channel,
-            policy.date_registration,
-            policy.date_start,
-            policy.date_end,
-            f'{policy.client.last_name} {policy.client.first_name} {policy.client.middle_name}',
-            f'{policy.user.last_name} {policy.user.first_name}',
-        ]
-        for policy in result
-    ]
+    wb = openpyxl.Workbook()
+    sheet = wb['Sheet']
 
-    with open('./report/reporting.csv', 'w', encoding='cp1251', newline='') as file:
-        writer = csv.writer(file, delimiter=';')
-        writer.writerow(
-            (
-                'Тип полиса',
-                'Банк',
-                'Серия',
-                'Номер',
-                'Страховая компания',
-                'Премия',
-                'КВ',
-                'Канал продаж',
-                'Дата оформления',
-                'Дата начала действия',
-                'Дата окончания действия',
-                'Клиент',
-                'Менеджер',
-            )
-        )
-        writer.writerows(result_list)
+    sheet['A1'] = '№'
+    sheet['B1'] = 'Клиент'
+    sheet['C1'] = 'Страховая компания'
+    sheet['D1'] = 'Канал продаж'
+    sheet['E1'] = 'Тип полиса'
+    sheet['F1'] = 'Серия'
+    sheet['G1'] = 'Номер'
+    sheet['H1'] = 'Банк'
+    sheet['I1'] = 'Премия'
+    sheet['J1'] = 'КВ'
+    sheet['K1'] = 'Дата оформления'
+    sheet['L1'] = 'Дата начала действия'
+    sheet['M1'] = 'Дата окончания действия'
 
-    with open('./report/reporting.csv', 'r', encoding='cp1251', newline='') as file:
-        file_data = file.read()
-        f = file_data.encode(encoding='cp1251')
+    wb.save('main/file/mortgage.xlsx')
 
-    response = HttpResponse(f, content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="reporting.csv"'
+    wb = openpyxl.load_workbook('main/file/mortgage.xlsx')
+    sheet = wb['Sheet']
+
+    str_number = 2
+    for policy in result:
+        sheet[str_number][0].value = str_number - 1
+        sheet[str_number][1].value = f'{policy.client.last_name} ' \
+                                     f'{policy.client.first_name} ' \
+                                     f'{policy.client.middle_name}'
+        sheet[str_number][2].value = policy.company.name
+        sheet[str_number][3].value = policy.channel.name
+        sheet[str_number][4].value = policy.type.name
+        sheet[str_number][5].value = policy.series
+        sheet[str_number][6].value = policy.number
+        sheet[str_number][7].value = policy.bank
+        sheet[str_number][8].value = policy.sp
+        sheet[str_number][9].value = policy.commission
+        sheet[str_number][10].value = policy.date_registration
+        sheet[str_number][11].value = policy.date_start
+        sheet[str_number][12].value = policy.date_end
+
+        str_number += 1
+
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="receivable.xlsx"'
+
+    wb.save(response)
+
     return response
 
 
 @login_required(login_url='login')
 def unload_accept(request):
-    # Выгрузка сверок в файл
+    # Выгрузка акцептованных полисов в xlsx
     if request.user.admin:
         result = Policy.objects.filter(
             date_registration__lt=request.GET.get('date_end'),
@@ -118,66 +109,55 @@ def unload_accept(request):
             result = result.filter(company=request.GET.get('Страховая компания'))
         if request.GET.get('Тип полиса') != 'all':
             result = result.filter(type=request.GET.get('Тип полиса'))
-    else:
-        result = Policy.objects.filter(
-            user=request.user.id,
-            date_registration__lt=request.GET.get('date_end'),
-            date_registration__gte=request.GET.get('date_start')
-        )
-        if request.GET.get('Канал продаж') != 'all':
-            result = result.filter(channel=request.GET.get('Канал продаж'))
-        if request.GET.get('Страховая компания') != 'all':
-            result = result.filter(company=request.GET.get('Страховая компания'))
-        if request.GET.get('Тип полиса') != 'all':
-            result = result.filter(type=request.GET.get('Тип полиса'))
 
-    result_list = [
-        [
-            policy.type.name,
-            policy.bank,
-            policy.series,
-            policy.number,
-            policy.company.name,
-            policy.sp,
-            policy.commission,
-            policy.channel,
-            policy.date_registration,
-            policy.date_start,
-            policy.date_end,
-            f'{policy.client.last_name} {policy.client.first_name} {policy.client.middle_name}',
-            f'{policy.user.last_name} {policy.user.first_name}',
-        ]
-        for policy in result
-    ]
+        wb = openpyxl.Workbook()
+        sheet = wb['Sheet']
 
-    with open('./report/reporting.csv', 'w', encoding='cp1251', newline='') as file:
-        writer = csv.writer(file, delimiter=';')
-        writer.writerow(
-            (
-                'Тип полиса',
-                'Банк',
-                'Серия',
-                'Номер',
-                'Страховая компания',
-                'Премия',
-                'КВ',
-                'Канал продаж',
-                'Дата оформления',
-                'Дата начала действия',
-                'Дата окончания действия',
-                'Клиент',
-                'Менеджер',
-            )
-        )
-        writer.writerows(result_list)
+        sheet['A1'] = '№'
+        sheet['B1'] = 'Клиент'
+        sheet['C1'] = 'Страховая компания'
+        sheet['D1'] = 'Канал продаж'
+        sheet['E1'] = 'Тип полиса'
+        sheet['F1'] = 'Серия'
+        sheet['G1'] = 'Номер'
+        sheet['H1'] = 'Банк'
+        sheet['I1'] = 'Премия'
+        sheet['J1'] = 'КВ'
+        sheet['K1'] = 'Дата оформления'
+        sheet['L1'] = 'Дата начала действия'
+        sheet['M1'] = 'Дата окончания действия'
 
-    with open('./report/reporting.csv', 'r', encoding='cp1251', newline='') as file:
-        file_data = file.read()
-        f = file_data.encode(encoding='cp1251')
+        wb.save('main/file/mortgage.xlsx')
 
-    response = HttpResponse(f, content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="reporting.csv"'
-    return response
+        wb = openpyxl.load_workbook('main/file/mortgage.xlsx')
+        sheet = wb['Sheet']
+
+        str_number = 2
+        for policy in result:
+            sheet[str_number][0].value = str_number - 1
+            sheet[str_number][1].value = f'{policy.client.last_name} ' \
+                                         f'{policy.client.first_name} ' \
+                                         f'{policy.client.middle_name}'
+            sheet[str_number][2].value = policy.company.name
+            sheet[str_number][3].value = policy.channel.name
+            sheet[str_number][4].value = policy.type.name
+            sheet[str_number][5].value = policy.series
+            sheet[str_number][6].value = policy.number
+            sheet[str_number][7].value = policy.bank
+            sheet[str_number][8].value = policy.sp
+            sheet[str_number][9].value = policy.commission
+            sheet[str_number][10].value = policy.date_registration
+            sheet[str_number][11].value = policy.date_start
+            sheet[str_number][12].value = policy.date_end
+
+            str_number += 1
+
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="receivable.xlsx"'
+
+        wb.save(response)
+
+        return response
 
 
 @login_required(login_url='login')
@@ -431,6 +411,7 @@ def upload_policy(request):
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             text = 'Загружено'
+
             with open('main/file/date.csv', 'wb') as file:
                 for row in request.FILES['file'].chunks():
                     file.write(row)
@@ -513,37 +494,47 @@ def policy_edit(request):
 
 @login_required(login_url='login')
 def unload_mortgage(request):
-    # Выгрузка статистики в файл csv
+    # Выгрузка статистики в файл xlsx
     if request.user.admin:
         date_end = datetime.datetime.strptime(f'{request.GET.get("year")}-{request.GET.get("month")}-01', '%Y-%m-%d')
         result = MortgagePolicy.objects.filter(date_end=date_end, date_at__gte=request.GET.get('date_at'))
         if request.GET.get('bank') != 'all':
             result = result.filter(bank_id=request.GET.get('bank'))
 
-    result_list = [[policy.bank, policy.date_end, policy.client, policy.client.birthday, policy.client.phone,
-                    policy.client.email] for policy in result]
+        wb = openpyxl.Workbook()
+        sheet = wb['Sheet']
 
-    with open('./report/reporting_mortgage.csv', 'w', encoding='cp1251', newline='') as file:
-        writer = csv.writer(file, delimiter=';')
-        writer.writerow(
-            (
-                'Банк',
-                'Дата окончания',
-                'Клиент',
-                'Дата рождения',
-                'Телефон',
-                'Почта',
-            )
-        )
-        writer.writerows(result_list)
+        sheet['A1'] = 'Банк'
+        sheet['B1'] = 'Дата окончания'
+        sheet['C1'] = 'Клиент'
+        sheet['D1'] = 'Дата рождения'
+        sheet['E1'] = 'Телефон'
+        sheet['F1'] = 'Почта'
 
-    with open('./report/reporting_mortgage.csv', 'r', encoding='cp1251', newline='') as file:
-        file_data = file.read()
-        f = file_data.encode(encoding='cp1251')
+        wb.save('main/file/mortgage.xlsx')
 
-    response = HttpResponse(f, content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="reporting.csv"'
-    return response
+        wb = openpyxl.load_workbook('main/file/mortgage.xlsx')
+        sheet = wb['Sheet']
+
+        str_number = 2
+        for policy in result:
+            sheet[str_number][0].value = policy.bank.name
+            sheet[str_number][1].value = policy.date_end
+            sheet[str_number][2].value = f'{policy.client.last_name} ' \
+                                         f'{policy.client.first_name} ' \
+                                         f'{policy.client.middle_name}'
+            sheet[str_number][3].value = policy.client.birthday
+            sheet[str_number][4].value = policy.client.phone
+            sheet[str_number][5].value = policy.client.email
+
+            str_number += 1
+
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="mortgage.xlsx"'
+
+        wb.save(response)
+
+        return response
 
 
 @login_required(login_url='login')
@@ -682,9 +673,11 @@ def mortgage(request):
                 date_end__lt=datetime.datetime.strptime(f'2024-{"0" + str(i - 11)}-01', '%Y-%m-%d')))
 
     banks = Bank.objects.all()
+    date_at = datetime.datetime.today().strftime("%Y-%m-%d")
 
     context = {
         'banks': banks,
+        'date_at': date_at,
         'mortgage_policy': mortgage_policy,
         'statistic_2023': statistic_2023,
         'statistic_2022': statistic_2022,
