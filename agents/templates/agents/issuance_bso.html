@@ -138,7 +138,11 @@
         <td>{{ bso.series }}</td>
         <td>{{ bso.number }}</td>
         <td>{{ bso.date_add }}</td>
+        {% if bso.date_at.day < 10 %}
+        <td class="date-at" data-path="{{ bso.id }}" storage_time="{{ bso.agent.storage_time }}">0{{ bso.date_at }}</td>
+        {% else %}
         <td class="date-at" data-path="{{ bso.id }}" storage_time="{{ bso.agent.storage_time }}">{{ bso.date_at }}</td>
+        {% endif %}
     </tr>
     {% endfor %}
 </table>
