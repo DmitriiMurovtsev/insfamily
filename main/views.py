@@ -505,11 +505,12 @@ def unload_mortgage(request):
         sheet = wb['Sheet']
 
         sheet['A1'] = 'Банк'
-        sheet['B1'] = 'Дата окончания'
-        sheet['C1'] = 'Клиент'
-        sheet['D1'] = 'Дата рождения'
-        sheet['E1'] = 'Телефон'
-        sheet['F1'] = 'Почта'
+        sheet['B1'] = 'Тип полиса'
+        sheet['C1'] = 'Дата окончания'
+        sheet['D1'] = 'Клиент'
+        sheet['E1'] = 'Дата рождения'
+        sheet['F1'] = 'Телефон'
+        sheet['G1'] = 'Почта'
 
         wb.save('main/file/mortgage.xlsx')
 
@@ -519,13 +520,19 @@ def unload_mortgage(request):
         str_number = 2
         for policy in result:
             sheet[str_number][0].value = policy.bank.name
-            sheet[str_number][1].value = policy.date_end
-            sheet[str_number][2].value = f'{policy.client.last_name} ' \
+            if policy.type_mortgage == 'all':
+                sheet[str_number][1].value = 'Все риски'
+            elif policy.type_mortgage == 'property':
+                sheet[str_number][1].value = 'Имущество'
+            elif policy.type_mortgage == 'life':
+                sheet[str_number][1].value = 'Жизнь'
+            sheet[str_number][2].value = policy.date_end
+            sheet[str_number][3].value = f'{policy.client.last_name} ' \
                                          f'{policy.client.first_name} ' \
                                          f'{policy.client.middle_name}'
-            sheet[str_number][3].value = policy.client.birthday
-            sheet[str_number][4].value = policy.client.phone
-            sheet[str_number][5].value = policy.client.email
+            sheet[str_number][4].value = policy.client.birthday
+            sheet[str_number][5].value = policy.client.phone
+            sheet[str_number][6].value = policy.client.email
 
             str_number += 1
 
@@ -603,6 +610,7 @@ def mortgage(request):
 
         date_end = datetime.datetime.strptime(f'{request.POST.get("year")}-{request.POST.get("month")}-01', '%Y-%m-%d')
         MortgagePolicy(bank_id=request.POST.get('bank'),
+                       type_mortgage=request.POST['type_policy_mortgage'],
                        user_id=request.user.id,
                        client_id=client.id,
                        date_end=date_end).save()

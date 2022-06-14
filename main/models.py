@@ -153,6 +153,7 @@ class MortgagePolicy(models.Model):
     client = models.ForeignKey(Client, verbose_name='Клиент', on_delete=models.DO_NOTHING,
                                related_name='mortgage_policy', null=True)
     bank = models.ForeignKey('Bank', verbose_name='Банк', related_name='bank', on_delete=models.DO_NOTHING)
+    type_mortgage = models.CharField(max_length=10, verbose_name='Тип ипотечного полиса', default='all')
 
     class Meta:
         verbose_name = 'Ипотечный полис'
