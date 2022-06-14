@@ -956,8 +956,10 @@ def commission_delete(request):
 @login_required(login_url='login')
 def accept(request):
     # Просмотр и выгрузка проведенных полисов
-    if request.method == 'POST' and request.user.admin and 'policy_id_for_delete' in request.POST:
-        Policy.objects.get(id=request.POST.get('policy_id_for_delete')).delete()
+    if request.method == 'POST' and request.user.admin and 'policy_id_for_return' in request.POST:
+        policy_for_return = Policy.objects.get(id=request.POST.get('policy_id_for_return'))
+        policy_for_return.accept = False
+        policy_for_return.save()
 
     selected = {}
     if request.GET.get('date_start') == None and request.GET.get('date_end') == None:

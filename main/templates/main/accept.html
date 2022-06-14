@@ -123,8 +123,8 @@
             <td>
                 <form method="post">
                     {% csrf_token %}
-                    <input hidden type="text" name="policy_id_for_delete" value="{{ policy.id }}">
-                    <button class="for_delete button" type="submit">Удалить</button>
+                    <input hidden type="text" name="policy_id_for_return" value="{{ policy.id }}">
+                    <button class="for_delete button" type="submit">Вернуть в сверки</button>
                 </form>
             </td>
             {% endif %}
