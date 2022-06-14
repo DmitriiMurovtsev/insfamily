@@ -59,24 +59,24 @@
         <form method="post">
             {% csrf_token %}
             <input hidden type="text" name="stage_id" value="{{ stage.id }}">
-            <div class="answer_name">Название ответа</div>
+            <div class="answer_name">Возражение</div>
             <input type="text" name="answer_name"><br>
-            <div class="answer_text">Текст</div>
+            <div class="answer_text">Отработка</div>
             <textarea class="textarea_answer_edit" cols="70" rows="5" type="text" name="answer_text"></textarea><br>
-            <div class="type_answer">Тип ответа</div>
+            <div class="type_answer">Вариант</div>
             <div class="for_type_answer">
             <input type="radio" name="type_answer" value="positive"> Положительный<br>
             <input type="radio" name="type_answer" value="neutral" checked> Нейтральный<br>
             <input type="radio" name="type_answer" value="negative"> Отрицательный<br>
             </div>
-            <button class="button_answer_edit">Добавить ответ</button>
+            <button class="button_answer_edit">Сохранить</button>
         </form>
     </div>
     <div class="link_stage_edit">
         <form method="post">
             {% csrf_token %}
             <input hidden type="text" name="stage_id" value="{{ stage.id }}">
-            <div class="link_stage_name">Название ответа</div>
+            <div class="link_stage_name">Кнопка перехода</div>
             <input type="text" name="link_answer_name"><br>
             <div class="link_next_stage">Переход к шагу</div>
             <select class="link_stage_text" name="link_stage_text">
@@ -84,7 +84,7 @@
                 <option value="/dscript/show_step/?step_id={{ step.id }}&stage_id={{ stage.id }}">{{ stage.name }}</option>
                 {% endfor %}
             </select>
-            <button class="button_link_edit">Добавить переход</button>
+            <button class="button_link_edit">Сохранить</button>
         </form>
     </div>
     <div class="answer_text_for_read">
