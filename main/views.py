@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
+from openpyxl import load_workbook
+
 from .models import Policy, Client, Channel, Company, User, Type, MortgagePolicy, Bank, Commission
 from .forms import UploadFileForm
 
@@ -329,68 +331,201 @@ def a_reporting(request):
 def addpolicy(request):
     # Добавление нового полиса
     error = ''
+    errors_upload = {}
     text = ''
+    text_upload = ''
     type = Type.objects.all()
     banks = Bank.objects.all()
     company = Company.objects.all()
     channel = Channel.objects.all()
+
     if request.method == 'POST':
-        client, created = Client.objects.get_or_create(
-            first_name=request.POST.get('first_name'),
-            middle_name=request.POST.get('middle_name'),
-            last_name=request.POST.get('last_name'),
-            birthday=request.POST.get('birthday'),
-            defaults={
-                'phone': request.POST.get('phone'),
-                'email': request.POST.get('email')
-            }
-        )
-        policy, created = Policy.objects.get_or_create(
-            number=request.POST.get('number'),
-            series=request.POST.get('series'),
-            company_id=request.POST.get('Страховая_компания'),
-            defaults={
-                'user_id': request.user.id,
-                'client_id': client.id,
-                'channel_id': request.POST.get('Канал_продаж'),
-                'type_id': request.POST.get('Тип_полиса'),
-                'date_registration': request.POST.get('date_registration'),
-                'date_start': request.POST.get('date_start'),
-                'date_end': request.POST.get('date_end'),
-                'commission': float(request.POST.get('commission').replace(',', '.')),
-                'sp': float(request.POST.get('sp').replace(',', '.')),
-                'status': request.POST.get('Тип продажи'),
+
+        if 'upload' in request.POST:
+            # загрузка продаж из файла
+            wb = load_workbook(filename=request.FILES['file'])
+            sheet = wb.worksheets[0]
+            count = 0
+            for row in range(2, sheet.max_row+1):
+                # пропускаем пустую строчку
+                if sheet[row][0].value is None:
+                    continue
+
+                status = '-'
+
+                if sheet[row][0].value.lower() == 'новый бизнес':
+                    status = 'newbiz'
+                elif sheet[row][0].value.lower() == 'пролонгация':
+                    status = 'prolongation'
+                elif sheet[row][0].value.lower() == 'переход':
+                    status = 'transition'
+                elif sheet[row][0].value.lower() == 'аддендум':
+                    status = 'addendum'
+
+                if isinstance(sheet[row][7].value, str):
+                    date_registration = f'{sheet[row][7].value[6:10]}-' \
+                                        f'{sheet[row][7].value[3:5]}-' \
+                                        f'{sheet[row][7].value[0:2]}'
+                else:
+                    date_registration = f'{sheet[row][7].value.year}-' \
+                                        f'{sheet[row][7].value.month}-' \
+                                        f'{sheet[row][7].value.day}'
+
+                if isinstance(sheet[row][8].value, str):
+                    date_start = f'{sheet[row][8].value[6:10]}-' \
+                                        f'{sheet[row][8].value[3:5]}-' \
+                                        f'{sheet[row][8].value[0:2]}'
+                else:
+                    date_start = f'{sheet[row][8].value.year}-' \
+                                        f'{sheet[row][8].value.month}-' \
+                                        f'{sheet[row][8].value.day}'
+
+                if isinstance(sheet[row][9].value, str):
+                    date_end = f'{sheet[row][9].value[6:10]}-' \
+                                        f'{sheet[row][9].value[3:5]}-' \
+                                        f'{sheet[row][9].value[0:2]}'
+                else:
+                    date_end = f'{sheet[row][9].value.year}-' \
+                                        f'{sheet[row][9].value.month}-' \
+                                        f'{sheet[row][9].value.day}'
+
+                type_for_created, created = Type.objects.get_or_create(name=sheet[row][1].value)
+                company_for_created, created = Company.objects.get_or_create(name=sheet[row][3].value)
+                channel_for_created, created = Channel.objects.get_or_create(name=sheet[row][4].value)
+
+                user = User.objects.get(
+                    last_name=sheet[row][11].value.split()[0],
+                    first_name=sheet[row][11].value.split()[1],
+                )
+
+                middle_name = ''
+                if len(sheet[row][10].value.split()) == 3:
+                    middle_name = sheet[row][10].value.split(" ")[2]
+                elif len(sheet[row][10].value.split()) > 3:
+                    middle_name = f'{sheet[row][10].value.split()[2]} {sheet[row][10].value.split()[3]}'
+
+                client, created = Client.objects.get_or_create(
+                    last_name=sheet[row][10].value.split()[0],
+                    first_name=sheet[row][10].value.split()[1],
+                    middle_name=middle_name,
+                )
+
+                if len(str(sheet[row][2].value).split()) == 2:
+                    series = sheet[row][2].value.split()[0]
+                    number = sheet[row][2].value.split()[1]
+                else:
+                    series = ''
+                    number = sheet[row][2].value
+
+                policy, created = Policy.objects.get_or_create(
+                    series=series,
+                    number=number,
+                    defaults={
+                        'status': status,
+                        'type': type_for_created,
+                        'company': company_for_created,
+                        'channel': channel_for_created,
+                        'sp': float(str(sheet[row][5].value).replace(',', '.').replace(' ', '')),
+                        'commission': float(str(sheet[row][6].value).replace(',', '.').replace(' ', '')),
+                        'date_registration': date_registration,
+                        'date_start': date_start,
+                        'date_end': date_end,
+                        'user': user,
+                        'client': client,
+                    }
+                )
+
+                if created:
+                    count += 1
+                else:
+                    errors_upload[f'{series} {number}'] = 'Полис уже есть в базе'
+
+            text_upload = f'Загруженно {count} из {count + len(errors_upload)}'
+
+            if len(errors_upload) > 0:
+                wb_errors = openpyxl.Workbook()
+                sheet = wb_errors['Sheet']
+
+                sheet['A1'] = 'Номер'
+                sheet['B1'] = 'БСО'
+                sheet['C1'] = 'Ошибка'
+
+                wb_errors.save(f'main/file/wb_errors.xlsx')
+
+                wb_errors = openpyxl.load_workbook(f'main/file/wb_errors.xlsx')
+                sheet = wb_errors['Sheet']
+
+                str_number = 2
+                count_policy = 1
+                for policy, error in errors_upload.items():
+                    sheet[str_number][0].value = count_policy
+                    sheet[str_number][1].value = policy
+                    sheet[str_number][2].value = error
+
+                response = HttpResponse(content_type='application/vnd.ms-excel')
+                response['Content-Disposition'] = 'attachment; filename="wb_errors.xlsx"'
+
+                wb_errors.save(response)
+
+                return response
+
+        else:
+            client, created = Client.objects.get_or_create(
+                first_name=request.POST.get('first_name'),
+                middle_name=request.POST.get('middle_name'),
+                last_name=request.POST.get('last_name'),
+                birthday=request.POST.get('birthday'),
+                defaults={
+                    'phone': request.POST.get('phone'),
+                    'email': request.POST.get('email')
                 }
             )
+            policy, created = Policy.objects.get_or_create(
+                number=request.POST.get('number'),
+                series=request.POST.get('series'),
+                company_id=request.POST.get('Страховая_компания'),
+                defaults={
+                    'user_id': request.user.id,
+                    'client_id': client.id,
+                    'channel_id': request.POST.get('Канал_продаж'),
+                    'type_id': request.POST.get('Тип_полиса'),
+                    'date_registration': request.POST.get('date_registration'),
+                    'date_start': request.POST.get('date_start'),
+                    'date_end': request.POST.get('date_end'),
+                    'commission': float(request.POST.get('commission').replace(',', '.')),
+                    'sp': float(request.POST.get('sp').replace(',', '.')),
+                    'status': request.POST.get('Тип продажи'),
+                    }
+                )
 
-        if created == False:
-            error = f'Полис с номером {request.POST.get("series")} {request.POST.get("number")} уже есть в базе'
-        else:
-            text = 'Запись успешно добавлена'
-            if Type.objects.get(id=request.POST.get('Тип_полиса')).name == 'Ипотечный':
-                policy.bank = request.POST.get('bank')
-                policy.save()
-            if request.POST.get('Оплата') == 'cash':
-                policy.type_pay = True
-                policy.save()
-            if request.POST.get('credit') == 'credit':
-                policy.credit = True
-                policy.save()
-
-            commission_objects = Commission.objects.filter(
-                type=policy.type,
-                channel=policy.channel,
-                company=policy.company,
-                date_start__lte=policy.date_registration,
-            )
-
-            if len(commission_objects) > 0:
+            if created == False:
+                error = f'Полис с номером {request.POST.get("series")} {request.POST.get("number")} уже есть в базе'
+            else:
+                text = 'Запись успешно добавлена'
                 if Type.objects.get(id=request.POST.get('Тип_полиса')).name == 'Ипотечный':
-                    commission_objects = commission_objects.filter(bank=Bank.objects.get(name=policy.bank))
+                    policy.bank = request.POST.get('bank')
+                    policy.save()
+                if request.POST.get('Оплата') == 'cash':
+                    policy.type_pay = True
+                    policy.save()
+                if request.POST.get('credit') == 'credit':
+                    policy.credit = True
+                    policy.save()
+
+                commission_objects = Commission.objects.filter(
+                    type=policy.type,
+                    channel=policy.channel,
+                    company=policy.company,
+                    date_start__lte=policy.date_registration,
+                )
 
                 if len(commission_objects) > 0:
-                    policy.commission = commission_objects.order_by('-date_start')[0].value
-                    policy.save()
+                    if Type.objects.get(id=request.POST.get('Тип_полиса')).name == 'Ипотечный':
+                        commission_objects = commission_objects.filter(bank=Bank.objects.get(name=policy.bank))
+
+                    if len(commission_objects) > 0:
+                        policy.commission = commission_objects.order_by('-date_start')[0].value
+                        policy.save()
 
     data = {
         'types': type,
@@ -399,6 +534,7 @@ def addpolicy(request):
         'banks': banks,
         'error': error,
         'text': text,
+        'text_upload': text_upload,
     }
 
     return render(request, 'main/osago.html', data)

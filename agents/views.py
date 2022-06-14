@@ -134,7 +134,7 @@ def receivable(request):
             wb = load_workbook(filename=request.FILES['file'])
             sheet = wb.worksheets[0]
             number = 0
-            for row in range(2, sheet.max_row):
+            for row in range(2, sheet.max_row+1):
                 if sheet[row][0].value is None:
                     continue
                 if isinstance(sheet[row][6].value, str):
