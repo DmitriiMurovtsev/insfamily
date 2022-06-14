@@ -175,7 +175,7 @@ def statistic(request):
         agents = User.objects.filter(agent=True)
         for user in users:
             temp_dict = {}
-            policy_user = Policy.objects.filter(user=user.id)
+            policy_user = police_for_type.filter(user=user.id)
             temp_dict['sp'] = int(sum(policy.sp for policy in policy_user))
             temp_dict['count'] = len(policy_user)
             user_statistic[user] = temp_dict
