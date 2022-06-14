@@ -858,7 +858,7 @@ def accept(request):
             continue
         link = link + f'{key}={value}&'
 
-    paginator = Paginator(result, 3)
+    paginator = Paginator(result, 15)
     current_page = request.GET.get('page', 1)
     page = paginator.get_page(current_page)
 
