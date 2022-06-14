@@ -143,6 +143,7 @@
         <div class="pop_up" id="{{ policy.id }}">
             <div class="pop_up_container">
                 <div class="pop_up_body" id="pop_up_body">
+                    <div class="cen">
                     <form class="form_1" method="post">
                     {% csrf_token %}
                         <div class="str1">
@@ -286,6 +287,7 @@
                         </div>
                     </form>
                     <div class="pop_up_close" data-close="{{ policy.id }}" id="pop_up_close">&#10006</div>
+                    </div>
                 </div>
             </div>
         </div>

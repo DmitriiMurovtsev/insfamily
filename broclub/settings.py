@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'main',
     'prolongations',
     'agents',
+    'dscript',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+</head>
+<body>
+    <h1>{{ script.name }}</h1>
+    <form action="" method="post">
+        {% csrf_token %}
+        Название <input type="text" name="step_name">
+        <input hidden type="text" name="script_id" value="{{ script.id }}">
+        <button>Добавить этап</button>
+    </form>
+    <ul>
+    {% for step in steps %}
+    <li><a href="/dscript/show_step/?step_id={{ step.id }}">{{ step }}</a></li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

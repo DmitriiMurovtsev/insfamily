@@ -60,6 +60,26 @@ class User(AbstractUser):
 
         return [sum_sp_all, sum_sp_22]
 
+    def get_all_sp(self):
+        date_start, date_end = get_start_end_date()
+        sum_sp_all = 0
+        sum_sp_22 = 0
+
+        if len(Policy.objects.filter(date_registration__lt=date_end, date_registration__gte=date_start)) > 0:
+
+            # сумма всех сборов
+            sum_sp_all = sum(policy.sp for policy in Policy.objects.filter(
+                date_registration__lt=date_end,
+                date_registration__gte=date_start))
+
+            # сумма сборов, где входящее КВ больше 22%
+            sum_sp_22 = sum(policy.sp for policy in Policy.objects.filter(
+                date_registration__lt=date_end,
+                date_registration__gte=date_start,
+                commission__gte=22))
+
+        return [sum_sp_all, sum_sp_22]
+
 
 class Type(models.Model):
     name = models.CharField(max_length=50, verbose_name='Тип полиса')

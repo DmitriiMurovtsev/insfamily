@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+{% load static %}
+<link rel="stylesheet" href="{% static 'dscript/css/show_step.css' %}">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ step.script }}</title>
+</head>
+<body>
+
+<h2>{{ step.script }}</h2>
+<h3>{{ step }}</h3>
+
+<div class="stage_menu">
+    {% for stage in stages %}
+    <a href="/dscript/show_step/?step_id={{ step.id }}&stage_id={{ stage.id }}">{{ stage.name }}</a><br>
+    {% endfor %}
+    <form method="post">
+        {% csrf_token %}
+        <input hidden value="{{ step.id }}" type="text" name="step_id">
+        <input class="stage_name_for_create" type="text" name="stage_name_for_create">
+        <button class="button_name_for_create">Добавить шаг</button>
+    </form>
+</div>
+
+<div class="container">
+    <div class="in_cont_read">
+        <h4 class="stage">{{ stage.name }}</h4>
+        <h5>{{ stage.text }}</h5>
+    </div>
+    <div class="in_cont_edit">
+        <form method="post">
+            {% csrf_token %}
+            {% if stage.count >= 1 %}
+            <input hidden value="{{ stage.id }}" type="text" name="stage_id_for_edit">
+            {% else %}
+            <input hidden value="{{ step.id }}" type="text" name="step_id">
+            {% endif %}
+            <div class="stage_name">Название шага</div>
+            <input value="{{ stage.name }}" type="text" name="stage_name"><br>
+            <div class="stage_text">Текст</div>
+            <textarea class="textarea_in_cont_edit" name="stage_text" cols="70" rows="15">{{ stage.text }}</textarea><br>
+            <button class="button_in_cont_edit">Сохранить</button>
+        </form>
+    </div>
+    <div class="answer_read">
+        {% for answer in answers_for_stage %}
+        {% if answer.link %}
+        <a class="link_answer" href="{{ answer.text }}"><button class="answer_button_read">{{ answer }}</button></a>
+        {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <button class="answer_button_read" name="answer_text_for_read" value="{{ answer.id }}">{{ answer }}</button>
+        </form>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="answer_edit">
+        <form method="post">
+            {% csrf_token %}
+            <input hidden type="text" name="stage_id" value="{{ stage.id }}">
+            <div class="answer_name">Название ответа</div>
+            <input type="text" name="answer_name"><br>
+            <div class="answer_text">Текст</div>
+            <textarea class="textarea_answer_edit" cols="70" rows="5" type="text" name="answer_text"></textarea><br>
+            <div class="type_answer">Тип ответа</div>
+            <div class="for_type_answer">
+            <input type="radio" name="type_answer" value="positive"> Положительный<br>
+            <input type="radio" name="type_answer" value="neutral" checked> Нейтральный<br>
+            <input type="radio" name="type_answer" value="negative"> Отрицательный<br>
+            </div>
+            <button class="button_answer_edit">Добавить ответ</button>
+        </form>
+    </div>
+    <div class="link_stage_edit">
+        <form method="post">
+            {% csrf_token %}
+            <input hidden type="text" name="stage_id" value="{{ stage.id }}">
+            <div class="link_stage_name">Название ответа</div>
+            <input type="text" name="link_answer_name"><br>
+            <div class="link_next_stage">Переход к шагу</div>
+            <select class="link_stage_text" name="link_stage_text">
+                {% for stage in stages %}
+                <option value="/dscript/show_step/?step_id={{ step.id }}&stage_id={{ stage.id }}">{{ stage.name }}</option>
+                {% endfor %}
+            </select>
+            <button class="button_link_edit">Добавить переход</button>
+        </form>
+    </div>
+    <div class="answer_text_for_read">
+    {{ answer_text_for_read }}
+    </div>
+</div>
+
+</body>
+</html>

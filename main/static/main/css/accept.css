@@ -129,12 +129,6 @@ input, select {
         color: #000; /* Цвет текста */
 }
 
-.form_1 {
-    padding: 20px;
-    font-size: calc(6px + (12 - 6) * ((100vw - 320px) / (1900 - 320)));
-
-}
-
 .button {
     border: 1px solid #333; /* Рамка */
     border-radius: 5px;

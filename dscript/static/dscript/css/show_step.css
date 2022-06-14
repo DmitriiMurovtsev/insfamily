@@ -1,0 +1,96 @@
+.container {
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+
+.in_cont_read {
+    margin: 5px;
+    margin-right: 4%;
+    float: left;
+    width: 45%;
+}
+
+.in_cont_edit {
+    margin: 5px;
+    float: left;
+    width: 45%;
+}
+
+.answer_read {
+    margin: 5px;
+    margin-right: 4%;
+    float: left;
+    width: 45%;
+}
+
+.answer_edit {
+    margin: 5px;
+    float: left;
+    width: 45%;
+}
+
+.answer_button_read {
+    margin: 1%;
+    float: left;
+    width: 15%;
+    height: 30px;
+}
+
+.answer_text_for_read {
+    border-top: 1px solid;
+    float: left;
+    margin-top: 20px;
+    width: 45%;
+}
+
+.answer_name, .answer_text, .stage_name, .stage_text, .type_answer, .link_stage_name, .link_next_stage {
+    width: 20%;
+    float: left;
+}
+
+.for_type_answer {
+    float: left;
+    width: 70%;
+}
+
+.textarea_in_cont_edit, .textarea_answer_edit, .link_stage_text {
+    margin-top: 5px;
+    width: 70%;
+}
+
+.button_answer_edit, .button_in_cont_edit, .button_link_edit {
+    margin-right: 10%;
+    margin-top: 5px;
+    float: right;
+    width: 20%;
+}
+
+.stage {
+    border-bottom: 1px solid;
+}
+
+.stage_menu {
+    width: 10%;
+    float: left;
+}
+
+.stage_name_for_create {
+    width: 100%;
+}
+
+.button_name_for_create {
+    margin-top: 2px;
+    width: 70;
+}
+
+.link_stage_edit {
+    margin: 5px;
+    float: right;
+    width: 45%;
+}
+
+.link_answer {
+    text-decoration: none;
+    color: #000000;
+}

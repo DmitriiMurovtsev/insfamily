@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+</head>
+<body>
+  <h2>Добавить скрипт</h2>
+  <form method="post">
+    {% csrf_token %}
+    Название <input type="text" name="script_name">
+    <button>Создать</button>
+  </form>
+  <ul>
+  {% for script in scripts %}
+  <li><a href="/dscript/show_script/?script_id={{ script.id }}">{{ script }}</a></li>
+  {% endfor %}
+  </ul>
+</body>
+</html>
