@@ -218,7 +218,7 @@ def statistic(request):
 def a_reporting(request):
     # Просмотр и выгрузка сверок
     if request.method == 'POST':
-        if request.method == 'POST' and request.user.admin:
+        if 'policy_id_for_delete' in request.POST and request.user.admin:
             Policy.objects.get(id=request.POST.get('policy_id_for_delete')).delete()
 
         if 'id_policy_for_accept' in request.POST:
@@ -956,6 +956,9 @@ def commission_delete(request):
 @login_required(login_url='login')
 def accept(request):
     # Просмотр и выгрузка проведенных полисов
+    if request.method == 'POST' and request.user.admin and 'policy_id_for_delete' in request.POST:
+        Policy.objects.get(id=request.POST.get('policy_id_for_delete')).delete()
+
     selected = {}
     if request.GET.get('date_start') == None and request.GET.get('date_end') == None:
         date_start, date_end = get_start_end_date()

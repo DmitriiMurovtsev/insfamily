@@ -93,7 +93,7 @@
             <th>Менеджер</th>
             <th>Оформлен</th>
             <th>Начало действия</th>
-            <th>Окончание действия</th>
+            <th colspan="2">Окончание действия</th>
         </tr>
         {% for policy in result %}
         <tr>
@@ -119,6 +119,15 @@
             <td>{{ policy.date_registration }}</td>
             <td>{{ policy.date_start }}</td>
             <td>{{ policy.date_end }}</td>
+            {% if user.admin %}
+            <td>
+                <form method="post">
+                    {% csrf_token %}
+                    <input hidden type="text" name="policy_id_for_delete" value="{{ policy.id }}">
+                    <button class="for_delete button" type="submit">Удалить</button>
+                </form>
+            </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>
