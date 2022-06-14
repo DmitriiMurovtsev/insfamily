@@ -225,11 +225,12 @@
         timeRange = Math.abs(dateNow.getTime() - dateAtAgent.getTime());
         dateRange = Math.ceil(timeRange / (1000 * 3600 * 24));
 
-        if ((storageTime - dateRange) <= 2) {
+        if ((storageTime - dateRange) < 2) {
             let path = dateAt[i].getAttribute('data-path');
             document.getElementById(path).classList.add('orange');
         }
-        if ((storageTime - dateRange) <= 0) {
+
+        if ((storageTime - dateRange) < 0) {
             let path = dateAt[i].getAttribute('data-path');
             document.getElementById(path).classList.add('red');
             document.getElementById(path).classList.remove('orange');
