@@ -1,0 +1,72 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/add_type_channel_company.css' %}">
+
+<table>
+    <form method="post">
+        {% csrf_token %}
+        <tr>
+            <td>Страховая компания</td>
+            <td>
+                <input type="text" name="new_company">
+            </td>
+            <td>
+                <button class="button">Сохранить</button>
+            </td>
+            <td>
+                <select>
+                    {% for company in company %}
+                    <option>{{ company }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>{{ text_company }}</td>
+        </tr>
+    </form>
+    <form method="post">
+        {% csrf_token %}
+        <tr>
+            <td>Канал продаж</td>
+            <td>
+                <input type="text" name="new_channel">
+            </td>
+            <td>
+                <button class="button">Сохранить</button>
+            </td>
+            <td>
+                <select>
+                    {% for channel in channel %}
+                    <option>{{ channel }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>{{ text_channel }}</td>
+        </tr>
+    </form>
+    <form method="post">
+        {% csrf_token %}
+        <tr>
+            <td>Тип полиса</td>
+            <td>
+                <input type="text" name="new_type">
+            </td>
+            <td>
+                <button class="button">Сохранить</button>
+            </td>
+            <td>
+                <select>
+                    {% for type in type %}
+                    <option>{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>{{ text_type }}</td>
+        </tr>
+    </form>
+</table>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Добавление
+{% endblock %}

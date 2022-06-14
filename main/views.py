@@ -876,3 +876,51 @@ def accept(request):
         'link': link,
     }
     return render(request, 'main/accept.html', data)
+
+
+@login_required(login_url='login')
+def add_type_channel_company(request):
+    # Добавление страховой компании, канала продаж и типа полиса
+    text_company = ''
+    text_channel = ''
+    text_type = ''
+
+    if request.method == 'POST':
+        if 'new_channel' in request.POST:
+            new_channel, created = Channel.objects.get_or_create(name=request.POST['new_channel'])
+
+            if created:
+                text_channel = 'Новый канал продаж добавлен'
+            else:
+                text_channel = 'Такой канал продаж уже существует'
+
+        if 'new_type' in request.POST:
+            new_type, created = Type.objects.get_or_create(name=request.POST['new_type'])
+
+            if created:
+                text_type = 'Новый тип полиса добавлен'
+            else:
+                text_type = 'Такой тип полиса уже существует'
+
+        if 'new_company' in request.POST:
+            new_company, created = Company.objects.get_or_create(name=request.POST['new_company'])
+
+            if created:
+                text_company = 'Новая страховая компания добавлена'
+            else:
+                text_company = 'Такая страховая компания уже существует'
+
+    channel = Channel.objects.all()
+    type = Type.objects.all()
+    company = Company.objects.all()
+
+    context = {
+        'text_company': text_company,
+        'text_channel': text_channel,
+        'text_type': text_type,
+        'channel': channel,
+        'type': type,
+        'company': company,
+    }
+
+    return render(request, 'main/add_type_channel_company.html', context)
