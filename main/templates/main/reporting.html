@@ -286,6 +286,13 @@
                             <input hidden name="id_policy_for_edit" value="{{ policy.id }}">
                         </div>
                     </form>
+                    <div class="str1">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input hidden type="text" name="policy_id_for_delete" value="{{ policy.id }}">
+                            <button class="for_delete button" type="submit">Удалить</button>
+                        </form>
+                    </div>
                     <div class="pop_up_close" data-close="{{ policy.id }}" id="pop_up_close">&#10006</div>
                     </div>
                 </div>

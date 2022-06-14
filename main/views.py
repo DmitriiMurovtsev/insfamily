@@ -218,11 +218,15 @@ def statistic(request):
 def a_reporting(request):
     # Просмотр и выгрузка сверок
     if request.method == 'POST':
+        if request.method == 'POST' and request.user.admin:
+            Policy.objects.get(id=request.POST.get('policy_id_for_delete')).delete()
+
         if 'id_policy_for_accept' in request.POST:
             policy_for_accept = Policy.objects.get(id=request.POST.get('id_policy_for_accept'))
             policy_for_accept.accept = True
             policy_for_accept.save()
-        else:
+
+        if 'id_policy_for_edit' in request.POST:
             policy_for_edit = Policy.objects.get(id=request.POST.get('id_policy_for_edit'))
             policy_for_edit.type = Type.objects.get(id=request.POST.get('type'))
             policy_for_edit.status = request.POST.get('Тип_продажи')
@@ -425,8 +429,8 @@ def addpolicy(request):
                         'type': type_for_created,
                         'company': company_for_created,
                         'channel': channel_for_created,
-                        'sp': float(str(sheet[row][5].value).replace(',', '.').replace(' ', '')),
-                        'commission': float(str(sheet[row][6].value).replace(',', '.').replace(' ', '')),
+                        'sp': float(str(sheet[row][5].value).replace(' ', '').replace(',', '.')),
+                        'commission': float(str(sheet[row][6].value).replace(' ', '').replace(',', '.')),
                         'date_registration': date_registration,
                         'date_start': date_start,
                         'date_end': date_end,

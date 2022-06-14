@@ -152,3 +152,9 @@ a {
     text-decoration: none;
         color: #000; /* Цвет текста */
 }
+
+.for_delete {
+    float: right;
+    clear; left;
+}
+
