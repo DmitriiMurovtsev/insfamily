@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.db.models import Q
+from openpyxl import load_workbook
 
 from .forms import UploadFileForm
 
@@ -37,7 +38,6 @@ def status_change(request):
         text = ''
         form = UploadFileForm()
         status = Status.objects.all()
-        policy_base = PolicyBase.objects.filter(status__name='В работе').order_by('date_end')
 
         if 'search' in request.GET:
             policy_base = policy_base.filter(
@@ -49,54 +49,69 @@ def status_change(request):
         if request.method == 'POST':
             form = UploadFileForm(request.POST, request.FILES)
             if form.is_valid():
-                text = 'Загружено'
-                with open('prolongations/file/date.csv', 'wb') as file:
-                    for row in request.FILES['file'].chunks():
-                        file.write(row)
+                wb = load_workbook(filename=request.FILES['file'])
+                sheet = wb.worksheets[0]
+                count = 0
 
-                with open('prolongations/file/date.csv', 'r', encoding='cp1251', newline='') as file_1:
-                    reader = csv.DictReader(file_1, delimiter=';')
-                    for row in reader:
-                        if len(row['Дата рождения']) > 0:
-                            birthday = datetime.datetime.strptime(row['Дата рождения'], "%d.%m.%Y")
-                        client, created = Client.objects.get_or_create(
-                            first_name=row['Имя'],
-                            middle_name=row['Отчество'],
-                            last_name=row['Фамилия'],
-                            birthday=birthday,
-                            defaults={
-                                'phone': row['Телефон'],
-                                'email': row['Почта'],
-                            }
-                        )
+                for row in range(2, sheet.max_row + 1):
+                    # пропускаем пустую строчку
+                    if sheet[row][0].value is None:
+                        continue
 
-                        name, created = NameBase.objects.get_or_create(
-                            name=row['Название базы']
-                        )
+                    if isinstance(sheet[row][6].value, str):
+                        date_end = f'{sheet[row][6].value[6:10]}-' \
+                                   f'{sheet[row][6].value[3:5]}-' \
+                                   f'{sheet[row][6].value[0:2]}'
+                    else:
+                        date_end = f'{sheet[row][6].value.year}-' \
+                                   f'{sheet[row][6].value.month}-' \
+                                   f'{sheet[row][6].value.day}'
 
-                        company, created = Company.objects.get_or_create(
-                            name=row['Компания']
-                        )
+                    type_policy, created = Type.objects.get_or_create(name=sheet[row][10].value)
+                    name_base, created = NameBase.objects.get_or_create(name=sheet[row][11].value)
+                    company_policy, created = Company.objects.get_or_create(name=sheet[row][4].value)
 
-                        type, created = Type.objects.get_or_create(
-                            name=row['Тип полиса']
-                        )
+                    if len(sheet[row][0].value.split()) > 3:
+                        middle_name = f'{sheet[row][0].value.split()[2]} {sheet[row][0].value.split()[3]}'
+                    elif len(sheet[row][0].value.split()) == 3:
+                        middle_name = sheet[row][0].value.split()[2]
+                    else:
+                        middle_name = ''
 
-                        PolicyBase.objects.get_or_create(
-                            bso=row['БСО'],
-                            defaults={
-                                'type': type,
-                                'company': company,
-                                'status_id': Status.objects.get(name='В работе').id,
-                                'client': client,
-                                'sp': row['СП'].replace(',', '.'),
-                                'channel': row['Канал продаж'],
-                                'date_end': datetime.datetime.strptime(row['Дата окончания'], "%d.%m.%Y"),
-                                'manager': row['Менеджер прошлого года'],
-                                'object': row['Объект страхования'],
-                                'name': name,
-                            }
-                        )
+                    client_policy, created = Client.objects.get_or_create(
+                        first_name=sheet[row][0].value.split()[1],
+                        last_name=sheet[row][0].value.split()[0],
+                        middle_name=middle_name,
+                        phone=sheet[row][1].value,
+                        defaults={
+                            'email': sheet[row][2].value,
+                        }
+                    )
+
+                    status_policy = Status.objects.get(name='В работе')
+                    bso_policy = sheet[row][5].value
+                    sp_policy = float(str(sheet[row][8].value).replace(',', '.'))
+                    channel_policy = sheet[row][3].value
+                    object_policy = sheet[row][7].value
+                    manager_policy = sheet[row][9].value
+
+                    policy_base, created = PolicyBase.objects.get_or_create(
+                        bso=bso_policy,
+                        company=company_policy,
+                        defaults={
+                            'type': type_policy,
+                            'name': name_base,
+                            'client': client_policy,
+                            'status': status_policy,
+                            'sp': sp_policy,
+                            'channel': channel_policy,
+                            'manager': manager_policy,
+                            'object': object_policy,
+                            'date_end': date_end,
+                        }
+                    )
+
+        policy_base = PolicyBase.objects.filter(status__name='В работе').order_by('date_end')
 
         paginator = Paginator(policy_base, 20)
         current_page = request.GET.get('page', 1)

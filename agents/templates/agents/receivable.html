@@ -248,11 +248,13 @@
 {% endif %}
 
 {% for p in paginator.page_range %}
+{% if page.number|add:'-3' < p and page.number|add:'3' > p %}
     {% if p != page.number %}
-        <a href="{{ link }}page={{ p }}" class="button">{{ p }}</a>
+        <a href="?page={{ p }}" class="button">{{ p }}</a>
     {% else %}
         <b class="button check">{{ p }}</b>
     {% endif %}
+{% endif %}
 {% endfor %}
 
 {% if page.has_next %}
