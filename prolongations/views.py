@@ -38,6 +38,7 @@ def status_change(request):
         text = ''
         form = UploadFileForm()
         status = Status.objects.all()
+        policy_base = PolicyBase.objects.filter(status__name='В работе').order_by('date_end')
 
         if 'search' in request.GET:
             policy_base = policy_base.filter(
@@ -51,21 +52,11 @@ def status_change(request):
             if form.is_valid():
                 wb = load_workbook(filename=request.FILES['file'])
                 sheet = wb.worksheets[0]
-                count = 0
 
                 for row in range(2, sheet.max_row + 1):
                     # пропускаем пустую строчку
                     if sheet[row][0].value is None:
                         continue
-
-                    if isinstance(sheet[row][6].value, str):
-                        date_end = f'{sheet[row][6].value[6:10]}-' \
-                                   f'{sheet[row][6].value[3:5]}-' \
-                                   f'{sheet[row][6].value[0:2]}'
-                    else:
-                        date_end = f'{sheet[row][6].value.year}-' \
-                                   f'{sheet[row][6].value.month}-' \
-                                   f'{sheet[row][6].value.day}'
 
                     type_policy, created = Type.objects.get_or_create(name=sheet[row][10].value)
                     name_base, created = NameBase.objects.get_or_create(name=sheet[row][11].value)
@@ -94,8 +85,9 @@ def status_change(request):
                     channel_policy = sheet[row][3].value
                     object_policy = sheet[row][7].value
                     manager_policy = sheet[row][9].value
+                    date_end = sheet[row][6].value
 
-                    policy_base, created = PolicyBase.objects.get_or_create(
+                    PolicyBase.objects.get_or_create(
                         bso=bso_policy,
                         company=company_policy,
                         defaults={
