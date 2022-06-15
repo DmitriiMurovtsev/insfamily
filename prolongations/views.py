@@ -103,8 +103,6 @@ def status_change(request):
                         }
                     )
 
-        policy_base = PolicyBase.objects.filter(status__name='В работе').order_by('date_end')
-
         paginator = Paginator(policy_base, 20)
         current_page = request.GET.get('page', 1)
         page = paginator.get_page(current_page)
