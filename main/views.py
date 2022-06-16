@@ -1061,6 +1061,7 @@ def add_type_channel_company(request):
     # Добавление страховой компании, канала продаж и типа полиса
     text_company = ''
     text_channel = ''
+    text_bank = ''
     text_type = ''
 
     if request.method == 'POST':
@@ -1088,16 +1089,27 @@ def add_type_channel_company(request):
             else:
                 text_company = 'Такая страховая компания уже существует'
 
+        if 'new_bank' in request.POST:
+            new_bank, created = Bank.objects.get_or_create(name=request.POST['new_bank'])
+
+            if created:
+                text_bank = 'Новый банк добавлен'
+            else:
+                text_bank = 'Такой банк уже существует'
+
     channel = Channel.objects.all()
     type = Type.objects.all()
     company = Company.objects.all()
+    bank = Bank.objects.all()
 
     context = {
         'text_company': text_company,
         'text_channel': text_channel,
+        'text_bank': text_bank,
         'text_type': text_type,
         'channel': channel,
         'type': type,
+        'bank': bank,
         'company': company,
     }
 

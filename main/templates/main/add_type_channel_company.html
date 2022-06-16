@@ -64,6 +64,26 @@
             <td>{{ text_type }}</td>
         </tr>
     </form>
+    <form method="post">
+        {% csrf_token %}
+        <tr>
+            <td>Банк</td>
+            <td>
+                <input type="text" name="new_bank">
+            </td>
+            <td>
+                <button class="button">Сохранить</button>
+            </td>
+            <td>
+                <select>
+                    {% for bank in bank %}
+                    <option>{{ bank }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>{{ text_bank }}</td>
+        </tr>
+    </form>
 </table>
 
 {% endblock %}

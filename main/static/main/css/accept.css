@@ -132,7 +132,7 @@ input, select {
 .button {
     border: 1px solid #333; /* Рамка */
     border-radius: 5px;
-    font-size: 12px;
+    font-size: 10px;
     display: inline-block;
     padding: 5px 15px; /* Поля */
     color: #000; /* Цвет текста */
@@ -147,14 +147,12 @@ input, select {
     background: #808080;
   }
 
-
 a {
     text-decoration: none;
-        color: #000; /* Цвет текста */
+    color: #000; /* Цвет текста */
 }
 
 .for_delete {
     float: right;
     clear; left;
 }
-
