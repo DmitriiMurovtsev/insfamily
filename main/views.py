@@ -474,10 +474,21 @@ def addpolicy(request):
                 return response
 
         else:
+            full_name = request.POST['full_name']
+            while full_name[-1] == ' ':
+                full_name = full_name[:-1]
+            last_name = full_name.split()[0].capitalize()
+            first_name = full_name.split()[1].capitalize()
+            middle_name = ''
+            if len(full_name.split()) > 2:
+                for name in full_name.split()[2:]:
+                    middle_name = middle_name + name.capitalize() + " "
+                middle_name = middle_name[:-1]
+
             client, created = Client.objects.get_or_create(
-                first_name=request.POST.get('first_name'),
-                middle_name=request.POST.get('middle_name'),
-                last_name=request.POST.get('last_name'),
+                first_name=first_name,
+                middle_name=middle_name,
+                last_name=last_name,
                 birthday=request.POST.get('birthday'),
                 defaults={
                     'phone': request.POST.get('phone'),
