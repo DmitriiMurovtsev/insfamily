@@ -198,6 +198,14 @@
         } else {
         document.getElementById("credit").hidden=true;
         }
+
+        if (selectedType.text == 'Ипотечный') {
+        document.getElementById("commission").hidden = false;
+        document.getElementById("com").hidden = false;
+        } else {
+        document.getElementById("commission").hidden=true;
+        document.getElementById("com").hidden = true;
+        }
     }
 
     lan.addEventListener("change", changeOption);
