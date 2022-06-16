@@ -501,6 +501,8 @@ def addpolicy(request):
                     sheet[str_number][1].value = policy
                     sheet[str_number][2].value = error
 
+                    str_number += 1
+
                 response = HttpResponse(content_type='application/vnd.ms-excel')
                 response['Content-Disposition'] = 'attachment; filename="wb_errors.xlsx"'
 
