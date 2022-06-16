@@ -82,7 +82,7 @@
                     </tr>
                     <tr><td><b>Серия полиса</b></td><td><input name="series" placeholder="серия"></td></tr>
                     <tr><td><b>Номер полиса</b></td><td><input name="number" placeholder="номер" required></td></tr>
-                    <tr><td><b>Страховая премия</b></td><td><input name="sp" pattern="\d+(.\d)?" placeholder="1234.05"></td></tr>
+                    <tr><td><b>Страховая премия</b></td><td><input name="sp" placeholder="1234.05"></td></tr>
                     <tr><td><b>Страховая компания</b></td>
                         <td>
                             <select name="Страховая_компания">
@@ -104,7 +104,7 @@
                     {% if user.agent == True %}
                         <tr><td><b>КВ в %</b></td><td><input name="commission" placeholder="КВ %" required></td></tr>
                     {% else %}
-                        <tr><td><b id="com" hidden>КВ в %</b></td><td><input value="0" hidden id="commission" name="commission" pattern="\d+(,\d{2})?" placeholder="КВ %" required></td></tr>
+                        <tr><td><b id="com" hidden>КВ в %</b></td><td><input value="0" hidden id="commission" name="commission" placeholder="КВ %" required></td></tr>
                     {% endif %}
                     <tr><td><b>Дата оформления</b></td><td><input id="date_at" type="date" name="date_registration" required></td></tr>
                     <tr><td><b>Дата начала действия</b></td><td><input id="date_start" type="date" name="date_start" required></td></tr>
