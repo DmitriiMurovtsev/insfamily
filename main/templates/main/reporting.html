@@ -305,7 +305,8 @@
         {% endfor %}
         </table>
 
-<br>---<br>
+<div class="pagi">
+    <div class="pagi_line">---</div>
 {% if page.has_previous %}
     <a href="{{ link }}page={{ page.previous_page_number }}" class="button">Назад</a>
 {% endif %}
@@ -323,6 +324,7 @@
 {% if page.has_next %}
     <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
 {% endif %}
+</div>
 
 <script>
     const openPopUp = document.querySelectorAll('.button');

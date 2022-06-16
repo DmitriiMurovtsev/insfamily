@@ -138,8 +138,8 @@
         {% endfor %}
     </table>
 
+<div class="pagi">
 <br>---<br>
-
 {% if page.has_previous %}
     <a href="{{ link }}page={{ page.previous_page_number }}" class="button">Назад</a>
 {% endif %}
@@ -157,6 +157,7 @@
 {% if page.has_next %}
     <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
 {% endif %}
+</div>
 
 {% endblock %}
 {% block title %}

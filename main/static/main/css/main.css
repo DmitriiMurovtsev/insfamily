@@ -1,8 +1,8 @@
 aside {
     float: left;
-    width: calc(150px + (250 - 150) * ((100vw - 320px) / (1900 - 320)));
+    width: calc(14% + (10 - 14) * ((100vw - 320px) / (1900 - 320)));
     padding: 1%;
-    height: 100vh;
+    height: 100%;
     border-right: 2px solid #4d4d4d;
     margin-right: 10px;
 }
