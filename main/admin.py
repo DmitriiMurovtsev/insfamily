@@ -10,7 +10,6 @@ class PolicyInline(admin.TabularInline):
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ['id', 'username', 'first_name', 'last_name']
-    inlines = [PolicyInline]
 
 
 @admin.register(Policy)
