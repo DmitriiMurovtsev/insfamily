@@ -156,3 +156,7 @@ a {
     float: right;
     clear; left;
 }
+
+.search {
+    width: 10%;
+}

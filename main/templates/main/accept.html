@@ -80,6 +80,10 @@
 
         </table>
     </form>
+<form method="get">
+    <td><input class="search" value="{{ selected.search }}" name="search" type="text">
+    <button class="button">Поиск</button></td>
+</form>
     <table class="table_2">
         <tr>
             <th>Тип продажи</th>
@@ -88,14 +92,15 @@
             <th>Компания</th>
             <th>Канал продаж</th>
             <th>Премия</th>
-            <th>Комиссия</th>
+            <th>Входящее КВ %</th>
+            <th>Входящее КВ руб.</th>
             <th>Клиент</th>
             <th>Менеджер</th>
             <th>Оформлен</th>
             <th>Начало действия</th>
             <th colspan="2">Окончание действия</th>
         </tr>
-        {% for policy in result %}
+        {% for policy in policy_list %}
         <tr>
             <td>
                 {% if policy.status == 'newbiz' %}
@@ -113,7 +118,8 @@
             <td>{{ policy.company }}</td>
             <td>{{ policy.channel }}</td>
             <td>{{ policy.sp }}</td>
-            <td>{{ policy.commission }}</td>
+            <td>{{ policy.commission }}%</td>
+            <td>{{ policy.commission_rur }}р.</td>
             <td>{{ policy.client }}</td>
             <td>{{ policy.user }}</td>
             <td>{{ policy.date_registration }}</td>

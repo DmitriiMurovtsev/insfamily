@@ -4,6 +4,7 @@ import csv
 import openpyxl
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from openpyxl import load_workbook
@@ -282,23 +283,35 @@ def a_reporting(request):
     company = Company.objects.all()
     channel = Channel.objects.all()
     type = Type.objects.all()
-    result = result.filter(
-        date_registration__lt=date_end,
-        date_registration__gte=date_start
-    )
-    if 'Менеджер' in request.GET:
-        if request.GET.get('Менеджер') != 'all':
-            selected['manager'] = int(request.GET.get('Менеджер'))
-            result = result.filter(user=request.GET.get('Менеджер'))
-        if request.GET.get('Канал продаж') != 'all':
-            selected['channel'] = int(request.GET.get('Канал продаж'))
-            result = result.filter(channel=request.GET.get('Канал продаж'))
-        if request.GET.get('Страховая компания') != 'all':
-            selected['company'] = int(request.GET.get('Страховая компания'))
-            result = result.filter(company=request.GET.get('Страховая компания'))
-        if request.GET.get('Тип полиса') != 'all':
-            selected['type'] = int(request.GET.get('Тип полиса'))
-            result = result.filter(type=request.GET.get('Тип полиса'))
+
+    if 'search' in request.GET:
+        # поиск по страхователю или по номеру полиса
+        selected['search'] = request.GET.get('search')
+        result = result.filter(
+            Q(client__last_name__iregex=request.GET.get('search')) |
+            Q(client__first_name__iregex=request.GET.get('search')) |
+            Q(client__middle_name__iregex=request.GET.get('search')) |
+            Q(number__iregex=request.GET.get('search')) |
+            Q(series__iregex=request.GET.get('search'))
+        )
+    else:
+        result = result.filter(
+            date_registration__lt=date_end,
+            date_registration__gte=date_start
+        )
+        if 'Менеджер' in request.GET:
+            if request.GET.get('Менеджер') != 'all':
+                selected['manager'] = int(request.GET.get('Менеджер'))
+                result = result.filter(user=request.GET.get('Менеджер'))
+            if request.GET.get('Канал продаж') != 'all':
+                selected['channel'] = int(request.GET.get('Канал продаж'))
+                result = result.filter(channel=request.GET.get('Канал продаж'))
+            if request.GET.get('Страховая компания') != 'all':
+                selected['company'] = int(request.GET.get('Страховая компания'))
+                result = result.filter(company=request.GET.get('Страховая компания'))
+            if request.GET.get('Тип полиса') != 'all':
+                selected['type'] = int(request.GET.get('Тип полиса'))
+                result = result.filter(type=request.GET.get('Тип полиса'))
 
     if len(result) > 0:
         for policy in result:
@@ -995,6 +1008,7 @@ def accept(request):
         policy_for_return.save()
 
     selected = {}
+    policy_list = []
     if request.GET.get('date_start') == None and request.GET.get('date_end') == None:
         date_start, date_end = get_start_end_date()
         date_start = date_start.strftime("%Y-%m-%d")
@@ -1011,23 +1025,60 @@ def accept(request):
     company = Company.objects.all()
     channel = Channel.objects.all()
     type = Type.objects.all()
-    result = result.filter(
-        date_registration__lt=date_end,
-        date_registration__gte=date_start
-    )
-    if 'Менеджер' in request.GET:
-        if request.GET.get('Менеджер') != 'all':
-            selected['manager'] = int(request.GET.get('Менеджер'))
-            result = result.filter(user=request.GET.get('Менеджер'))
-        if request.GET.get('Канал продаж') != 'all':
-            selected['channel'] = int(request.GET.get('Канал продаж'))
-            result = result.filter(channel=request.GET.get('Канал продаж'))
-        if request.GET.get('Страховая компания') != 'all':
-            selected['company'] = int(request.GET.get('Страховая компания'))
-            result = result.filter(company=request.GET.get('Страховая компания'))
-        if request.GET.get('Тип полиса') != 'all':
-            selected['type'] = int(request.GET.get('Тип полиса'))
-            result = result.filter(type=request.GET.get('Тип полиса'))
+
+    if 'search' in request.GET:
+        # поиск по страхователю или по номеру полиса
+        selected['search'] = request.GET.get('search')
+        result = result.filter(
+            Q(client__last_name__iregex=request.GET.get('search')) |
+            Q(client__first_name__iregex=request.GET.get('search')) |
+            Q(client__middle_name__iregex=request.GET.get('search')) |
+            Q(number__iregex=request.GET.get('search')) |
+            Q(series__iregex=request.GET.get('search'))
+        )
+    else:
+        result = result.filter(
+            date_registration__lt=date_end,
+            date_registration__gte=date_start
+        )
+        if 'Менеджер' in request.GET:
+            if request.GET.get('Менеджер') != 'all':
+                selected['manager'] = int(request.GET.get('Менеджер'))
+                result = result.filter(user=request.GET.get('Менеджер'))
+            if request.GET.get('Канал продаж') != 'all':
+                selected['channel'] = int(request.GET.get('Канал продаж'))
+                result = result.filter(channel=request.GET.get('Канал продаж'))
+            if request.GET.get('Страховая компания') != 'all':
+                selected['company'] = int(request.GET.get('Страховая компания'))
+                result = result.filter(company=request.GET.get('Страховая компания'))
+            if request.GET.get('Тип полиса') != 'all':
+                selected['type'] = int(request.GET.get('Тип полиса'))
+                result = result.filter(type=request.GET.get('Тип полиса'))
+
+    if len(result) > 0:
+        for policy in result:
+            commission_rur = '{:.2f}'.format(policy.commission / 100 * policy.sp)
+            temp_dict = {
+                'status': policy.status,
+                'type': policy.type,
+                'series': policy.series,
+                'number': policy.number,
+                'company': policy.company,
+                'channel': policy.channel,
+                'sp': policy.sp,
+                'commission': policy.commission,
+                'commission_rur': commission_rur,
+                'client': policy.client,
+                'user': policy.user,
+                'date_registration': policy.date_registration,
+                'date_registration_for_edit': policy.date_registration.strftime("%Y-%m-%d"),
+                'date_start': policy.date_start,
+                'date_start_for_edit': policy.date_start.strftime("%Y-%m-%d"),
+                'date_end': policy.date_end,
+                'date_end_for_edit': policy.date_end.strftime("%Y-%m-%d"),
+                'id': policy.id,
+            }
+            policy_list.append(temp_dict)
 
     # ссылка с параметрами для пагинации
     link = '?'
@@ -1036,7 +1087,7 @@ def accept(request):
             continue
         link = link + f'{key}={value}&'
 
-    paginator = Paginator(result, 15)
+    paginator = Paginator(policy_list, 15)
     current_page = request.GET.get('page', 1)
     page = paginator.get_page(current_page)
 
@@ -1045,7 +1096,7 @@ def accept(request):
         'companies': company,
         'channels': channel,
         'types': type,
-        'result': page.object_list,
+        'policy_list': page.object_list,
         'paginator': paginator,
         'page': page,
         'date_start': date_start,
