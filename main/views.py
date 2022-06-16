@@ -228,6 +228,28 @@ def a_reporting(request):
 
         if 'id_policy_for_edit' in request.POST:
             policy_for_edit = Policy.objects.get(id=request.POST.get('id_policy_for_edit'))
+
+            full_name = request.POST['full_name_client']
+            if f'{policy_for_edit.client.last_name} {policy_for_edit.client.first_name} ' \
+               f'{policy_for_edit.client.middle_name}' != full_name:
+
+                client_for_edit = policy_for_edit.client
+
+                while full_name[-1] == ' ':
+                    full_name = full_name[:-1]
+                last_name = full_name.split()[0].capitalize()
+                first_name = full_name.split()[1].capitalize()
+                middle_name = ''
+                if len(full_name.split()) > 2:
+                    for name in full_name.split()[2:]:
+                        middle_name = middle_name + name.capitalize() + " "
+                    middle_name = middle_name[:-1]
+
+                client_for_edit.last_name = last_name
+                client_for_edit.first_name = first_name
+                client_for_edit.middle_name = middle_name
+                client_for_edit.save()
+
             policy_for_edit.type = Type.objects.get(id=request.POST.get('type'))
             policy_for_edit.status = request.POST.get('Тип_продажи')
             policy_for_edit.number = request.POST.get('number')
