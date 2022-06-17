@@ -83,7 +83,7 @@
                     </tr>
                     <tr><td><b>Серия полиса</b></td><td><input readonly value="ХХХ" id="series" name="series" placeholder="серия"></td></tr>
                     <tr><td><b>Номер полиса</b></td><td><input id="number" maxlength="10" minlength="10" name="number" placeholder="номер" required></td></tr>
-                    <tr><td><b>Страховая премия</b></td><td><input name="sp" placeholder="1234.05"></td></tr>
+                    <tr><td><b>Страховая премия</b></td><td><input name="sp" placeholder="1234.05" required></td></tr>
                     <tr><td><b>Страховая компания</b></td>
                         <td>
                             <select name="Страховая_компания">
@@ -256,9 +256,6 @@
             document.getElementById(path).classList.remove('active');
         });
     });
-</script>
-<script>
-
 </script>
 
 {% endblock %}
