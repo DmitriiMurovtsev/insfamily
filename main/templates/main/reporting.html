@@ -113,6 +113,8 @@
                 Переход
                 {% elif policy.status == 'addendum' %}
                 Аддендум
+                {% elif policy.status == 'payment' %}
+                Очередной взнос
                 {% endif %}
             </td>
             <td>{{ policy.type }}</td>

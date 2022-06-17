@@ -532,27 +532,26 @@ def addpolicy(request):
                     'email': request.POST.get('email')
                 }
             )
-            policy, created = Policy.objects.get_or_create(
-                number=request.POST.get('number'),
-                series=request.POST.get('series'),
-                company_id=request.POST.get('Страховая_компания'),
-                defaults={
-                    'user_id': request.user.id,
-                    'client_id': client.id,
-                    'channel_id': request.POST.get('Канал_продаж'),
-                    'type_id': request.POST.get('Тип_полиса'),
-                    'date_registration': request.POST.get('date_registration'),
-                    'date_start': request.POST.get('date_start'),
-                    'date_end': request.POST.get('date_end'),
-                    'commission': float(request.POST.get('commission').replace(',', '.')),
-                    'sp': float(request.POST.get('sp').replace(',', '.')),
-                    'status': request.POST.get('Тип продажи'),
-                    }
-                )
 
-            if created == False:
-                error = f'Полис с номером {request.POST.get("series")} {request.POST.get("number")} уже есть в базе'
-            else:
+            if request.POST.get('Тип продажи') == 'payment':
+                # очередной взнос
+                policy = Policy(
+                    number=request.POST.get('number'),
+                    series=request.POST.get('series'),
+                    company_id=request.POST.get('Страховая_компания'),
+                    user_id=request.user.id,
+                    client_id=client.id,
+                    channel_id=request.POST.get('Канал_продаж'),
+                    type_id=request.POST.get('Тип_полиса'),
+                    date_registration=request.POST.get('date_registration'),
+                    date_start=request.POST.get('date_start'),
+                    date_end=request.POST.get('date_end'),
+                    commission=float(request.POST.get('commission').replace(',', '.')),
+                    sp=float(request.POST.get('sp').replace(',', '.')),
+                    status=request.POST.get('Тип продажи'),
+                )
+                policy.save()
+
                 text = 'Запись успешно добавлена'
                 if Type.objects.get(id=request.POST.get('Тип_полиса')).name == 'Ипотечный':
                     policy.bank = request.POST.get('bank')
@@ -578,6 +577,55 @@ def addpolicy(request):
                     if len(commission_objects) > 0:
                         policy.commission = commission_objects.order_by('-date_start')[0].value
                         policy.save()
+
+            else:
+                # добавление нового полиса
+                policy, created = Policy.objects.get_or_create(
+                    number=request.POST.get('number'),
+                    series=request.POST.get('series'),
+                    company_id=request.POST.get('Страховая_компания'),
+                    defaults={
+                        'user_id': request.user.id,
+                        'client_id': client.id,
+                        'channel_id': request.POST.get('Канал_продаж'),
+                        'type_id': request.POST.get('Тип_полиса'),
+                        'date_registration': request.POST.get('date_registration'),
+                        'date_start': request.POST.get('date_start'),
+                        'date_end': request.POST.get('date_end'),
+                        'commission': float(request.POST.get('commission').replace(',', '.')),
+                        'sp': float(request.POST.get('sp').replace(',', '.')),
+                        'status': request.POST.get('Тип продажи'),
+                        }
+                    )
+
+                if created == False:
+                    error = f'Полис с номером {request.POST.get("series")} {request.POST.get("number")} уже есть в базе'
+                else:
+                    text = 'Запись успешно добавлена'
+                    if Type.objects.get(id=request.POST.get('Тип_полиса')).name == 'Ипотечный':
+                        policy.bank = request.POST.get('bank')
+                        policy.save()
+                    if request.POST.get('Оплата') == 'cash':
+                        policy.type_pay = True
+                        policy.save()
+                    if request.POST.get('credit') == 'credit':
+                        policy.credit = True
+                        policy.save()
+
+                    commission_objects = Commission.objects.filter(
+                        type=policy.type,
+                        channel=policy.channel,
+                        company=policy.company,
+                        date_start__lte=policy.date_registration,
+                    )
+
+                    if len(commission_objects) > 0:
+                        if Type.objects.get(id=request.POST.get('Тип_полиса')).name == 'Ипотечный':
+                            commission_objects = commission_objects.filter(bank=Bank.objects.get(name=policy.bank))
+
+                        if len(commission_objects) > 0:
+                            policy.commission = commission_objects.order_by('-date_start')[0].value
+                            policy.save()
 
     data = {
         'types': type,
