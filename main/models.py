@@ -136,6 +136,8 @@ class Policy(models.Model):
     accept = models.BooleanField(verbose_name='Проведен', default=False)
     type_pay = models.BooleanField(verbose_name='Наличные', default=False)
     credit = models.BooleanField(verbose_name='Кредитное ТС', default=False)
+    sale_report = models.ForeignKey('SaleReport', on_delete=models.DO_NOTHING, verbose_name='АКТ', blank=True,
+                                    null=True)
 
     class Meta:
         verbose_name = 'Полис'
@@ -190,3 +192,27 @@ class Commission(models.Model):
 
     def __str__(self):
         return f'{self.channel} с {self.date_start}'
+
+
+class Expenses(models.Model):
+    # расходы
+    name = models.CharField(max_length=200, verbose_name='Наименование')
+    date_expenses = models.DateField(verbose_name='Дата расхода')
+    value = models.DecimalField(verbose_name='Сумма расходов', decimal_places=2, max_digits=8)
+    salary = models.BooleanField(verbose_name='Зарплата', default=False)
+    sale_report = models.ForeignKey('SaleReport', on_delete=models.DO_NOTHING, verbose_name='АКТ', blank=True,
+                                    null=True)
+
+    class Meta:
+        verbose_name = 'Расход'
+        verbose_name_plural = 'Расходы'
+        ordering = ['-date_expenses']
+
+    def __str__(self):
+        return self.name
+
+
+class SaleReport(models.Model):
+    # итоговый акт проведённых полисов и расходов
+    name = models.CharField(max_length=50, verbose_name='Наименование')
+    date_create = models.DateField(verbose_name='Дата создания акта')

@@ -1,0 +1,15 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/expenses.css' %}">
+
+{{ text }}
+
+<form method="post">
+    <input class="name_expenses" type="number" name="name_expenses">
+</form>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Расходы
+{% endblock %}

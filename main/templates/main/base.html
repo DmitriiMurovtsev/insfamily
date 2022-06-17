@@ -30,6 +30,9 @@
             <a href="{% url 'statistic' %}"><li>Статистика продаж</li></a>
             <a href="{% url 'reporting' %}"><li>Сверки</li></a>
             <a href="{% url 'accept' %}"><li>Проведено</li></a>
+            {% if user.username == 'MLondorenko' or user.username == 'DMurovtsev' %}
+            <a href="{% url 'expenses' %}"><li>Расходы</li></a>
+            {% endif %}
         </ul>
         {% if user.admin %}
         <ul class="ul">

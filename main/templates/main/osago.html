@@ -83,7 +83,7 @@
                     </tr>
                     <tr><td><b>Серия полиса</b></td><td><input readonly value="ХХХ" id="series" name="series" placeholder="серия"></td></tr>
                     <tr><td><b>Номер полиса</b></td><td><input id="number" maxlength="10" minlength="10" name="number" placeholder="номер" required></td></tr>
-                    <tr><td><b>Страховая премия</b></td><td><input name="sp" placeholder="1234.05" required></td></tr>
+                    <tr><td><b>Страховая премия</b></td><td><input name="sp" type="number" step="0.01" placeholder="1234.05" required></td></tr>
                     <tr><td><b>Страховая компания</b></td>
                         <td>
                             <select name="Страховая_компания">
@@ -103,7 +103,7 @@
                         </td>
                     </tr>
                     {% if user.agent == True %}
-                        <tr><td><b>КВ в %</b></td><td><input name="commission" placeholder="КВ %" required></td></tr>
+                        <tr><td><b>КВ в %</b></td><td><input name="commission" type="number" step="0.01" placeholder="КВ %" required></td></tr>
                     {% else %}
                         <tr><td><b id="com" hidden>КВ в %</b></td><td><input value="0" hidden id="commission" name="commission" placeholder="КВ %" required></td></tr>
                     {% endif %}

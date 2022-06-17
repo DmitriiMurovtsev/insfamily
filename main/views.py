@@ -379,7 +379,6 @@ def addpolicy(request):
     channel = Channel.objects.all()
 
     if request.method == 'POST':
-        print(request.POST)
         if 'upload' in request.POST:
             # загрузка продаж из файла
             wb = load_workbook(filename=request.FILES['file'])
@@ -1215,3 +1214,16 @@ def add_type_channel_company(request):
     }
 
     return render(request, 'main/add_type_channel_company.html', context)
+
+
+@login_required(login_url='login')
+def get_expenses(request):
+    # расходы и статистика по ним
+    if request.user.username == 'MLondorenko' or request.user.username == 'DMurovtsev':
+        pass
+
+    context = {
+        '': '',
+    }
+
+    return render(request, 'main/expenses.html', context)
