@@ -379,7 +379,7 @@ def addpolicy(request):
     channel = Channel.objects.all()
 
     if request.method == 'POST':
-
+        print(request.POST)
         if 'upload' in request.POST:
             # загрузка продаж из файла
             wb = load_workbook(filename=request.FILES['file'])

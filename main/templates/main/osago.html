@@ -49,7 +49,7 @@
                     </tr>
                     <tr><td><b>Оплата</b></td>
                         <td>
-                            <select name="Оплата">
+                            <select id="Оплата" name="Оплата">
                                 <option value="non_cash">Безнал</option>
                                 <option value="cash">Наличные</option>
                             </select>
@@ -81,8 +81,8 @@
                             </select>
                         </td>
                     </tr>
-                    <tr><td><b>Серия полиса</b></td><td><input name="series" placeholder="серия"></td></tr>
-                    <tr><td><b>Номер полиса</b></td><td><input name="number" placeholder="номер" required></td></tr>
+                    <tr><td><b>Серия полиса</b></td><td><input readonly value="ХХХ" id="series" name="series" placeholder="серия"></td></tr>
+                    <tr><td><b>Номер полиса</b></td><td><input id="number" maxlength="10" minlength="10" name="number" placeholder="номер" required></td></tr>
                     <tr><td><b>Страховая премия</b></td><td><input name="sp" placeholder="1234.05"></td></tr>
                     <tr><td><b>Страховая компания</b></td>
                         <td>
@@ -171,6 +171,7 @@
     var lan = policy.Канал_продаж;
     var bank = policy.Тип_полиса;
     var credit = policy.Тип_полиса;
+    var typePay = policy.Оплата;
 
     function changeOption(){
         var selectedOption = lan.options[lan.selectedIndex];
@@ -194,10 +195,11 @@
 
     function changeCredit(){
         var selectedType = credit.options[credit.selectedIndex];
+        var selectedTypePay = typePay.options[typePay.selectedIndex];
         if (selectedType.text == 'КАСКО') {
         document.getElementById("credit").hidden = false;
         } else {
-        document.getElementById("credit").hidden=true;
+        document.getElementById("credit").hidden = true;
         }
 
         if (selectedType.text == 'Ипотечный') {
@@ -207,11 +209,29 @@
         document.getElementById("commission").hidden=true;
         document.getElementById("com").hidden = true;
         }
+
+        if (selectedType.text == 'ОСАГО' && selectedTypePay.text == 'Безнал') {
+        document.getElementById("series").value = 'ХХХ';
+        document.getElementById("series").setAttribute("readonly", "true");
+        } else {
+        document.getElementById("series").value = '';
+        document.getElementById("series").setAttribute("readonly", "false");
+        }
+
+        if (selectedType.text == 'ОСАГО') {
+        document.getElementById("number").setAttribute("maxlength", "10");
+        document.getElementById("number").setAttribute("minlength", "10");
+        } else {
+        document.getElementById("number").removeAttribute("maxlength");
+        document.getElementById("number").removeAttribute("minlength");
+        }
     }
 
     lan.addEventListener("change", changeOption);
     bank.addEventListener("change", changeBank);
     bank.addEventListener("change", changeCredit);
+    typePay.addEventListener("change", changeCredit);
+
 </script>
 <script>
     const openPopUp = document.querySelectorAll('.button');
@@ -236,6 +256,9 @@
             document.getElementById(path).classList.remove('active');
         });
     });
+</script>
+<script>
+
 </script>
 
 {% endblock %}
