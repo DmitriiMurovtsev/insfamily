@@ -3,11 +3,90 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'main/css/expenses.css' %}">
 
-{{ text }}
+<div class="filter_expenses">
+    <form class="form">
+        {% csrf_token %}
+        <input hidden type="text" name="filter_expenses">
+        <select class="name_expenses_for_filter" name="name_expenses">
+            <option value="all">Все</option>
+            {% for expenses in expenses %}
+            {% if selected.name_expenses == expenses.name %}
+            <option value="{{ expenses }}" selected>{{ expenses }}</option>
+            {% else %}
+            <option value="{{ expenses }}">{{ expenses }}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+        <select class="salary_for_filter" name="salary">
+            {% if selected.salary == 'yes' %}
+            <option value="all">Все</option>
+            <option value="yes" selected>ЗП</option>
+            <option value="no">Остальное</option>
+            {% elif selected.salary == 'no' %}
+            <option value="all">Все</option>
+            <option value="yes">ЗП</option>
+            <option value="no" selected>Остальное</option>
+            {% else %}
+            <option value="all">Все</option>
+            <option value="yes">ЗП</option>
+            <option value="no">Остальное</option>
+            {% endif %}
+        </select>
+        {% if 'date_start' in selected %}
+        <input value="{{ selected.date_start }}" class="date_start" type="date" name="date_start">
+        <input value="{{ selected.date_end }}" class="date_end" type="date" name="date_end">
+        {% else %}
+        <input value="{{ date_start }}" class="date_start" type="date" name="date_start">
+        <input value="{{ date_end }}" class="date_end" type="date" name="date_end">
+        {% endif %}
+        <button class="button filter" formmethod="get">Фильтр</button>
+        <button class="button unload" formaction="/unload_expenses/" formmethod="post">Выгрузить</button>
+    </form>
+</div>
 
-<form method="post">
-    <input class="name_expenses" type="number" name="name_expenses">
-</form>
+<div class="statistic_expenses">
+    <div class="col_statistic_1">Детализация</div>
+    {% for expenses in expenses_for_filter %}
+    {% if expenses.salary %}
+    <div class="col_statistic">{{ expenses.name }}(ЗП)</div><div class="col_statistic">{{ expenses.value }}</div><div class="col_statistic">{{ expenses.date_expenses }}</div>
+    {% else %}
+    <div class="col_statistic">{{ expenses.name }}</div><div class="col_statistic">{{ expenses.value }}</div><div class="col_statistic">{{ expenses.date_expenses }}</div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <input hidden type="text" name="expenses_for_delete">
+        <input hidden type="text" name="expenses_id_for_delete" value="{{ expenses.id }}">
+        <button class="button delete">Удалить</button>
+    </form>
+    {% endfor %}
+</div>
+
+<div class="form_expenses">
+    <form name="form_expenses" method="post">
+        {% csrf_token %}
+        <input hidden value="create_expenses" type="text" name="create_expenses">
+        <div class="col_form_expenses">Наименование</div>
+        <input class="name_expenses" type="text" name="name_expenses">
+        <div class="col_form_expenses">Сумма расхода</div>
+        <input type="number" step="0.01" name="value_expenses">
+        <div class="col_form_expenses">Дата расхода</div>
+        <input type="date" name="date_expenses">
+        <div class="col_form_expenses">Зарплата</div>
+        <select name="salary">
+            <option value="no">Нет</option>
+            <option value="yes">Да</option>
+        </select>
+        <div class="bt col_form_expenses"><button class="button save">Сохранить</button></div>
+    </form>
+</div>
+
+<div class="final_statistics">
+    <div class="col_statistic_1">Итоговая статистика</div>
+    {% for expenses, value in sum_for_final_statistic.items %}
+    <div class="col_final">{{ expenses }} - {{ value }}</div>
+    {% endfor %}
+    <div class="col_sum_stat">Итого: {{ sum_expenses }}</div>
+</div>
 
 {% endblock %}
 {% block title %}

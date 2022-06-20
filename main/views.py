@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from openpyxl import load_workbook
 
-from .models import Policy, Client, Channel, Company, User, Type, MortgagePolicy, Bank, Commission
+from .models import Policy, Client, Channel, Company, User, Type, MortgagePolicy, Bank, Commission, Expenses
 from .forms import UploadFileForm
 
 
@@ -1219,11 +1219,125 @@ def add_type_channel_company(request):
 @login_required(login_url='login')
 def get_expenses(request):
     # расходы и статистика по ним
+    expenses_for_filter = ''
+    selected = {}
+    expenses = Expenses.objects.all()
+    date_start, date_end = get_start_end_date()
+    date_start = date_start.strftime("%Y-%m-%d")
+    date_end = date_end.strftime("%Y-%m-%d")
+
     if request.user.username == 'MLondorenko' or request.user.username == 'DMurovtsev':
-        pass
+        if request.method == 'POST':
+            if 'expenses_for_delete' in request.POST:
+                # удаление расхода
+                Expenses.objects.get(id=request.POST['expenses_id_for_delete']).delete()
 
-    context = {
-        '': '',
-    }
+            if 'create_expenses' in request.POST:
+                # добавление расхода
+                expenses_new, created = Expenses.objects.get_or_create(
+                    name=request.POST['name_expenses'],
+                    date_expenses=request.POST['date_expenses'],
+                    defaults={
+                        'value': float(request.POST['value_expenses'].replace(',', '.')),
+                    }
+                )
+                if not created:
+                    old_value = expenses_new.value
+                    new_value = float(request.POST['value_expenses'].replace(',', '.')) + float(old_value)
+                    expenses_new.value = new_value
+                    expenses_new.save()
 
-    return render(request, 'main/expenses.html', context)
+                if request.POST['salary'] == 'yes':
+                    expenses_new.salary = True
+                    expenses_new.save()
+
+        if 'filter_expenses' in request.GET:
+            # фильтрация расходов
+            selected['date_start'] = request.GET['date_start']
+            selected['date_end'] = request.GET['date_end']
+            expenses_for_filter = Expenses.objects.filter(
+                date_expenses__gte=request.GET['date_start'],
+                date_expenses__lte=request.GET['date_end'],
+            )
+            if request.GET['name_expenses'] != 'all':
+                expenses_for_filter = expenses_for_filter.filter(name=request.GET['name_expenses'])
+                selected['name_expenses'] = request.GET['name_expenses']
+            if request.GET['salary'] != 'all':
+                selected['salary'] = request.GET['salary']
+                if request.GET['salary'] == 'yes':
+                    expenses_for_filter = expenses_for_filter.filter(salary=True)
+                else:
+                    expenses_for_filter = expenses_for_filter.filter(salary=False)
+        else:
+            expenses_for_filter = expenses
+
+        sum_expenses = sum(ex.value for ex in expenses_for_filter)
+        sum_for_final_statistic = {}
+        for ex in expenses_for_filter:
+            if ex.name in sum_for_final_statistic:
+                sum_for_final_statistic[ex.name] += ex.value
+            else:
+                sum_for_final_statistic[ex.name] = ex.value
+
+        context = {
+            'expenses': expenses,
+            'expenses_for_filter': expenses_for_filter,
+            'date_start': date_start,
+            'date_end': date_end,
+            'selected': selected,
+            'sum_expenses': sum_expenses,
+            'sum_for_final_statistic': sum_for_final_statistic,
+        }
+
+        return render(request, 'main/expenses.html', context)
+
+
+@login_required(login_url='login')
+def unload_expenses(request):
+    # выгрзука расходов в xlsx
+    if request.user.username == 'MLondorenko' or request.user.username == 'DMurovtsev':
+        if request.method == 'POST':
+            if 'filter_expenses' in request.POST:
+                # выгрузка расходов
+                expenses_for_filter = Expenses.objects.filter(
+                    date_expenses__gte=request.POST['date_start'],
+                    date_expenses__lte=request.POST['date_end'],
+                )
+                if request.POST['name_expenses'] != 'all':
+                    expenses_for_filter = expenses_for_filter.filter(name=request.POST['name_expenses'])
+                if request.POST['salary'] != 'all':
+                    if request.POST['salary'] == 'yes':
+                        expenses_for_filter = expenses_for_filter.filter(salary=True)
+                    else:
+                        expenses_for_filter = expenses_for_filter.filter(salary=False)
+
+                wb = openpyxl.Workbook()
+                sheet = wb['Sheet']
+
+                sheet['A1'] = '№'
+                sheet['B1'] = 'Наименование'
+                sheet['C1'] = 'Дата расхода'
+                sheet['D1'] = 'Сумма'
+
+                wb.save('main/file/expenses.xlsx')
+
+                wb = openpyxl.load_workbook('main/file/expenses.xlsx')
+                sheet = wb['Sheet']
+
+                str_number = 2
+                count = 1
+                for expenses in expenses_for_filter:
+                    sheet[str_number][0].value = count
+                    sheet[str_number][1].value = expenses.name
+                    sheet[str_number][2].value = expenses.date_expenses
+                    sheet[str_number][3].value = expenses.value
+
+                    str_number += 1
+                    count += 1
+
+                response = HttpResponse(content_type='application/vnd.ms-excel')
+                response['Content-Disposition'] = 'attachment; filename="expenses.xlsx"'
+
+                wb.save(response)
+
+                return response
