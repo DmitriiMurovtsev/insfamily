@@ -32,6 +32,7 @@
             <a href="{% url 'accept' %}"><li>Проведено</li></a>
             {% if user.username == 'MLondorenko' or user.username == 'DMurovtsev' %}
             <a href="{% url 'expenses' %}"><li>Расходы</li></a>
+            <a href="{% url 'sale_reports' %}"><li>АКТы</li></a>
             {% endif %}
         </ul>
         {% if user.admin %}

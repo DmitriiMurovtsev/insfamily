@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from openpyxl import load_workbook
 
-from .models import Policy, Client, Channel, Company, User, Type, MortgagePolicy, Bank, Commission, Expenses
+from .models import Policy, Client, Channel, Company, User, Type, MortgagePolicy, Bank, Commission, Expenses, SaleReport
 from .forms import UploadFileForm
 
 
@@ -35,6 +35,7 @@ def unload_files(request):
             date_registration__lt=request.GET.get('date_end'),
             date_registration__gte=request.GET.get('date_start'),
             accept=False,
+            sale_report=None,
         )
         if request.GET.get('Менеджер') != 'all':
             result = result.filter(user=request.GET.get('Менеджер'))
@@ -103,6 +104,7 @@ def unload_accept(request):
             date_registration__lt=request.GET.get('date_end'),
             date_registration__gte=request.GET.get('date_start'),
             accept=True,
+            sale_report=None,
         )
         if request.GET.get('Менеджер') != 'all':
             result = result.filter(user=request.GET.get('Менеджер'))
@@ -276,10 +278,10 @@ def a_reporting(request):
         date_end = request.GET.get('date_end')
     if request.user.admin:
         users = User.objects.filter(admin=False, agent=False)
-        result = Policy.objects.filter(accept=False)
+        result = Policy.objects.filter(accept=False, sale_report=None)
     else:
         users = User.objects.filter(id=request.user.id)
-        result = Policy.objects.filter(user_id=request.user.id, accept=False)
+        result = Policy.objects.filter(user_id=request.user.id, accept=False, sale_report=None)
     company = Company.objects.all()
     channel = Channel.objects.all()
     type = Type.objects.all()
@@ -1067,10 +1069,10 @@ def accept(request):
         date_end = request.GET.get('date_end')
     if request.user.admin:
         users = User.objects.all()
-        result = Policy.objects.filter(accept=True)
+        result = Policy.objects.filter(accept=True, sale_report=None)
     else:
         users = User.objects.filter(id=request.user.id)
-        result = Policy.objects.filter(user_id=request.user.id, accept=True)
+        result = Policy.objects.filter(user_id=request.user.id, accept=True, sale_report=None)
     company = Company.objects.all()
     channel = Channel.objects.all()
     type = Type.objects.all()
@@ -1219,9 +1221,8 @@ def add_type_channel_company(request):
 @login_required(login_url='login')
 def get_expenses(request):
     # расходы и статистика по ним
-    expenses_for_filter = ''
     selected = {}
-    expenses = Expenses.objects.all()
+    expenses = Expenses.objects.filter(sale_report=None)
     date_start, date_end = get_start_end_date()
     date_start = date_start.strftime("%Y-%m-%d")
     date_end = date_end.strftime("%Y-%m-%d")
@@ -1302,6 +1303,7 @@ def unload_expenses(request):
                 expenses_for_filter = Expenses.objects.filter(
                     date_expenses__gte=request.POST['date_start'],
                     date_expenses__lte=request.POST['date_end'],
+                    sale_report=None,
                 )
                 if request.POST['name_expenses'] != 'all':
                     expenses_for_filter = expenses_for_filter.filter(name=request.POST['name_expenses'])
@@ -1341,3 +1343,109 @@ def unload_expenses(request):
                 wb.save(response)
 
                 return response
+
+
+@login_required(login_url='login')
+def create_sale_report(request):
+    # создание акта продаж
+    if request.user.admin and request.method == 'POST':
+        new_sale_report = SaleReport(name=request.POST['name_sale_report'])
+        new_sale_report.save()
+
+        policies = Policy.objects.filter(
+           date_registration__gte=request.POST['date_start_for_report'],
+           date_registration__lte=request.POST['date_end_for_report'],
+           accept=True,
+           sale_report=None,
+        )
+
+        expenses = Expenses.objects.filter(
+           date_expenses__gte=request.POST['date_start_for_report'],
+           date_expenses__lte=request.POST['date_end_for_report'],
+           sale_report=None,
+        )
+
+        for policy in policies:
+            policy.sale_report = new_sale_report
+            policy.save()
+
+        for expenses in expenses:
+            expenses.sale_report = new_sale_report
+            expenses.save()
+
+    return HttpResponseRedirect('/accept')
+
+
+@login_required(login_url='login')
+def get_sale_reports(request):
+    # просмотр актов продаж
+    if 'id' not in request.GET:
+        # выводим список актов
+        sale_reports = SaleReport.objects.all()
+
+        context = {
+            'sale_reports': sale_reports,
+        }
+
+        return render(request, 'main/sale_reports.html', context)
+
+    else:
+        # выводим статистику по конкретному атку
+        policies = Policy.objects.filter(sale_report=request.GET['id'])
+        expenses = Expenses.objects.filter(sale_report=request.GET['id'])
+
+        sum_for_final_statistic = {}
+        for ex in expenses:
+            if ex.name in sum_for_final_statistic:
+                sum_for_final_statistic[ex.name] += ex.value
+            else:
+                sum_for_final_statistic[ex.name] = ex.value
+
+        sum_expenses = round(sum(ex.value for ex in expenses), 2)
+        sum_sp = round(sum(policy.sp for policy in policies), 2)
+        income = round(sum(policy.sp*(policy.commission/100) for policy in policies), 2)
+        profit = round((income - sum_expenses), 2)
+
+        user_statistic = {}
+        user_ids = set(policy.user.id for policy in policies)
+        for user_id in user_ids:
+            user_name = f'{User.objects.get(id=user_id).last_name} {User.objects.get(id=user_id).first_name}'
+            temp_dict = {}
+            policy_for_user = policies.filter(user_id=user_id)
+            temp_dict['user_income'] = round(sum(policy.sp*(policy.commission/100) for policy in policy_for_user), 2)
+            temp_dict['osago_count'] = len([policy for policy in policy_for_user if policy.type.name == 'ОСАГО'])
+            temp_dict['osago_sum'] = round(
+                sum(policy.sp for policy in policy_for_user if policy.type.name == 'ОСАГО'), 2)
+            temp_dict['kasko_count'] = len([policy for policy in policy_for_user if policy.type.name == 'КАСКО'])
+            temp_dict['kasko_sum'] = round(
+                sum(policy.sp for policy in policy_for_user if policy.type.name == 'КАСКО'), 2)
+            temp_dict['another_count'] = len(policy_for_user) - temp_dict['osago_count'] - temp_dict['kasko_count']
+            temp_dict['another_sum'] = round(
+                (sum(policy.sp for policy in policy_for_user) - temp_dict['osago_sum'] - temp_dict['kasko_sum']), 2)
+            user_statistic[user_name] = temp_dict
+
+        # ссылка с параметрами для пагинации
+        link = '?'
+        for key, value in request.GET.items():
+            if key == 'page':
+                continue
+            link = link + f'{key}={value}&'
+
+        paginator = Paginator(policies, 10)
+        current_page = request.GET.get('page', 1)
+        page = paginator.get_page(current_page)
+
+        context = {
+            'sum_for_final_statistic': sum_for_final_statistic,
+            'user_statistic': user_statistic,
+            'sum_expenses': sum_expenses,
+            'sum_sp': sum_sp,
+            'profit': profit,
+            'income': income,
+            'policies': page.object_list,
+            'paginator': paginator,
+            'page': page,
+            'link': link,
+        }
+
+        return render(request, 'main/sale_reports_one.html', context)

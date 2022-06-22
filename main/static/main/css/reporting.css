@@ -51,7 +51,48 @@ input, select {
     height: calc(5px + (30 - 5) * ((100vw - 320px) / (1900 - 320)));
 }
 
+.button {
+    border: 1px solid #333;
+    border-radius: 5px;
+    font-size: 12px;
+    display: inline-block;
+    padding: 5px 15px;
+    color: #000;
+  }
+.button:hover {
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    background: linear-gradient(to bottom, #fcfff4, #e9e9ce);
+    color: #000;
+   }
+
+.check {
+background: #808080;
+}
+
+
+a {
+    text-decoration: none;
+    color: #000;
+}
+
+.search {
+    width: 10%;
+}
+
+.pagi {
+    margin-bottom: 1%;
+    margin-left: 16%;
+    clear: left;
+}
+
 .pop_up {
+    float: left;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(80, 80, 80, 0.7);
     display: none;
     z-index: 2;
 }
@@ -61,44 +102,51 @@ input, select {
 }
 
 .pop_up_container {
-    display: flex;
-    position: relative;
+    border-radius: 15px;
+    padding: 15px;
+    width: 30%;
+    height: 30%;
+    background-color: #FFFFFF;
+    margin-left: 25%;
+    margin-top: 12.5%;
 }
 
-.pop_up_body input:focus {
-    outline: none;
+.pop_up_close {
+    cursor: pointer;
+    float: right;
 }
 
-.button {
-    border: 1px solid #333; /* Рамка */
-    border-radius: 5px;
-    font-size: 10px;
-    display: inline-block;
-    padding: 5px 15px; /* Поля */
-    color: #000; /* Цвет текста */
-  }
-.button:hover {
-    box-shadow: 0 0 5px rgba(0,0,0,0.3); /* Тень */
-    background: linear-gradient(to bottom, #fcfff4, #e9e9ce); /* Градиент */
-    color: #000; /* Цвет текста */
-   }
-
-  .check {
-    background: #808080;
-  }
-
-
-a {
-    text-decoration: none;
-        color: #000; /* Цвет текста */
+.name_report {
+    float: left;
+    width: 50%;
+    height: 15%;
 }
 
-.search {
-    width: 10%;
+.name_sale_report {
+    float: right;
+    width: 50%;
+    height: 15%;
 }
 
-.pagi {
-    margin-bottom: 1%;
-    margin-left: 16%
+.date_sale_report {
+    float: left;
+    width: 35%;
+    height: 15%;
 }
 
+.form_block {
+    margin-left: 5%;
+    margin-top: 10%;
+    width: 90%;
+    height: 90%;
+}
+
+.report {
+    float: right;
+    margin-top: 10%;
+    padding: 5px 15px;
+}
+
+.open_pop_up {
+    float: left;
+}

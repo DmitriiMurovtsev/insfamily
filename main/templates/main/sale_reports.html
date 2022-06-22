@@ -1,0 +1,17 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/sale_reports.css' %}">
+<div class="sale_reports">
+    {% for sale_report in sale_reports %}
+    <a href="/sale_reports/?id={{ sale_report.id }}">
+        <div class="sale_name">{{ sale_report.name }}</div>
+        <div class="sale_date">{{ sale_report.date_create }}</div>
+    </a>
+    {% endfor %}
+</div>
+
+{% endblock %}
+{% block title %}
+    InsFamily - АКТы
+{% endblock %}

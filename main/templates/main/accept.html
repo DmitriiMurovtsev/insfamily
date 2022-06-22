@@ -69,11 +69,16 @@
                     <input type="date" value="{{ date_end }}" name="date_end">
                 </td>
                 <td>
-                    <input class="btn btn-success" formaction="{% url 'accept' %}" type="submit" formmethod="get" value="Просмотр">
+                    <input class="button" formaction="{% url 'accept' %}" type="submit" formmethod="get" value="Просмотр">
                 </td>
                 {% if user.admin == True or user.agent == True %}
                 <td>
-                    <input class="btn btn-success" formaction="{% url 'unload_accept' %}" type="submit" formmethod="get" value="Выгрузить">
+                    <input class="button" formaction="{% url 'unload_accept' %}" type="submit" formmethod="get" value="Выгрузить">
+                </td>
+                <td>
+                    <div id="open_pop_up" class="button open_pop_up">
+                        <a href="#">Создать АКТ</a>
+                    </div>
                 </td>
                 {% endif %}
             </tr>
@@ -160,6 +165,36 @@
     <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
 {% endif %}
 </div>
+
+<div id="pop_up" class="pop_up">
+    <div class="pop_up_container">
+        <div id="pop_up_close" class="pop_up_close">&#10006</div>
+        <form method="post" class="form_block" action="/create_sale_report/">
+            {% csrf_token %}
+            <div class="name_report">Наименование</div>
+            <input type="text" class="name_sale_report" name="name_sale_report">
+            <div class="name_report">Начало периода</div>
+            <input type="date" class="date_sale_report" name="date_start_for_report">
+            <div class="name_report">Окончание периода (вкл.)</div>
+            <input type="date" class="date_sale_report" name="date_end_for_report">
+            <button class="button report">Закрыть АКТ</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    var openPopUp = document.getElementById('open_pop_up');
+    var closePopUp = document.getElementById('pop_up_close');
+    var popUp = document.getElementById('pop_up');
+
+    openPopUp.addEventListener("click", (e) => {
+        popUp.classList.add('active');
+    })
+
+    closePopUp.addEventListener("click", (e) => {
+        popUp.classList.remove('active');
+    })
+</script>
 
 {% endblock %}
 {% block title %}

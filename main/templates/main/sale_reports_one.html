@@ -1,0 +1,132 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/sale_reports.css' %}">
+
+<div class="income">
+    <div class="income_">
+        <div class="income_name">Сбор:</div>
+        <div class="income_value">{{ sum_sp }}р.</div>
+    </div>
+    <div class="income_">
+        <div class="income_name">Маржа:</div>
+        <div class="income_value">{{ income }}р.</div>
+    </div>
+    <div class="income_">
+        <div class="income_name">Расход:</div>
+        <div class="income_value">{{ sum_expenses }}р.</div>
+    </div>
+    <div class="income_">
+        <div class="income_name">Прибыль:</div>
+        <div class="income_value">{{ profit }}р.</div>
+    </div>
+</div>
+
+<div class="expenses">
+    {% for expenses, value in sum_for_final_statistic.items %}
+    <div class="expenses_">
+        <div class="name_expenses">{{ expenses }}</div>
+        <div class="value_expenses">{{ value }}р.</div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="manager_statistic">
+    {% for user, statistic in user_statistic.items %}
+    <div class="user_statistic">
+        <div class="user_stat_col_name">
+        {{ user }}:
+        </div>
+        <div class="user_stat_col">
+            <div class="stat_name">ОСАГО</div>
+            <div class="stat_value">{{ statistic.osago_count }}шт.</div>
+            <div class="stat_value">{{ statistic.osago_sum }}р.</div>
+        </div>
+        <div class="user_stat_col">
+            <div class="stat_name">КАСКО</div>
+            <div class="stat_value">{{ statistic.kasko_count }}шт.</div>
+            <div class="stat_value">{{ statistic.kasko_sum }}р.</div>
+        </div>
+        <div class="user_stat_col">
+            <div class="stat_name">Остальное</div>
+            <div class="stat_value">{{ statistic.another_count }}шт.</div>
+            <div class="stat_value">{{ statistic.another_sum }}р.</div>
+        </div>
+        <div class="user_stat_col">
+            <div class="stat_name">Маржа</div>
+            <div class="stat_income">{{ statistic.user_income }}р.</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<table class="table_2">
+        <tr>
+            <th>Тип продажи</th>
+            <th>Тип полиса</th>
+            <th>Серия и номер</th>
+            <th>Компания</th>
+            <th>Канал продаж</th>
+            <th>Премия</th>
+            <th>Входящее КВ %</th>
+            <th>Клиент</th>
+            <th>Менеджер</th>
+            <th>Оформлен</th>
+            <th>Начало действия</th>
+            <th>Окончание действия</th>
+        </tr>
+        {% for policy in policies %}
+        <tr>
+            <td>
+                {% if policy.status == 'newbiz' %}
+                Новый бизнес
+                {% elif policy.status == 'prolongation' %}
+                Пролонгация
+                {% elif policy.status == 'transition' %}
+                Переход
+                {% elif policy.status == 'addendum' %}
+                Аддендум
+                {% elif policy.status == 'payment' %}
+                Очередной взнос
+                {% endif %}
+            </td>
+            <td>{{ policy.type }}</td>
+            <td>{{ policy.series }} {{ policy.number }}</td>
+            <td>{{ policy.company }}</td>
+            <td>{{ policy.channel }}</td>
+            <td>{{ policy.sp }}</td>
+            <td>{{ policy.commission }}%</td>
+            <td>{{ policy.client }}</td>
+            <td>{{ policy.user }}</td>
+            <td>{{ policy.date_registration }}</td>
+            <td>{{ policy.date_start }}</td>
+            <td>{{ policy.date_end }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+
+<div class="pagi">
+<br>---<br>
+{% if page.has_previous %}
+    <a href="{{ link }}page={{ page.previous_page_number }}" class="button">Назад</a>
+{% endif %}
+
+{% for p in paginator.page_range %}
+{% if page.number|add:'-3' < p and page.number|add:'3' > p %}
+    {% if p != page.number %}
+        <a href="{{ link }}page={{ p }}" class="button">{{ p }}</a>
+    {% else %}
+        <b class="button check">{{ p }}</b>
+    {% endif %}
+{% endif %}
+{% endfor %}
+
+{% if page.has_next %}
+    <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
+{% endif %}
+</div>
+
+{% endblock %}
+{% block title %}
+    InsFamily - АКТы
+{% endblock %}

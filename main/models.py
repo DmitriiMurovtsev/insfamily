@@ -215,4 +215,4 @@ class Expenses(models.Model):
 class SaleReport(models.Model):
     # итоговый акт проведённых полисов и расходов
     name = models.CharField(max_length=50, verbose_name='Наименование')
-    date_create = models.DateField(verbose_name='Дата создания акта')
+    date_create = models.DateField(auto_now=True, verbose_name='Дата создания акта')
