@@ -920,6 +920,27 @@ def mortgage(request):
     banks = Bank.objects.all()
     date_at = datetime.datetime.today().strftime("%Y-%m-%d")
 
+    # для статистики по менеджерам
+    date_now = datetime.datetime.now().date()
+    date_start_for_statistic = date_now - datetime.timedelta(days=7)
+    mortgage_for_statistic = MortgagePolicy.objects.filter(
+        date_at__gt=date_start_for_statistic,
+        date_at__lte=date_now,
+    )
+    user_ids = set(policy.user.id for policy in mortgage_for_statistic)
+    mortgage_user_statistic = {}
+    date_for_headers = [(date_now - datetime.timedelta(days=i)).strftime("%d.%m") for i in reversed(range(7))]
+    for user_id in user_ids:
+        mortgage_user = mortgage_for_statistic.filter(user_id=user_id)
+        temp_dict = {}
+        temp_dict['count'] = len(mortgage_user)
+        for i in reversed(range(7)):
+            temp_dict[(date_now - datetime.timedelta(days=i)).strftime("%d.%m")] = len(mortgage_user.filter(
+                date_at=date_now - datetime.timedelta(days=i)))
+        user_ = User.objects.get(id=user_id)
+        user_name = f'{user_.last_name} {user_.first_name}'
+        mortgage_user_statistic[user_name] = temp_dict
+
     context = {
         'banks': banks,
         'date_at': date_at,
@@ -928,6 +949,8 @@ def mortgage(request):
         'statistic_2022': statistic_2022,
         'text': text,
         'users_statistic': users_statistic,
+        'mortgage_user_statistic': mortgage_user_statistic,
+        'date_for_headers': date_for_headers,
     }
 
     return render(request, 'main/Mortgage.html', context)

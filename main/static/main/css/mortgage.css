@@ -20,11 +20,10 @@
 }
 
 .table_2 {
-    margin-left: 50px;
+    margin-left: 1%;
     font-size: calc(8px + (14 - 8) * ((100vw - 320px) / (1900 - 320)));
     text-align: center;
     width: calc(20% + (80% - 20%) * ((100vw - 320px) / (1900 - 320)));
-    margin-top: -15px;
 }
 
 .table_1 td {
@@ -42,7 +41,7 @@
 }
 
 .table_1 {
-    margin-top: 20px;
+    margin-top: 2%;
 }
 
 .btn-success {
@@ -63,6 +62,22 @@
     border-radius: 0 15px 15px 0;
 }
 
-.table_3 {
-    margin-top: 50px;
+.table_3, .table_2 {
+    margin-top: 1%;
+}
+
+.mortgage_stat {
+    width: 50%;
+}
+
+.mortgage_user {
+    width: 30%;
+}
+
+.mortgage_user_name {
+    text-align: left;
+}
+
+.table_0 td {
+    vertical-align: top;
 }
