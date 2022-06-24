@@ -27,6 +27,13 @@ def show_script(request):
             )
             new_step.save()
 
+            Stage(
+                step_id=new_step.id,
+                name='Начало скрипта',
+                count=1,
+                text='Текст блока',
+            ).save()
+
     script = Script.objects.get(id=request.GET['script_id'])
     steps = Step.objects.filter(script_id=script.id)
 
