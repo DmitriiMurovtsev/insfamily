@@ -52,3 +52,21 @@ a {
     margin-right: 1%;
     font-size: 0.90vw;
 }
+
+.all_script {
+    font-size: 0.85vw;
+    position: absolute;
+    top: 2%;
+    left: 2%;
+    width: 5%;
+    height: 2%;
+    border: 1px solid #ffaf0f;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: #FFFFFF;
+    text-align: center;
+}
+
+.all_script:hover {
+    font-size: 0.9vw;
+}
