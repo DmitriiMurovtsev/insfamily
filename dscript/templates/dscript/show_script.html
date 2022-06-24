@@ -1,20 +1,42 @@
 <!DOCTYPE html>
+{% load static %}
+<link rel="stylesheet" href="{% static 'dscript/css/create_script.css' %}">
 <html lang="en">
 <head>
 
 </head>
 <body>
-    <h1>{{ script.name }}</h1>
+
+<div class="cont">
+    <h3>{{ script.name }}</h3>
     <form action="" method="post">
         {% csrf_token %}
         Название <input type="text" name="step_name">
         <input hidden type="text" name="script_id" value="{{ script.id }}">
-        <button>Добавить этап</button>
+        <button>Добавить скрипт</button>
     </form>
-    <ul>
-    {% for step in steps %}
-    <li><a href="/dscript/show_step/?step_id={{ step.id }}">{{ step }}</a></li>
-    {% endfor %}
-    </ul>
+</div>
+
+<div class="cont_1">
+    <h3>Удалить скрипт</h3>
+    <form action="" method="post">
+        {% csrf_token %}
+        Название
+        <select name="step_name_for_delete">
+            {% for step in steps %}
+            <option value="{{ step.id }}">{{ step }}</option>
+            {% endfor %}
+        </select>
+        <input hidden type="text" name="script_id" value="{{ script.id }}">
+        <button>Удалить скрипт</button>
+    </form>
+</div>
+
+<div class="script_menu">
+{% for step in steps %}
+<a class="script button" href="/dscript/show_step/?step_id={{ step.id }}">{{ step }}</a>
+{% endfor %}
+</div>
+
 </body>
 </html>

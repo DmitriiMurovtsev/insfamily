@@ -8,89 +8,152 @@
 </head>
 <body>
 
-<h2>{{ step.script }}</h2>
-<h3>{{ step }}</h3>
-
-<div class="stage_menu">
-    {% for stage in stages %}
-    <a href="/dscript/show_step/?step_id={{ step.id }}&stage_id={{ stage.id }}">{{ stage.name }}</a><br>
-    {% endfor %}
-    <form method="post">
-        {% csrf_token %}
-        <input hidden value="{{ step.id }}" type="text" name="step_id">
-        <input class="stage_name_for_create" type="text" name="stage_name_for_create">
-        <button class="button_name_for_create">Добавить шаг</button>
-    </form>
+<div class="pop_up" id="1">
+    <div class="pop_up_container">
+        <div class="button pop_up_close" data-close="1">&#10006</div>
+        <div class="name_form">Добавить этап или отработку возражения</div>
+        <form class="form_create_stage" method="post">
+            {% csrf_token %}
+            <div class="stage_name_">Наименование</div>
+            <input class="stage_name_for_create" name="stage_name_for_create" type="text">
+            <div class="stage_text_">Текст</div>
+            <textarea class="stage_text_for_create" name="stage_text_for_create"></textarea>
+            <input hidden name="step_id" value="{{ step.id }}" type="text">
+            <button class="button form_create">Сохранить</button>
+        </form>
+    </div>
 </div>
 
-<div class="container">
-    <div class="in_cont_read">
-        <h4 class="stage">{{ stage.name }}</h4>
-        <h5>{{ stage.text }}</h5>
-    </div>
-    <div class="in_cont_edit">
-        <form method="post">
+<div class="pop_up" id="2">
+    <div class="pop_up_container">
+        <div class="button pop_up_close" data-close="2">&#10006</div>
+        <div class="name_form">Добавить ответ или возражение клиента</div>
+        <form class="form_create_answer" method="post">
             {% csrf_token %}
-            {% if stage.count >= 1 %}
-            <input hidden value="{{ stage.id }}" type="text" name="stage_id_for_edit">
-            {% else %}
-            <input hidden value="{{ step.id }}" type="text" name="step_id">
-            {% endif %}
-            <div class="stage_name">Название шага</div>
-            <input value="{{ stage.name }}" type="text" name="stage_name"><br>
-            <div class="stage_text">Текст</div>
-            <textarea class="textarea_in_cont_edit" name="stage_text" cols="70" rows="15">{{ stage.text }}</textarea><br>
-            <button class="button_in_cont_edit">Сохранить</button>
-        </form>
-    </div>
-    <div class="answer_read">
-        {% for answer in answers_for_stage %}
-        {% if answer.link %}
-        <a class="link_answer" href="{{ answer.text }}"><button class="answer_button_read">{{ answer }}</button></a>
-        {% else %}
-        <form method="post">
-            {% csrf_token %}
-            <button class="answer_button_read" name="answer_text_for_read" value="{{ answer.id }}">{{ answer }}</button>
-        </form>
-        {% endif %}
-        {% endfor %}
-    </div>
-    <div class="answer_edit">
-        <form method="post">
-            {% csrf_token %}
-            <input hidden type="text" name="stage_id" value="{{ stage.id }}">
-            <div class="answer_name">Возражение</div>
-            <input type="text" name="answer_name"><br>
-            <div class="answer_text">Отработка</div>
-            <textarea class="textarea_answer_edit" cols="70" rows="5" type="text" name="answer_text"></textarea><br>
-            <div class="type_answer">Вариант</div>
-            <div class="for_type_answer">
-            <input type="radio" name="type_answer" value="positive"> Положительный<br>
-            <input type="radio" name="type_answer" value="neutral" checked> Нейтральный<br>
-            <input type="radio" name="type_answer" value="negative"> Отрицательный<br>
-            </div>
-            <button class="button_answer_edit">Сохранить</button>
-        </form>
-    </div>
-    <div class="link_stage_edit">
-        <form method="post">
-            {% csrf_token %}
-            <input hidden type="text" name="stage_id" value="{{ stage.id }}">
-            <div class="link_stage_name">Кнопка перехода</div>
-            <input type="text" name="link_answer_name"><br>
-            <div class="link_next_stage">Переход к шагу</div>
-            <select class="link_stage_text" name="link_stage_text">
+            <input hidden name="stage_id" value="{{ stage.id }}" type="text">
+            <div class="answer_name_">Наименование</div>
+            <input name="answer_name" class="answer_text_" type="text">
+            <div class="answer_for_stage_">Ведёт к шагу / отработке</div>
+            <select name="answer_text" class="answer_select_text_">
                 {% for stage in stages %}
                 <option value="/dscript/show_step/?step_id={{ step.id }}&stage_id={{ stage.id }}">{{ stage.name }}</option>
                 {% endfor %}
             </select>
-            <button class="button_link_edit">Сохранить</button>
+            <button class="button form_create">Сохранить</button>
         </form>
     </div>
-    <div class="answer_text_for_read">
-    {{ answer_text_for_read }}
+</div>
+
+<div class="pop_up" id="3">
+    <div class="pop_up_container">
+        <div class="button pop_up_close" data-close="3">&#10006</div>
+        <div class="name_form">Удалить ответ или возражение клиента</div>
+        <form class="form_create_answer" method="post">
+            {% csrf_token %}
+            <div class="answer_name_">Ответ / Возражение</div>
+            <select name="answer_for_delete" class="answer_for_delete">
+                {% for answer in answers_for_stage %}
+                <option value="{{ answer.id }}">{{ answer.name }}</option>
+                {% endfor %}
+            </select>
+            <button class="button form_create">Удалить</button>
+        </form>
     </div>
 </div>
+
+<div class="pop_up" id="4">
+    <div class="pop_up_container">
+        <div class="button pop_up_close" data-close="4">&#10006</div>
+        <div class="name_form">Удалить этап скрипта или отработку возражения</div>
+        <form class="form_create_answer" method="post">
+            {% csrf_token %}
+            <div class="answer_name_">Этап / Отработка</div>
+            <select name="stage_for_delete" class="answer_for_delete">
+                {% for stage in stages %}
+                <option value="{{ stage.id }}">{{ stage.name }}</option>
+                {% endfor %}
+            </select>
+            <button class="button form_create">Удалить</button>
+        </form>
+    </div>
+</div>
+
+<div class="headers_menu">
+    <div class="menu_h">
+        <div class="step">
+            {{ step }}
+        </div>
+        <a class="step_script button" href="/dscript/show_script/?script_id={{ script_id }}">В {{ step.script }}</a>
+        <a class="all_script button" href="/dscript/create_script/">Все скрипты</a>
+    </div>
+</div>
+
+<div class="right_menu">
+    {% for stage in stages %}
+        <a class="stage_in_menu button" href="/dscript/show_step/?step_id={{ step.id }}&stage_id={{ stage.id }}">{{ stage.name }}</a>
+    {% endfor %}
+</div>
+
+{% if user.admin %}
+    <form method="post">
+        {% csrf_token %}
+        {% if stage.id %}
+        <input hidden value="{{ stage.id }}" name="stage_id_for_edit" type="text">
+        {% endif %}
+        <input hidden name="step_id" value="{{ step.id }}" type="text">
+        <input name="stage_name" class="stage_name" type="text" value="{{ stage.name }}">
+        <textarea name="stage_text" class="stage_text">{{ stage.text }}</textarea>
+        <button class="button form_edit">Сохранить изменения</button>
+    </form>
+{% else %}
+    <div class="stage_name">
+        {{ stage.name }}
+    </div>
+    <div class="stage_text">
+        {{ stage.text }}
+    </div>
+{% endif %}
+
+<div class="answer_for_stage">
+    <div class="answer_for_stage_1">
+        {% for answer in answers_for_stage %}
+            <a class="answer button" href="{{ answer.text }}">{{ answer }}</a>
+        {% endfor %}
+    </div>
+    {% if user.admin %}
+    <div class="form_add_answer">
+        <div class="edit_answer button" data-path="2">Добавить ответ / возражение</div>
+        <div class="edit_answer button" data-path="1">Добавить этап / отработку</div>
+        <div class="edit_answer button" data-path="3">Удалить ответ / возражение</div>
+        <div class="edit_answer button" data-path="4">Удалить этап / отработку</div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    const openPopUp = document.querySelectorAll('.button');
+    const closePopUp = document.querySelectorAll('.pop_up_close');
+    const popUp = document.querySelectorAll('.pop_up');
+
+    openPopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-path');
+
+            popUp.forEach((el) => {
+                el.classList.remove('active');
+            })
+
+            document.getElementById(path).classList.add('active');
+        });
+    });
+
+    closePopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-close');
+            document.getElementById(path).classList.remove('active');
+        });
+    });
+</script>
 
 </body>
 </html>

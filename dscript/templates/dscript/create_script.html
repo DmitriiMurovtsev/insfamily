@@ -1,19 +1,65 @@
 <!DOCTYPE html>
+{% load static %}
+<link rel="stylesheet" href="{% static 'dscript/css/create_script.css' %}">
 <html lang="en">
 <head>
 
 </head>
 <body>
-  <h2>Добавить скрипт</h2>
+
+<div class="cont">
+  <h3>Добавить раздел</h3>
   <form method="post">
     {% csrf_token %}
     Название <input type="text" name="script_name">
-    <button>Создать</button>
+    <button>Добавить раздел</button>
   </form>
-  <ul>
+</div>
+
+<div class="cont_1">
+  <h3>Удалить раздел</h3>
+  <form method="post">
+    {% csrf_token %}
+    Название
+    <select name="script_name_for_delete">
+      {% for script in scripts %}
+      <option value="{{ script.id }}">{{ script }}</option>
+      {% endfor %}
+    </select>
+    <button>Удалить раздел</button>
+  </form>
+</div>
+
+<div class="script_menu">
   {% for script in scripts %}
-  <li><a href="/dscript/show_script/?script_id={{ script.id }}">{{ script }}</a></li>
+    <a class="script button" href="/dscript/show_script/?script_id={{ script.id }}">{{ script }}</a>
   {% endfor %}
-  </ul>
+</div>
+
+<script>
+    const openPopUp = document.querySelectorAll('.button');
+    const closePopUp = document.querySelectorAll('.pop_up_close');
+    const popUp = document.querySelectorAll('.pop_up');
+
+    openPopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-path');
+
+            popUp.forEach((el) => {
+                el.classList.remove('active');
+            })
+
+            document.getElementById(path).classList.add('active');
+        });
+    });
+
+    closePopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-close');
+            document.getElementById(path).classList.remove('active');
+        });
+    });
+</script>
+
 </body>
 </html>

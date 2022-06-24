@@ -7,24 +7,24 @@
 {% endif %}
 <link rel="stylesheet" href="{% static 'main/css/osago.css' %}">
 <div class="pop_up" id="1">
-    <div class="pop_up_container">
-        <div class="pop_up_close" data-close="1" id="pop_up_close">&#10006</div>
-        <form class="upload" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input hidden type="text" name="upload" value="upload">
-                <table class="upload">
-                <tr>
-                    <td>
-                        <input type="file" class="file" name="file" id="id_file">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input class="button save" type="submit" value="Сохранить">
-                    </td>
-                </tr>
-                </table>
-                </form>
+        <div class="pop_up_container">
+            <div class="pop_up_close" data-close="1" id="pop_up_close">&#10006</div>
+            <form class="upload" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input hidden type="text" name="upload" value="upload">
+                    <table class="upload">
+                    <tr>
+                        <td>
+                            <input type="file" class="file" name="file" id="id_file">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input class="button save" type="submit" value="Сохранить">
+                        </td>
+                    </tr>
+                    </table>
+                    </form>
     </div>
 </div>
 <form name="policy" class="add-policy" method="post">

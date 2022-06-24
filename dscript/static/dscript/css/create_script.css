@@ -1,0 +1,54 @@
+.cont, .cont_1 {
+    background: #FFFFFF;
+    border: 1px solid #ffaf0f;
+    border-radius: 5px;
+    padding: 5px;
+    width: 25%;
+    margin-left: 10%;
+}
+
+.cont {
+    float: left;
+}
+
+.cont_1 {
+    margin-left: 38%;
+}
+
+body {
+    background: #f0efed;
+}
+
+.script_menu {
+    width: 80%;
+    height: 80vh;
+    border-radius: 5px;
+    padding: 5px;
+    margin-top: 1%;
+    margin-left: 10%;
+    margin-right: 2%;
+}
+
+.button:hover {
+    font-size: 1vw;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    color: #000;
+}
+
+a {
+    text-decoration: none;
+    color: #000;
+}
+
+.script {
+    width: 15%;
+    height: 1.5vw;
+    background: #FFFFFF;
+    text-align: center;
+    border: 1px solid #ffaf0f;
+    padding: 4px 8px;
+    border-radius: 8px;
+    float: left;
+    margin-right: 1%;
+    font-size: 0.90vw;
+}

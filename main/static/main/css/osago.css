@@ -120,3 +120,8 @@ a {
     margin-right: 8%;
     margin-top: 3%;
 }
+
+.button_close {
+    width: 100%;
+    height: 100%;
+}
