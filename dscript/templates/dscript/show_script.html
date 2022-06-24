@@ -7,6 +7,7 @@
 </head>
 <body>
 
+{% if user.admin %}
 <div class="cont">
     <h3>{{ script.name }}</h3>
     <form action="" method="post">
@@ -31,6 +32,7 @@
         <button>Удалить скрипт</button>
     </form>
 </div>
+{% endif %}
 
 <div class="script_menu">
 {% for step in steps %}
