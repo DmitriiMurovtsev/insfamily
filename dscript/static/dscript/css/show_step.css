@@ -278,3 +278,24 @@ body {
     background: #FFFFFF;
     border-radius: 5px;
 }
+
+.name_client {
+    position: absolute;
+    top: 1.5vw;
+    left: 30%;
+    padding: 5px;
+    font-size: 1.2vw;
+    font-size: 1vw;
+    width: 25%;
+    height: 2.5vh;
+    margin-left: 2%;
+    margin-top: 2%;
+}
+
+.name_client_for_input {
+    background: #FFFFFF;
+    height: 3vh;
+    width: 15vw;
+    border: 1px solid #ffaf0f;
+    border-radius: 5px;
+}

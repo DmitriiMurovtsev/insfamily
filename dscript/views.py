@@ -125,7 +125,7 @@ def show_step(request):
         return render(request, 'dscript/show_step.html', context)
 
     if 'stage_id' in request.GET:
-        if stage_id_deleted != '' and request.GET['stage_id'] == stage_id_deleted:
+        if stage_id_deleted != '' and int(request.GET['stage_id']) == stage_id_deleted:
             stage = Stage.objects.get(step=request.GET['step_id'], count=1)
         else:
             stage = Stage.objects.get(id=request.GET['stage_id'])
