@@ -62,30 +62,36 @@ def status_change(request):
                     name_base, created = NameBase.objects.get_or_create(name=sheet[row][11].value)
                     company_policy, created = Company.objects.get_or_create(name=sheet[row][4].value)
 
-                    if len(sheet[row][0].value.split()) > 3:
-                        middle_name = f'{sheet[row][0].value.split()[2]} {sheet[row][0].value.split()[3]}'
-                    elif len(sheet[row][0].value.split()) == 3:
-                        middle_name = sheet[row][0].value.split()[2]
-                    else:
-                        middle_name = ''
+                    new_full_name = sheet[row][0].value
+
+                    while new_full_name[-1] == ' ':
+                        new_full_name = new_full_name[:-1]
+                    last_name = new_full_name.split()[0].capitalize()
+                    first_name = new_full_name.split()[1].capitalize()
+                    middle_name = ''
+                    if len(new_full_name.split()) > 2:
+                        for name in new_full_name.split()[2:]:
+                            middle_name = middle_name + name.capitalize() + " "
+                        middle_name = middle_name[:-1]
 
                     client_policy, created = Client.objects.get_or_create(
-                        first_name=sheet[row][0].value.split()[1],
-                        last_name=sheet[row][0].value.split()[0],
+                        first_name=first_name,
+                        last_name=last_name,
                         middle_name=middle_name,
-                        phone=sheet[row][1].value,
+                        phone=sheet[row][2].value,
                         defaults={
-                            'email': sheet[row][2].value,
+                            'email': sheet[row][3].value,
+                            'birthday': sheet[row][1].value,
                         }
                     )
 
                     status_policy = Status.objects.get(name='В работе')
                     bso_policy = sheet[row][5].value
-                    sp_policy = float(str(sheet[row][8].value).replace(',', '.'))
-                    channel_policy = sheet[row][3].value
-                    object_policy = sheet[row][7].value
-                    manager_policy = sheet[row][9].value
-                    date_end = sheet[row][6].value
+                    sp_policy = float(str(sheet[row][9].value).replace(',', '.'))
+                    channel_policy = sheet[row][12].value
+                    object_policy = f'{sheet[row][6].value} {sheet[row][7].value} {sheet[row][8].value}'
+                    manager_policy = sheet[row][13].value
+                    date_end = sheet[row][14].value
 
                     PolicyBase.objects.get_or_create(
                         bso=bso_policy,
