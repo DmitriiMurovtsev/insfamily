@@ -147,8 +147,8 @@
         {% if user.admin == True %}
         <div class="pop_up" id="{{ policy.id }}">
             <div class="pop_up_container">
+                <div class="pop_up_close" data-close="{{ policy.id }}" id="pop_up_close">&#10006</div>
                 <div class="pop_up_body" id="pop_up_body">
-                    <div class="cen">
                     <form class="form_1" method="post">
                     {% csrf_token %}
                         <div class="str1">
@@ -291,15 +291,11 @@
                             <input hidden name="id_policy_for_edit" value="{{ policy.id }}">
                         </div>
                     </form>
-                    <div class="str1">
-                        <form method="post">
-                            {% csrf_token %}
-                            <input hidden type="text" name="policy_id_for_delete" value="{{ policy.id }}">
-                            <button class="for_delete button" type="submit">Удалить</button>
-                        </form>
-                    </div>
-                    <div class="pop_up_close" data-close="{{ policy.id }}" id="pop_up_close">&#10006</div>
-                    </div>
+                    <form class="form_delete" method="post">
+                        {% csrf_token %}
+                        <input hidden type="text" name="policy_id_for_delete" value="{{ policy.id }}">
+                        <button class="for_delete button" type="submit">Удалить</button>
+                    </form>
                 </div>
             </div>
         </div>

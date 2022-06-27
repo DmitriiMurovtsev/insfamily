@@ -67,13 +67,12 @@ input, select {
 }
 
 .pop_up_container {
+    position: relative;
     border-radius: 10px;
-    width: 500px;
-    margin: 0 auto;
-    left: 0;
-    top: 0;
+    width: 30%;
+    margin-left: 35%;
+    margin-top: 5%;
     background-color: #FFFFFF;
-    transform: translate(0, 25%);
 }
 
 .pop_up_body input:focus {
@@ -92,8 +91,11 @@ input, select {
     right: 15px;
 }
 
-pop_up_body {
+.pop_up_body {
+    border-radius: 10px;
+    font-size: 12px;
     background-color: #FFFFFF;
+    padding: 20px;
 }
 
 .col {
@@ -152,11 +154,6 @@ a {
     color: #000; /* Цвет текста */
 }
 
-.for_delete {
-    float: right;
-    clear; left;
-}
-
 .search {
     width: 10%;
 }
@@ -167,3 +164,8 @@ a {
     clear: left;
 }
 
+.for_delete {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+}

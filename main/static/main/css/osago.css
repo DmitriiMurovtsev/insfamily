@@ -43,7 +43,7 @@ select {
 
 
 .pop_up {
-float: left;
+    float: left;
     position: absolute;
     top: 0;
     left: 0;
@@ -71,6 +71,8 @@ float: left;
 .pop_up_close {
     cursor: pointer;
     float: right;
+    top: 10px;
+    right: 10px;
 }
 
 a {
