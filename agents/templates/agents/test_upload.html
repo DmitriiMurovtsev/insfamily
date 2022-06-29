@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<link rel="stylesheet" href="{% static 'agents/css/test_upload.css' %}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<form class="upload" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+    <input hidden type="text" name="upload" value="upload">
+    <table class="upload">
+        <tr>
+            <td>
+                <input type="file" class="file" name="file" id="id_file">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input class="button save" type="submit" value="Сохранить">
+            </td>
+        </tr>
+    </table>
+</form>
+
+<div id="pop_up" class="pop_up">
+    <div class="pop_up_container">
+        <div class="pop_up_close"></div>
+        <form method="post">
+        {% csrf_token %}
+        <input hidden id="step_upload" name="step_upload" type="number" value="{{ step_upload }}">
+            <div class="agent">
+            Агент:
+            <select name="agent">
+                {% for agent in agents %}
+                <option value="{{ agent.id }}">{{ agent }}</option>
+                {% endfor %}
+            </select>
+            </div>
+        {% for name_for_output, name_for_upload in headers_for_upload.items %}
+        <div class="name_for_output">{{ name_for_output }}:</div>
+        <div class="name_for_upload">
+            <select name="{{ name_for_upload }}">
+                {% for col, val in headers.items %}
+                <option value="{{ col }}">{{ val }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endfor %}
+            <button class="but">Загрузить</button>
+        </form>
+    </div>
+</div>
+
+{{ text }}<br>
+{{ text_errors }}<br>
+
+{% for error in errors.values %}
+{{ error }}<br>
+{% endfor %}
+
+<script>
+    if (document.getElementById("step_upload").value == 1) {
+       document.getElementById("pop_up").classList.add("active");
+    }
+</script>
+
+</body>
+</html>

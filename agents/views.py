@@ -1,4 +1,5 @@
 import datetime
+import os
 
 import openpyxl
 from django.http import HttpResponse
@@ -328,3 +329,132 @@ def unload_receivable(request):
             wb.save(response)
 
             return response
+
+
+@login_required(login_url='login')
+def test_upload(request):
+    if 'upload' in request.POST:
+        headers = {}
+        agents = Agent.objects.all()
+
+        headers_for_upload = {
+            'Полис': 'policy',
+            'Тип полиса': 'type',
+            'Страхователь': 'client',
+            'Тип страхователя': 'type_client',
+            'Дата подписания договора': 'date_at',
+            'Начало': 'date_start',
+            'Окончание': 'date_end',
+            'Общая премия': 'sp',
+            'Тип оплаты': 'type_pay',
+            'Страховая компания': 'company',
+            'Канал продаж': 'channel',
+        }
+
+        wb = openpyxl.load_workbook(filename=request.FILES['file'])
+        sheet = wb.worksheets[0]
+
+        col = 0
+        step_upload = 1
+        while True:
+            try:
+                if sheet[1][col].value is not None:
+                    headers[col] = sheet[1][col].value
+                else:
+                    break
+                col += 1
+            except:
+                break
+
+        wb.save('agents/file/upload.xlsx')
+
+        context = {
+            'headers': headers,
+            'agents': agents,
+            'step_upload': step_upload,
+            'headers_for_upload': headers_for_upload,
+        }
+
+        return render(request, 'agents/test_upload.html', context)
+
+    if 'step_upload' in request.POST:
+        wb = openpyxl.load_workbook('agents/file/upload.xlsx')
+        sheet = wb.worksheets[0]
+
+        number = 0
+        errors = {}
+        row = 2
+
+        while True:
+            if sheet[row][0].value is not None:
+                if isinstance(sheet[row][int(request.POST["date_at"])].value, str):
+                    date_registration = f'{sheet[row][int(request.POST["date_at"])].value[6:10]}-' \
+                                        f'{sheet[row][int(request.POST["date_at"])].value[3:5]}-' \
+                                        f'{sheet[row][int(request.POST["date_at"])].value[0:2]}'
+                else:
+                    date_registration = f'{sheet[row][int(request.POST["date_at"])].value.year}-' \
+                                        f'{sheet[row][int(request.POST["date_at"])].value.month}-' \
+                                        f'{sheet[row][int(request.POST["date_at"])].value.day}'
+
+                if isinstance(sheet[row][int(request.POST["date_start"])].value, str):
+                    date_start = f'{sheet[row][int(request.POST["date_start"])].value[6:10]}-' \
+                                        f'{sheet[row][int(request.POST["date_start"])].value[3:5]}-' \
+                                        f'{sheet[row][int(request.POST["date_start"])].value[0:2]}'
+                else:
+                    date_start = f'{sheet[row][int(request.POST["date_start"])].value.year}-' \
+                                        f'{sheet[row][int(request.POST["date_start"])].value.month}-' \
+                                        f'{sheet[row][int(request.POST["date_start"])].value.day}'
+
+                if isinstance(sheet[row][int(request.POST["date_end"])].value, str):
+                    date_end = f'{sheet[row][int(request.POST["date_end"])].value[6:10]}-' \
+                                        f'{sheet[row][int(request.POST["date_end"])].value[3:5]}-' \
+                                        f'{sheet[row][int(request.POST["date_end"])].value[0:2]}'
+                else:
+                    date_end = f'{sheet[row][int(request.POST["date_end"])].value.year}-' \
+                                        f'{sheet[row][int(request.POST["date_end"])].value.month}-' \
+                                        f'{sheet[row][int(request.POST["date_end"])].value.day}'
+                policy, created = PolicyAgents.objects.get_or_create(
+                    policy=sheet[row][int(request.POST["policy"])].value,
+                    defaults={
+                        'agent': Agent.objects.get(id=request.POST.get('agent')),
+                        'type': Type.objects.get_or_create(name=sheet[row][int(request.POST["type"])].value)[0],
+                        'type_client': sheet[row][int(request.POST["type_client"])].value,
+                        'client': sheet[row][int(request.POST["client"])].value,
+                        'date_registration': date_registration,
+                        'date_start': date_start,
+                        'date_end': date_end,
+                        'price': float(str(sheet[row][int(request.POST["sp"])].value).replace(',', '.').replace(' ', '')),
+                        'type_pay': sheet[row][int(request.POST["type_pay"])].value,
+                        'agent_commission_rub': 0,
+                        'agent_commission': 0,
+                    }
+                )
+
+                if created:
+                    number += 1
+                    if 'б' not in sheet[row][int(request.POST["type_pay"])].value.lower():
+                        policy.status = 'receivable'
+                        policy.save()
+                else:
+                    errors[policy] = f'Полис {policy} уже есть в системе'
+
+                row += 1
+
+            else:
+                break
+
+        os.remove('agents/file/upload.xlsx')
+
+        text = f'Загружено {number}'
+        text_errors = f'Пропущенно {len(errors)}'
+
+        context = {
+            'errors': errors,
+            'text': text,
+            'text_errors': text_errors,
+        }
+
+        return render(request, 'agents/test_upload.html', context)
+
+    context = {}
+    return render(request, 'agents/test_upload.html', context)

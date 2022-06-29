@@ -100,11 +100,7 @@
                             </select>
                         </td>
                     </tr>
-                    {% if user.agent == True %}
-                        <tr><td><b>КВ в %</b></td><td><input name="commission" type="number" step="0.01" placeholder="КВ %" required></td></tr>
-                    {% else %}
-                        <tr><td><b id="com" hidden>КВ в %</b></td><td><input value="0" hidden id="commission" name="commission" placeholder="КВ %" required></td></tr>
-                    {% endif %}
+                    <tr><td><b id="com" hidden>КВ в %</b></td><td><input type="number" step="0.01" value="0" hidden id="commission" name="commission" placeholder="КВ %" required></td></tr>
                     <tr><td><b>Дата оформления</b></td><td><input id="date_at" type="date" name="date_registration" required></td></tr>
                     <tr><td><b>Дата начала действия</b></td><td><input id="date_start" type="date" name="date_start" required></td></tr>
                     <tr><td><b>Дата окончания действия</b></td><td><input id="date_end" type="date" name="date_end" required></td></tr>
