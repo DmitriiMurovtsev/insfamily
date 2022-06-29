@@ -12,9 +12,15 @@
         <img src="{% static 'main/img/insfamily.png' %}">
         <span class="logo">InsFamily</span>
         <h6>{{ user.get_full_name }}<br>
-            {% for sp in user.get_user_sp %}
-                {{ sp }}р.<br>
-            {% endfor %}
+            {% if user.admin %}
+                {% for sp in user.get_all_sp %}
+                    {{ sp }}р.<br>
+                {% endfor %}
+            {% else %}
+                {% for sp in user.get_user_sp %}
+                    {{ sp }}р.<br>
+                {% endfor %}
+            {% endif %}
         </h6>
         <ul class="ul">
             <a href="{% url 'add_policy' %}"><li>Внести продажу</li></a>
