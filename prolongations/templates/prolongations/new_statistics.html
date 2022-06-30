@@ -1,0 +1,101 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'prolongations/css/new_statistics.css' %}">
+
+<div class="top_menu">
+    {% for i, month in months.items %}
+    <form class="month_" method="get">
+        <input hidden name="month_" value="{{ i }}" type="text">
+        <button class="button">{{ month }}</button>
+    </form>
+    {% endfor %}
+</div>
+
+<table class="type_statistics">
+    <tr>
+        <th>Тип полиса</th>
+        <th>Всего залито</th>
+        <th colspan="2">В работе</th>
+        <th colspan="2">Оформленно</th>
+        <th colspan="2">В отказе</th>
+    </tr>
+    {% for type, statistic in type_statistic.items %}
+    <tr>
+        <td>{{ type }}</td>
+        <td class="count">{{ statistic.count }}</td>
+        <td>{{ statistic.count_r }}шт.</td>
+        <td>{{ statistic.percent_count_r }}</td>
+        <td>{{ statistic.count_p }}шт.</td>
+        <td>{{ statistic.percent_count_p }}</td>
+        <td>{{ statistic.count_d }}шт.</td>
+        <td>{{ statistic.percent_count_d }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<table class="status_statistics">
+    <tr>
+        <th colspan="2">Причина отказов</th>
+    </tr>
+    {% for status, count in status_statistic.items %}
+    <tr>
+        <td>{{ status }}</td>
+        <td class="count">{{ count }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<div class="search_form">
+    <form method="get">
+        <input name="search" type="text">
+        <input hidden name="month_" value="{{ month_ }}" type="text">
+        <button class="button">Поиск</button>
+    </form>
+</div>
+
+<table class="policies">
+    <tr>
+        <th>Тип полиса</th>
+        <th>БСО</th>
+        <th>Компания</th>
+        <th>Дата окончания</th>
+        <th>Клиент</th>
+        <th>Статус</th>
+    </tr>
+    {% for policy in policies_pagi %}
+    <tr>
+        <td>{{ policy.type }}</td>
+        <td>{{ policy.bso }}</td>
+        <td>{{ policy.company }}</td>
+        <td>{{ policy.date_end|slice:":10" }}</td>
+        <td>{{ policy.client }}</td>
+        <td>{{ policy.status }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<div class="pagi">
+    {% if page.has_previous %}
+        <a href="{{ link }}page={{ page.previous_page_number }}" class="button">Назад</a>
+    {% endif %}
+
+    {% for p in paginator.page_range %}
+    {% if page.number|add:'-3' < p and page.number|add:'3' > p %}
+        {% if p != page.number %}
+            <a href="{{ link }}page={{ p }}" class="button">{{ p }}</a>
+        {% else %}
+            <b class="button check">{{ p }}</b>
+        {% endif %}
+    {% endif %}
+    {% endfor %}
+
+    {% if page.has_next %}
+        <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
+    {% endif %}
+</div>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Статистика
+{% endblock %}

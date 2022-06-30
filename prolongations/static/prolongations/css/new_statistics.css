@@ -1,0 +1,114 @@
+.top_menu {
+    padding: 5px;
+    width: 80%;
+    float: left;
+}
+
+.month_ {
+    float: left;
+    margin-right: 10px;
+}
+
+.button {
+    border: 1px solid #333;
+    border-radius: 5px;
+    font-size: 12px;
+    display: inline-block;
+    padding: 5px 15px;
+    color: #000;
+}
+
+.button:hover {
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    background: linear-gradient(to bottom, #fcfff4, #e9e9ce);
+    color: #000;
+}
+
+.type_statistics {
+    font-size: 12px;
+    margin-top: 1%;
+    float: left;
+    width: 40%;
+}
+
+.status_statistics {
+    font-size: 12px;
+    margin-top: 1%;
+    margin-left: 1%;
+    float: left;
+    width: 15%;
+}
+
+.policies {
+    margin-top: 2px;
+    font-size: 12px;
+    float: left;
+    width: 80%;
+}
+
+.col_type, .col_type_1 {
+    text-align: center;
+    border-bottom: 1px solid #000;
+    float: left;
+    width: 20%;
+}
+
+.col_type_1 {
+    text-align: left;
+}
+
+.col_type_2 {
+    border-bottom: 1px solid #000;
+    float: left;
+    width: 10%;
+}
+
+.type_statistics th, .status_statistics th, .policies th {
+  font-weight: normal;
+  border-bottom: 2px solid #6678b1;
+  border-top: 2px solid #6678b1;
+  border-left: 1px solid #B0C4DE;
+  border-right: 1px solid #B0C4DE;
+  padding: 3px 3px;
+  text-align: center;
+}
+
+.type_statistics tr:nth-child(2n), .status_statistics tr:nth-child(2n), .policies tr:nth-child(2n) {
+  background: #FFEBCD;
+}
+
+.type_statistics td, .tr:nth-child(2n) td, .policies td {
+    width: calc(50% + (100 - 50) * ((100vw - 320px) / (1900 - 320)));
+    height: calc(50% + (100 - 50) * ((100vw - 320px) / (1900 - 320)));
+    padding: 4px 8px;
+}
+
+.count {
+    width: 30%;
+    text-align: center;
+}
+
+.pagi {
+    width: 50%;
+    margin-top: 2%;
+    float: left;
+}
+
+.check {
+background: #808080;
+}
+
+a {
+    text-decoration: none;
+        color: #000; /* Цвет текста */
+}
+
+.search_form {
+    float: left;
+    width: 50%;
+    margin-top: 2%;
+}
+
+.search_form input {
+    width: 30%;
+}

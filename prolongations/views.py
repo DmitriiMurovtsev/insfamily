@@ -19,6 +19,23 @@ from main.models import Client, Type, Company
 locale.setlocale(locale.LC_ALL, "")
 
 
+# Месяцы
+months_rus = {
+    '01': 'Январь',
+    '02': 'Февраль',
+    '03': 'Март',
+    '04': 'Апрель',
+    '05': 'Май',
+    '06': 'Июнь',
+    '07': 'Июль',
+    '08': 'Август',
+    '09': 'Сентябрь',
+    '10': 'Октябрь',
+    '11': 'Ноябрь',
+    '12': 'Декабрь',
+}
+
+
 @login_required(login_url='login')
 def upload_policy(request):
     # Изменение статуса полиса
@@ -126,63 +143,89 @@ def status_change(request):
 
 
 @login_required(login_url='login')
-def get_statistic(request):
-    # Статистика по пролонгации
-    if request.user.agent == False and request.user.admin == True or request.user.username == 'APuchkova':
-        status_statistic = {}
-        month_statistic = {}
-        status_all = Status.objects.all()
-        types = Type.objects.all()
-        policy_d = PolicyBase.objects.exclude(status__name='Оформлен')
-        policy_d = policy_d.exclude(status__name='В работе')
-        months = {
-            datetime.datetime.strptime(policy.date_end[0:10], "%Y-%m-%d").month: datetime.datetime.strptime(
-                policy.date_end[0:10], "%Y-%m-%d").strftime("%B")
-            for policy in PolicyBase.objects.all()
-        }
-        for month_number, month in months.items():
-            date_start = datetime.date(datetime.datetime.today().year, month_number, 1)
-            if month_number != 12:
-                date_end = datetime.date(datetime.datetime.today().year, month_number+1, 1)
-            else:
-                date_end = datetime.date(datetime.datetime.today().year, 1, 1)
-            type_statistic = {}
-            for type in types:
-                policy_type = PolicyBase.objects.filter(type=type, date_end__range=(date_start, date_end))
-                if len(policy_type) > 0:
-                    temp_dict = {}
-                    count = len(policy_type)
-                    count_r = len(policy_type.filter(status__name='В работе'))
-                    count_p = len(policy_type.filter(status__name='Оформлен'))
-                    count_d = count - count_p - count_r
-                    temp_dict['count'] = count
-                    temp_dict['count_r'] = count_r
-                    temp_dict['percent_count_r'] = f'{format(float((count_r / count) * 100), ".1f")}%'
-                    temp_dict['count_p'] = count_p
-                    temp_dict['percent_count_p'] = f'{format(float((count_p / count) * 100), ".1f")}%'
-                    temp_dict['count_d'] = count_d
-                    temp_dict['percent_count_d'] = f'{format(float((count_d / count) * 100), ".1f")}%'
-                    type_statistic[type] = temp_dict
-            month_statistic[month] = type_statistic
+def new_statistics(request):
+    # Статистика по пролонгационной базе
 
-        for status in status_all:
-            if status.name == 'Оформлен' or status.name == 'В работе':
-                continue
-            policy_status = PolicyBase.objects.filter(status=status)
-            if len(policy_status) > 0:
-                count = len(policy_status)
-                status_statistic[status] = count
+    months_ = sorted({policy.date_end[5:7] for policy in PolicyBase.objects.all()})
+    months = {}
+    for month_ in months_:
+        for i, month in months_rus.items():
+            if int(month_) == int(i):
+                months[i] = month
 
-        paginator = Paginator(policy_d, 10)
-        current_page = request.GET.get('page', 1)
-        page = paginator.get_page(current_page)
+    if 'month_' in request.GET:
+        month_ = request.GET['month_']
+    else:
+        month_ = datetime.datetime.now().month
 
-        context = {
-            'month_statistic': month_statistic,
-            'status_statistic': status_statistic,
-            'page': page,
-            'policy_base': page.object_list,
-            'paginator': paginator,
-        }
+    date_start = datetime.date(datetime.datetime.today().year, int(month_), 1)
+    if month_ != 12:
+        date_end = datetime.date(datetime.datetime.today().year, int(month_) + 1, 1)
+    else:
+        date_end = datetime.date(datetime.datetime.today().year + 1, 1, 1)
+    policies = PolicyBase.objects.filter(date_end__range=(date_start, date_end))
 
-    return render(request, 'prolongations/statistic.html', context)
+    type_statistic = {}
+    types = Type.objects.all()
+    for type_ in types:
+        # статистика по типам полисов
+        policy_type = policies.filter(type=type_)
+        if len(policy_type) > 0:
+            temp_dict = {}
+            count = len(policy_type)
+            count_r = len(policy_type.filter(status__name='В работе'))
+            count_p = len(policy_type.filter(status__name='Оформлен'))
+            count_d = count - count_p - count_r
+            temp_dict['count'] = count
+            temp_dict['count_r'] = count_r
+            temp_dict['percent_count_r'] = f'{format(float((count_r / count) * 100), ".1f")}%'
+            temp_dict['count_p'] = count_p
+            temp_dict['percent_count_p'] = f'{format(float((count_p / count) * 100), ".1f")}%'
+            temp_dict['count_d'] = count_d
+            temp_dict['percent_count_d'] = f'{format(float((count_d / count) * 100), ".1f")}%'
+            type_statistic[type_] = temp_dict
+
+    status_statistic = {}
+    status_all = Status.objects.all()
+    for status in status_all:
+        # Статистика по отказам
+        if status.name == 'Оформлен' or status.name == 'В работе':
+            continue
+        policy_status = policies.filter(status=status)
+        if len(policy_status) > 0:
+            status_statistic[status] = len(policy_status)
+
+    if 'search' in request.GET:
+        policies_pagi = policies.filter(
+            Q(client__last_name__iregex=request.GET.get('search')) |
+            Q(client__first_name__iregex=request.GET.get('search')) |
+            Q(client__middle_name__iregex=request.GET.get('search')) |
+            Q(bso__iregex=request.GET.get('search'))
+        ).order_by('date_end')
+    else:
+        policies_pagi = policies.order_by('date_end')
+
+    # ссылка с параметрами для пагинации
+    link = '?'
+    for key, value in request.GET.items():
+        if key == 'page':
+            continue
+        link = link + f'{key}={value}&'
+
+    paginator = Paginator(policies_pagi, 15)
+    current_page = request.GET.get('page', 1)
+    page = paginator.get_page(current_page)
+
+    context = {
+        'months': months,
+        'month_': month_,
+        'link': link,
+        'page': page,
+        'policies_pagi': page.object_list,
+        'policies': policies,
+        'paginator': paginator,
+        'type_statistic': type_statistic,
+        'status_statistic': status_statistic,
+    }
+
+    return render(request, 'prolongations/new_statistics.html', context)
