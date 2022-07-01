@@ -8,13 +8,17 @@
     vertical-align: top;
 }
 
-.table_2 {
-    width: 95%;
-    margin-right: 20px;
-    margin-left: 10px;
+.table_2, .table_2_2 {
+    width: 70%;
+    margin-top: 1%;
 }
 
-.table_2 th, .table_2_1 th {
+.table_2_2 {
+    margin-top: 2%;
+    width: 40%;
+}
+
+.table_2 th, .table_2_2 th {
   font-weight: normal;
   border-bottom: 2px solid #6678b1;
   border-top: 2px solid #6678b1;
@@ -23,15 +27,15 @@
   padding: 3px 3px;
 }
 
-.table_2 tr:hover td {
+.table_2 tr:hover td, .table_2_2 tr:hover {
   background: #E6E6FA;
 }
 
-.table_2 tr:nth-child(2n) {
+.table_2 tr:nth-child(2n), .table_2_2 tr:nth-child(2n) {
   background: #FFEBCD;
 }
 
-.table_2 td {
+.table_2 td, .table_2_2 td {
     width: calc(50px + (150 - 50) * ((100vw - 320px) / (1900 - 320)));
 }
 

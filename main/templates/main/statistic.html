@@ -13,6 +13,7 @@
 </div>
 
 <table class="table_1">
+    <tr>
         <td>
             <table class="table_2">
                 <thead>
@@ -49,23 +50,26 @@
                 </tfoot>
             </table>
         </td>
-        {% if user.admin == True %}
-            <td>
-            <table class="table_2">
-                <th>Менеджер</th>
-                <th>Продано шт.</th>
-                <th>Сборы</th>
-                {% for user, value in user_statistic.items %}
-                <tr>
-                    <td class="type">{{ user }}</td>
-                    <td>{{ value.count }}</td>
-                    <td>{{ value.sp }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            </td>
-        {% endif %}
-    </table>
+    </tr>
+    {% if user.admin == True %}
+    <tr>
+        <td>
+        <table class="table_2_2">
+            <th>Менеджер</th>
+            <th>Продано шт.</th>
+            <th>Сборы</th>
+            {% for user, value in user_statistic.items %}
+            <tr>
+                <td class="type">{{ user }}</td>
+                <td>{{ value.count }}</td>
+                <td>{{ value.sp }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        </td>
+    </tr>
+    {% endif %}
+</table>
 
 {% endblock %}
 {% block title %}
