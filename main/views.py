@@ -1498,3 +1498,8 @@ def get_sale_reports(request):
         }
 
         return render(request, 'main/sale_reports_one.html', context)
+
+
+@login_required(login_url='login')
+def base_upload(request):
+    pass

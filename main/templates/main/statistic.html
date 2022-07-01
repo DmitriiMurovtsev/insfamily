@@ -3,6 +3,10 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'main/css/statistic.css' %}">
 
+<form action="base_upload" method="post">
+    <button class="button">Выгрузить</button>
+</form>
+
 <div class="top_menu">
     {% for i, month in months.items %}
     <form class="month_" method="get">
