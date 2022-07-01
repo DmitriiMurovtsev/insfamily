@@ -1,7 +1,7 @@
 .table_1 {
-    font-size: calc(8px + (14 - 8) * ((100vw - 320px) / (1900 - 320)));
+    font-size: 12px;
     text-align: center;
-    width: calc(20% + (80% - 20%) * ((100vw - 320px) / (1900 - 320)));
+    width: 80%;
 }
 
 .table_1 td {
@@ -9,11 +9,12 @@
 }
 
 .table_2 {
+    width: 95%;
     margin-right: 20px;
     margin-left: 10px;
 }
 
-.table_2 th {
+.table_2 th, .table_2_1 th {
   font-weight: normal;
   border-bottom: 2px solid #6678b1;
   border-top: 2px solid #6678b1;
@@ -40,4 +41,30 @@
 
 .all_sp {
     border-top: 1px double black;
+}
+
+.top_menu {
+    padding: 5px;
+    width: 80%;
+    float: left;
+}
+
+.month_ {
+    float: left;
+    margin-right: 10px;
+}
+
+.button {
+    border: 1px solid #333;
+    border-radius: 5px;
+    font-size: 12px;
+    display: inline-block;
+    padding: 5px 15px;
+    color: #000;
+}
+
+.button:hover {
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    background: linear-gradient(to bottom, #fcfff4, #e9e9ce);
+    color: #000;
 }

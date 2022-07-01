@@ -58,3 +58,8 @@ class PolicyAgents(models.Model):
 
     def __str__(self):
         return self.policy
+
+
+class HistoryBso(models.Model):
+    # История изменений БСО
+    pass

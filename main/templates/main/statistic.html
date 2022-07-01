@@ -2,7 +2,17 @@
 {% load static %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'main/css/statistic.css' %}">
-    <table class="table_1">
+
+<div class="top_menu">
+    {% for i, month in months.items %}
+    <form class="month_" method="get">
+        <input hidden name="month_" value="{{ i }}" type="text">
+        <button class="button">{{ month }}</button>
+    </form>
+    {% endfor %}
+</div>
+
+<table class="table_1">
         <td>
             <table class="table_2">
                 <thead>
@@ -12,6 +22,8 @@
                     <th>Новый бизнес</th>
                     <th>Пролонгация</th>
                     <th>Переход</th>
+                    <th>Второй взнос</th>
+                    <th>Аддендум</th>
                 </thead>
                 <tbody>
                     {% for type, value in all_statistic.items %}
@@ -23,6 +35,8 @@
                         <td>{{ value.newbiz }}</td>
                         <td>{{ value.prolongation }}</td>
                         <td>{{ value.transition }}</td>
+                        <td>{{ value.payment }}</td>
+                        <td>{{ value.addendum }}</td>
                     </tr>
                     {% endif %}
                     {% endfor %}
@@ -42,13 +56,11 @@
                 <th>Продано шт.</th>
                 <th>Сборы</th>
                 {% for user, value in user_statistic.items %}
-                {% if user.is_active %}
                 <tr>
                     <td class="type">{{ user }}</td>
                     <td>{{ value.count }}</td>
                     <td>{{ value.sp }}</td>
                 </tr>
-                {% endif %}
                 {% endfor %}
             </table>
             </td>

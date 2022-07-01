@@ -13,6 +13,23 @@ from .models import Policy, Client, Channel, Company, User, Type, MortgagePolicy
 from .forms import UploadFileForm
 
 
+# Месяцы
+months_rus = {
+    '01': 'Январь',
+    '02': 'Февраль',
+    '03': 'Март',
+    '04': 'Апрель',
+    '05': 'Май',
+    '06': 'Июнь',
+    '07': 'Июль',
+    '08': 'Август',
+    '09': 'Сентябрь',
+    '10': 'Октябрь',
+    '11': 'Ноябрь',
+    '12': 'Декабрь',
+}
+
+
 def redirect_login(request):
     # Перенаправление с главной страницы
     return redirect('add_policy')
@@ -168,51 +185,60 @@ def unload_accept(request):
 @login_required(login_url='login')
 def statistic(request):
     # просмотр статистики
+    months_ = sorted({policy.date_registration.month for policy in Policy.objects.all()})
+    months = {}
+    for month_ in months_:
+        for i, month in months_rus.items():
+            if int(month_) == int(i):
+                months[i] = month
+    if 'month_' in request.GET:
+        month_ = request.GET['month_']
+    else:
+        month_ = datetime.datetime.now().month
+
+    date_start = datetime.date(datetime.datetime.today().year, int(month_), 1)
+    if month_ != 12:
+        date_end = datetime.date(datetime.datetime.today().year, int(month_) + 1, 1)
+    else:
+        date_end = datetime.date(datetime.datetime.today().year + 1, 1, 1)
+
+    policies = Policy.objects.filter(date_registration__range=(date_start, date_end))
+
     all_statistic = {}
     user_statistic = {}
-    agent_statistic = {}
     all_sp = 0
-    date_start, date_end = get_start_end_date()
     if request.user.admin:
-        police_for_type = Policy.objects.filter(date_registration__lt=date_end,
-                                                date_registration__gte=date_start)
-        users = User.objects.filter(agent=False, admin=False)
-        agents = User.objects.filter(agent=True)
-        for user in users:
+        police_for_type = policies
+
+        users = {policy.user: policy.user.id for policy in policies}
+        for user, user_id in users.items():
             temp_dict = {}
-            policy_user = police_for_type.filter(user=user.id)
+            policy_user = police_for_type.filter(user=user_id)
             temp_dict['sp'] = int(sum(policy.sp for policy in policy_user))
             temp_dict['count'] = len(policy_user)
             user_statistic[user] = temp_dict
-        for agent in agents:
-            temp_dict = {}
-            policy_agent = Policy.objects.filter(user=agent.id)
-            temp_dict['sp'] = int(sum(policy.sp for policy in policy_agent))
-            temp_dict['count'] = len(policy_agent)
-            agent_statistic[agent] = temp_dict
     else:
-        police_for_type = Policy.objects.filter(
-            user=request.user.id,
-            date_registration__lt=date_end,
-            date_registration__gte=date_start
-        )
-    types = Type.objects.all()
-    for type in types:
+        police_for_type = policies.filter(user=request.user.id)
+
+    types = {policy.type: policy.type.id for policy in police_for_type}
+    for type, type_id in types.items():
         temp_dict = {}
-        policy_type = police_for_type.filter(type=type.id)
+        policy_type = police_for_type.filter(type=type_id)
         temp_dict['count'] = len(policy_type)
         temp_dict['sum_sp'] = int(sum(policy.sp for policy in policy_type))
         temp_dict['newbiz'] = len(policy_type.filter(status='newbiz'))
         temp_dict['prolongation'] = len(policy_type.filter(status='prolongation'))
         temp_dict['transition'] = len(policy_type.filter(status='transition'))
+        temp_dict['payment'] = len(policy_type.filter(status='payment'))
+        temp_dict['addendum'] = len(policy_type.filter(status='addendum'))
         all_statistic[type] = temp_dict
         all_sp += sum(policy.sp for policy in policy_type)
 
     context = {
         'all_statistic': all_statistic,
         'user_statistic': user_statistic,
-        'agent_statistic': agent_statistic,
         'all_sp': all_sp,
+        'months': months,
     }
     return render(request, 'main/statistic.html', context)
 

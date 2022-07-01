@@ -145,7 +145,6 @@ def status_change(request):
 @login_required(login_url='login')
 def new_statistics(request):
     # Статистика по пролонгационной базе
-
     months_ = sorted({policy.date_end[5:7] for policy in PolicyBase.objects.all()})
     months = {}
     for month_ in months_:
