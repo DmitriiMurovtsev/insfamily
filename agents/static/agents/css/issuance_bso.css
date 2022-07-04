@@ -48,13 +48,21 @@
 }
 
 .pop_up_container {
-    border-radius: 10px;
-    width: 500px;
-    margin: 0 auto;
-    left: 0;
-    top: 0;
     background-color: #FFFFFF;
-    transform: translate(0, 100%);
+    position: relative;
+    font-size: 14px;
+    border-radius: 10px;
+    width: 20%;
+    height: 50%;
+    margin-left: 40%;
+    margin-top: 10%;
+}
+
+.pop_up_body {
+    width: 90%;
+    height: 90%;
+    margin-left: 5%;
+    padding: 1%;
 }
 
 .pop_up_body input:focus {
@@ -73,16 +81,12 @@
     right: 15px;
 }
 
-pop_up_body {
-    background-color: #FFFFFF;
-}
-
 a {
     text-decoration: none;
         color: #000; /* Цвет текста */
 }
 
-.button {
+.button, .pagi-button, .add_button {
     border: 1px solid #333; /* Рамка */
     border-radius: 5px;
     font-size: 12px;
@@ -90,7 +94,7 @@ a {
     padding: 5px 15px; /* Поля */
     color: #000; /* Цвет текста */
   }
-.button:hover {
+.button:hover, .pagi-button:hover, .add_button:hover {
     box-shadow: 0 0 5px rgba(0,0,0,0.3); /* Тень */
     background: linear-gradient(to bottom, #fcfff4, #e9e9ce); /* Градиент */
     color: #000; /* Цвет текста */
@@ -99,11 +103,54 @@ a {
 .upload, .add_agent, .issuance_bso, .unload {
     padding: 20px;
 }
-  .check {
-    background: #959595;
-  }
 
-.unload input, .unload select, .upload .upload select {
-    width: 200px;
+.check {
+    background: #959595;
 }
 
+.unload input, .unload select, .upload select, .issuance_bso input, .issuance_bso select {
+    width: 100%;
+}
+
+.line {
+    border: 1px solid #000;
+    width: 80%;
+    margin-left: 10%;
+}
+
+.tr:hover {
+    cursor: pointer;
+}
+
+.history_date {
+    width: 30%;
+    float: left;
+    border-bottom: 1px solid #000;
+}
+
+.history_name {
+    width: 70%;
+    border-bottom: 1px solid #000;
+}
+
+.bso_in_agents {
+    width: 60%;
+    height: 80%;
+    margin-left: 20%;
+    margin-top: 5%;
+}
+
+.add_button {
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+}
+
+.checkbox, .all_checkbox {
+    width: 15px;
+    height: 15px;
+}
+
+.th_checkbox, .td_checkbox{
+    width: 5%;
+}

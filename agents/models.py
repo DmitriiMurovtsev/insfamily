@@ -11,7 +11,8 @@ class Bso(models.Model):
     agent = models.ForeignKey('Agent', on_delete=models.DO_NOTHING, related_name='bso', verbose_name='Агент',
                               blank=True, null=True)
     date_add = models.DateField(verbose_name='Дата получения от СК')
-    date_at = models.DateField(verbose_name='Дата выдачи агенту')
+    date_at = models.DateField(verbose_name='Дата выдачи агенту', blank=True, null=True)
+    clear = models.BooleanField(verbose_name='Чистый бланк', default=True)
 
     class Meta:
         verbose_name = 'БСО'
@@ -62,4 +63,26 @@ class PolicyAgents(models.Model):
 
 class HistoryBso(models.Model):
     # История изменений БСО
-    pass
+    date_at = models.DateField(verbose_name='Дата изменения статуса бланка')
+    status = models.ForeignKey('StatusBso', on_delete=models.CASCADE, verbose_name='Статус полиса')
+    bso = models.ForeignKey(Bso, on_delete=models.CASCADE, verbose_name='БСО', related_name='history')
+
+    class Meta:
+        verbose_name = 'История БСО'
+        verbose_name_plural = 'История БСО'
+        ordering = ['-date_at']
+
+    def __str__(self):
+        return f'{self.status}'
+
+
+class StatusBso(models.Model):
+    # Статус БСО
+    name = models.CharField(max_length=200, verbose_name='Статус БСО')
+
+    class Meta:
+        verbose_name = 'Статус БСО'
+        verbose_name_plural = 'Статусы БСО'
+
+    def __str__(self):
+        return self.name

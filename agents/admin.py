@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Agent, Bso, PolicyAgents
+from .models import Agent, Bso, PolicyAgents, HistoryBso
 
 
 @admin.register(Agent)
@@ -15,3 +15,8 @@ class BsoAdmin(admin.ModelAdmin):
 @admin.register(PolicyAgents)
 class PolicyAgentsAdmin(admin.ModelAdmin):
     list_display = ['id', 'policy', 'agent']
+
+
+@admin.register(HistoryBso)
+class HistoryBsoAgentsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'status', 'date_at', 'bso']

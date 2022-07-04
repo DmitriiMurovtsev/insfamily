@@ -10,7 +10,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
-from .models import Agent, Bso, PolicyAgents
+from .models import Agent, Bso, PolicyAgents, HistoryBso, StatusBso
 from main.models import Company, Type
 
 from main.views import get_start_end_date
@@ -20,81 +20,180 @@ from main.views import get_start_end_date
 def issuance_bso(request):
     agents = Agent.objects.all()
     company = Company.objects.all()
+    status_bso = StatusBso.objects.all()
+    bso_for_agents = Bso.objects.filter(clear=True)
     errors = {}
     selected = {}
     date_now = datetime.datetime.now().strftime("%Y-%m-%d")
     text_bso = ''
     text_errors_bso = 0
     if request.method == 'POST':
-        number = int(request.POST.get('number'))
-        for i in range(0, int(request.POST.get('range'))):
-            bso, created = Bso.objects.get_or_create(
-                series=request.POST.get('series'),
-                number=number,
-                defaults={
-                    'company': Company.objects.get(id=request.POST.get('company')),
-                    'agent': Agent.objects.get(id=request.POST.get('agent')),
-                    'date_add': request.POST.get('date_add'),
-                    'date_at': request.POST.get('date_at'),
-                }
-            )
+        if 'add_status_bso' in request.POST:
+            # Создание статуса бланка
+            StatusBso.objects.get_or_create(name=request.POST['status_name'])
 
-            if created == False:
-                errors[f'{bso.series} {bso.number}'] = bso.agent
+        if 'bso_in_agents' in request.POST:
+            # Передача БСО со склада агенту
+            for bso_id in request.POST:
+                if 'check_bso' in bso_id:
+                    bso_for_edit = Bso.objects.get(id=request.POST[bso_id])
+                    bso_for_edit.agent = Agent.objects.get(id=request.POST['agent'])
+                    bso_for_edit.clear = False
+                    bso_for_edit.save()
 
-            number += 1
+                    status, created = StatusBso.objects.get_or_create(name='Выдан агенту')
+                    new_history, created = HistoryBso.objects.get_or_create(
+                        date_at=datetime.datetime.now().date(),
+                        status=status,
+                        bso=bso_for_edit,
+                    )
 
-        text_bso = f'Добавлено {int(request.POST.get("range")) - len(errors)}'
-        if len(errors) > 0:
-            text_errors_bso = f'Пропущено {len(errors)}'
+        if 'add_new_bso' in request.POST:
+            # Добавление новых БСО на склад вручную
+            for i in range(int(request.POST['range'])):
+                new_bso, created = Bso.objects.get_or_create(
+                    series=request.POST['series'],
+                    number=int(request.POST['number']) + i,
+                    company_id=request.POST['company'],
+                    defaults={
+                        'date_add': request.POST['date_add'],
+                    }
+                )
+
+                if not created:
+                    errors[f'{new_bso.series} {new_bso.number}'] = 'Уже есть в системе'
+
+                else:
+                    status, created = StatusBso.objects.get_or_create(name='Чистый')
+                    new_history, created = HistoryBso.objects.get_or_create(
+                        date_at=datetime.datetime.now().date(),
+                        status=status,
+                        bso=new_bso,
+                    )
+
+                if len(errors) > 0:
+                    # Выгрузка незагруженных БСО в xlsx
+                    pass
+
+        if 'add_new_bso_from_file' in request.POST:
+            # Загрузка БСО из файла
+            errors = {}
+            wb = load_workbook(filename=request.FILES['file'])
+            sheet = wb.worksheets[0]
+            number = 0
+            i = 2
+            while True:
+                if sheet[i][0].value is None or sheet[i][0].value == '':
+                    break
+                company_for_new_bso, created = Company.objects.get_or_create(name=sheet[i][2].value)
+                new_bso, created = Bso.objects.get_or_create(
+                    series=sheet[i][0].value,
+                    number=sheet[i][1].value,
+                    company=company_for_new_bso,
+                    defaults={
+                        'date_add': datetime.datetime.now().date(),
+                    }
+                )
+
+                if not created:
+                    errors[f'{new_bso.series} {new_bso.number}'] = 'Уже есть в системе'
+                else:
+                    status, created = StatusBso.objects.get_or_create(name='Чистый')
+                    new_history, created = HistoryBso.objects.get_or_create(
+                        date_at=datetime.datetime.now().date(),
+                        status=status,
+                        bso=new_bso,
+                    )
+
+                i += 1
+
+            if len(errors) > 0:
+                # Выгрузка незагруженных БСО в xlsx
+                pass
 
     bso = Bso.objects.all()
+
     text_search = ''
     if 'search' in request.GET:
         bso = bso.filter(number__icontains=request.GET.get('search'))
         text_search = f'Найдено {len(bso)} БСО'
 
-    elif 'agent' in request.GET and request.GET.get('agent') != 'all':
-        bso = bso.filter(agent_id=request.GET.get('agent'))
-        selected['agent'] = int(request.GET.get('agent'))
+    else:
+        if 'agent' in request.GET and request.GET.get('agent') != 'all':
+            # Сортировка по агенту
+            bso = bso.filter(agent_id=request.GET.get('agent'))
+            selected['agent'] = int(request.GET.get('agent'))
 
-    if 'shelf_life' in request.GET and request.GET.get('shelf_life') != 'all':
-        date_now = datetime.datetime.today().date()
+        if 'status_bso' in request.GET:
+            # Сортировка по статусу БСО
+            if request.GET['status_bso'] != 'all':
+                selected['status_bso'] = int(request.GET['status_bso'])
+                status_for_filter = StatusBso.objects.get(id=request.GET['status_bso'])
+                bso_list = []
+                for b in bso:
+                    # Выборка актуального статуса
+                    old_history = HistoryBso.objects.filter(bso_id=b.id)[0]
+                    for his in HistoryBso.objects.filter(bso_id=b.id):
+                        if his.id > old_history.id:
+                            old_history = his
+                    if status_for_filter == old_history.status:
+                        bso_list.append(b)
+                bso = bso_list
 
-        if request.GET.get('shelf_life') == 'suitable':
-            selected['shelf_life'] = 'suitable'
-            bso_list = [b for b in bso if 0 < b.agent.storage_time - (date_now - b.date_at).days <= 2]
-            bso = bso_list
+    bso_list = []
+    for b in bso:
+        temp_dict = {}
+        temp_dict['id'] = b.id
+        temp_dict['company'] = b.company.name
+        temp_dict['series'] = b.series
+        temp_dict['number'] = b.number
+        temp_dict['date_add'] = b.date_add
 
-        elif request.GET.get('shelf_life') == 'overdue':
-            selected['shelf_life'] = 'overdue'
-            bso_list = [b for b in bso if (b.agent.storage_time - (date_now - b.date_at).days) <= 0]
-            bso = bso_list
+        old_history = HistoryBso.objects.filter(bso_id=b.id)[0]
+
+        # Выборка актуального статуса
+        for his in HistoryBso.objects.filter(bso_id=b.id):
+            if his.id > old_history.id:
+                old_history = his
+
+        temp_dict['history_status'] = old_history.status
+        temp_dict['history_date_at'] = old_history.date_at
+        temp_dict['history'] = HistoryBso.objects.filter(bso_id=b.id)
+        temp_dict['agent'] = b.agent
+        bso_list.append(temp_dict)
 
     # ссылка с параметрами для пагинации
     link = '?'
     for key, value in request.GET.items():
-        if key == 'page':
+        if key == 'page' or key == 'page_2':
             continue
         link = link + f'{key}={value}&'
 
-    paginator = Paginator(bso, 15)
+    paginator = Paginator(bso_list, 15)
     current_page = request.GET.get('page', 1)
     page = paginator.get_page(current_page)
 
+    paginator_2 = Paginator(bso_for_agents, 20)
+    current_page_2 = request.GET.get('page_2', 1)
+    page_2 = paginator_2.get_page(current_page_2)
+
     context = {
         'agents': agents,
+        'status_bso': status_bso,
         'date_now': date_now,
         'selected': selected,
         'company': company,
         'text_bso': text_bso,
         'text_errors_bso': text_errors_bso,
         'errors': errors,
-        'bso': page.object_list,
+        'bso_list': page.object_list,
+        'bso_for_agents': page_2.object_list,
         'text_search': text_search,
         'page': page,
+        'page_2': page_2,
         'link': link,
         'paginator': paginator,
+        'paginator_2': paginator_2,
     }
     return render(request, 'agents/issuance_bso.html', context)
 
