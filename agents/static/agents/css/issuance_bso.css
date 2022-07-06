@@ -7,8 +7,9 @@
 }
 
 .table_2 {
+    width: 80%;
     margin-right: 20px;
-    margin-top: 20px;
+    margin-top: 1%;
     margin-left: 10px;
     font-size: calc(8px + (15 - 8) * ((100vw - 320px) / (1900 - 320)));
 }
@@ -138,7 +139,7 @@ a {
 .bso_in_agents {
     width: 60%;
     height: 80%;
-    margin-left: 20%;
+    margin: auto;
     margin-top: 5%;
 }
 
@@ -159,25 +160,36 @@ a {
 
 .uploads {
     height: 150px;
+    margin: auto;
+    margin-top: 10%;
 }
 
 .add_agents, .created_status {
     height: 200px;
     width: 35%;
     max-width: 450px;
+    margin: auto;
+    margin-top: 10%;
 }
 
 .unloads {
     height: 250px;
+    margin: auto;
+    margin-top: 10%;
 }
 
 .uploads_bso {
+    margin: auto;
+    margin-top: 10%;
     height: 400px;
+    width: 25%;
+    min-width: 450px;
 }
 
 .top_table {
     float: left;
     width: 85%;
+    margin-bottom: 0.5%;
 }
 
 .top_table form {
@@ -192,8 +204,8 @@ a {
 .step_upload {
     width: 40%;
     height: 500px;
-    margin-left: 30%;
-    margin-top: 5%;
+    margin: auto;
+    margin-top: 10%;
     padding: 20px;
 }
 
@@ -224,6 +236,8 @@ a {
 .history {
     width: 20%;
     min-width: 500px;
+    margin: auto;
+    margin-top: 10%;
 }
 
 .pop_up_body {
@@ -234,8 +248,8 @@ a {
     width: 15%;
     min-width: 250px;
     height: 150px;
-    margin-left: 40%;
-    margin-top: 5%;
+    margin: auto;
+    margin-top: 10%;
     padding: 1%;
 }
 
@@ -248,4 +262,47 @@ a {
     position: absolute;
     right: 15px;
     bottom: 15px;
+}
+
+.button {
+    cursor: pointer;
+}
+
+.change_status_from_file {
+    height: 200px;
+    margin: auto;
+    margin-top: 10%;
+}
+
+.status_for_change {
+    margin-bottom: 1%;
+}
+
+.status_for_change_file {
+    margin-top: 5%;
+}
+
+.status_for_change_button, .create_status_button, .add_new_bso_button {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+}
+
+.name_change {
+    width: 30%;
+    float: left;
+}
+
+.select_name_change {
+    width: 70%;
+}
+
+.status_for_change_form {
+    border-radius: 5px;
+    padding: 15px;
+    position: relative;
+    border-top: 1px solid #000;
+    width: 100%;
+    height: 20%;
+    background-color: #FFFFFF;
 }

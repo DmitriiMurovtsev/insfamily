@@ -23,6 +23,9 @@ def issuance_bso(request):
     status_bso = StatusBso.objects.all()
     bso_for_agents = Bso.objects.filter(clear=True)
     errors = {}
+    errors_unload = ''
+    errors_count = ''
+    number_for_errors = 0
     selected = {}
     date_now = datetime.datetime.now().strftime("%Y-%m-%d")
     text_bso = ''
@@ -42,11 +45,11 @@ def issuance_bso(request):
                     bso_for_edit.save()
 
                     status, created = StatusBso.objects.get_or_create(name='Выдан агенту')
-                    new_history, created = HistoryBso.objects.get_or_create(
+                    HistoryBso(
                         date_at=datetime.datetime.now().date(),
                         status=status,
                         bso=bso_for_edit,
-                    )
+                    ).save()
 
         # Добавление новых БСО на склад вручную
         if 'add_new_bso' in request.POST:
@@ -65,11 +68,11 @@ def issuance_bso(request):
 
                 else:
                     status, created = StatusBso.objects.get_or_create(name='Чистый')
-                    HistoryBso.objects.get_or_create(
+                    HistoryBso(
                         date_at=datetime.datetime.now().date(),
                         status=status,
                         bso=new_bso,
-                    )
+                    ).save()
 
                 if len(errors) > 0:
                     # Выгрузка незагруженных БСО в xlsx
@@ -98,17 +101,98 @@ def issuance_bso(request):
                     errors[f'{new_bso.series} {new_bso.number}'] = 'Уже есть в системе'
                 else:
                     status, created = StatusBso.objects.get_or_create(name='Чистый')
-                    new_history, created = HistoryBso.objects.get_or_create(
+                    HistoryBso(
                         date_at=datetime.datetime.now().date(),
                         status=status,
                         bso=new_bso,
-                    )
+                    ).save()
 
                 i += 1
 
             if len(errors) > 0:
                 # Выгрузка незагруженных БСО в xlsx
                 pass
+
+        # Смена статуса БСО из файла
+        if 'change_status_from_file' in request.POST:
+            errors = {}
+            wb = load_workbook(filename=request.FILES['file'])
+            sheet = wb.worksheets[0]
+            i = 2
+            while True:
+                series = ''
+                number = ''
+                # если серия и номер пустые, прекращяем читать файл
+                if sheet[i][0].value is None or sheet[i][0].value == '':
+                    if sheet[i][1].value is None or sheet[i][1].value == '':
+                        break
+
+                if sheet[i][0].value is not None and sheet[i][0].value != '':
+                    series = sheet[i][0].value
+                if sheet[i][1].value is not None and sheet[i][1].value != '':
+                    number = sheet[i][1].value
+
+                bso_for_change = Bso.objects.filter(
+                    series=series,
+                    number=number,
+                )
+
+                if len(bso_for_change) > 0:
+                    number_for_errors += 1
+                    new_status = StatusBso.objects.get(id=request.POST['status_for_change'])
+                    HistoryBso(
+                        date_at=datetime.datetime.now().date(),
+                        status=new_status,
+                        bso=bso_for_change[0],
+                    ).save()
+                    policy_for_edit = PolicyAgents.objects.filter(bso=bso_for_change[0])
+                    if len(policy_for_edit) > 0:
+                        policy_for_edit[0].status = new_status
+                        policy_for_edit[0].save()
+                else:
+                    errors[f'{series} {number}'] = 'БСО не найден'
+
+                i += 1
+
+            # выгрузка не найденных БСО
+            if len(errors) > 0:
+                errors_unload = 1
+                errors_count = len(errors)
+
+                wb = openpyxl.Workbook()
+                sheet = wb['Sheet']
+
+                sheet['A1'] = '№'
+                sheet['B1'] = 'БСО'
+                sheet['C1'] = 'Тип ошибки'
+
+                wb.save('agents/file/errors.xlsx')
+
+                wb = openpyxl.load_workbook('agents/file/errors.xlsx')
+                sheet = wb['Sheet']
+
+                str_number = 2
+                for error, text in errors.items():
+                    sheet[str_number][0].value = str_number - 1
+                    sheet[str_number][1].value = error
+                    sheet[str_number][2].value = text
+                    str_number += 1
+
+                wb.save('agents/file/errors.xlsx')
+
+        # Точечная смена статуса БСО
+        if 'bso_id' in request.POST:
+            bso_for_edit = Bso.objects.get(id=int(request.POST['bso_id']))
+            new_status = StatusBso.objects.get(id=request.POST['status_for_change'])
+            HistoryBso(
+                date_at=datetime.datetime.now().date(),
+                status=new_status,
+                bso=bso_for_edit,
+            ).save()
+            policy_for_edit = PolicyAgents.objects.filter(bso=bso_for_edit)
+            if len(policy_for_edit) > 0:
+                policy_for_edit[0].status = new_status
+                policy_for_edit[0].save()
 
     bso = Bso.objects.all()
 
@@ -180,6 +264,9 @@ def issuance_bso(request):
 
     context = {
         'agents': agents,
+        'number_for_errors': number_for_errors,
+        'errors_count': errors_count,
+        'errors_unload': errors_unload,
         'status_bso': status_bso,
         'date_now': date_now,
         'selected': selected,
@@ -352,11 +439,11 @@ def receivable(request):
                             new_status = StatusBso.objects.get_or_create(name='АКТ приёма-передачи')[0]
                             new_policy.status = new_status
                             new_policy.save()
-                            HistoryBso.objects.get_or_create(
+                            HistoryBso(
                                 date_at=datetime.datetime.now().date(),
                                 status=new_status,
                                 bso=new_bso[0],
-                            )
+                            ).save()
                 else:
                     errors[sheet[row][int(request.POST['policy'])].value] = 'Полис уже есть в базе'
                     pass
@@ -391,7 +478,8 @@ def receivable(request):
 
                 wb.save('agents/file/errors.xlsx')
 
-    if 'date_start' not in request.GET and 'date_end' not in request.GET:
+    # дата начала и окончания периода выборки
+    if 'date_start' not in request.GET:
         date_start, date_end = get_start_end_date()
         date_start = date_start.strftime("%Y-%m-%d")
         date_end = date_end.strftime("%Y-%m-%d")
