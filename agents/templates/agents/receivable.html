@@ -169,6 +169,10 @@
             <div class="button" data-path="2">
                 <a href="#" class="open_pop_up">Добавить агента</a>
             </div>
+            <form method="get">
+                <input name="search" type="text">
+                <button class="button">Поиск</button>
+            </form>
         </td>
     </tr>
     <!--Фильтр и поиск-->
@@ -208,10 +212,6 @@
                     <input type="date" name="date_start" value="{{ date_start }}">
                     <input type="date" name="date_end" value="{{ date_end }}">
                     <button class="button">Фильтр</button>
-            </form>
-            <form method="get">
-                <input name="search" type="text">
-                <button class="button">Поиск</button>
             </form>
         </td>
     </tr>
