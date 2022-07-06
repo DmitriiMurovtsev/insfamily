@@ -3,6 +3,7 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'agents/css/issuance_bso.css' %}">
 
+<!--Выдача БСО агенту-->
 <div class="pop_up" id="bso_in_agents">
     <div class="pop_up_container bso_in_agents">
         <div class="pop_up_body">
@@ -69,8 +70,9 @@
     </div>
 </div>
 
+<!--Загрузка БСО-->
 <div class="pop_up" id="add_new_bso">
-    <div class="pop_up_container">
+    <div class="pop_up_container uploads_bso">
         <div class="pop_up_body">
             <form class="issuance_bso" method="post">
             {% csrf_token %}
@@ -129,8 +131,9 @@
     </div>
 </div>
 
+<!--Создание статуса БСО-->
 <div class="pop_up" id="add_status_bso">
-    <div class="pop_up_container">
+    <div class="pop_up_container created_status">
         <div class="pop_up_body">
             <form class="issuance_bso" method="post">
             {% csrf_token %}
@@ -164,7 +167,25 @@
     </div>
 </div>
 
-<table>
+<!--Верхняя таблица-->
+<table class="top_table">
+    <tr>
+        <td>
+            <div class="button" data-path="bso_in_agents">
+            <a href="#">Выдать БСО</a>
+            </div>
+            <div class="button" data-path="add_new_bso">
+            <a href="#">Добавить БСО на склад</a>
+            </div>
+            <div class="button" data-path="add_status_bso">
+            <a href="#">Создать статус БСО</a>
+            </div>
+            {{ text_bso }}
+            {% if text_errors_bso != 0 %}
+                {{ text_errors_bso }}
+            {% endif %}
+        </td>
+    </tr>
     <tr>
         <td>
             <form action="" method="get">
@@ -193,38 +214,16 @@
                 </select>
             <button class="button">Просмотр</button>
             </form>
-        </td>
-        <td>
             <form action="" method="get">
             <input type="text" name="search">
             <button class="button">Найти</button>
             {{ text_search }}
             </form>
         </td>
-        <td>
-            <div class="button" data-path="bso_in_agents">
-            <a href="#">Выдать БСО</a>
-            </div>
-        </td>
-        <td>
-            <div class="button" data-path="add_new_bso">
-            <a href="#">Добавить БСО на склад</a>
-            </div>
-        </td>
-        <td>
-            <div class="button" data-path="add_status_bso">
-            <a href="#">Создать статус БСО</a>
-            </div>
-        </td>
-        <td>
-            {{ text_bso }}
-            {% if text_errors_bso != 0 %}
-                {{ text_errors_bso }}
-            {% endif %}
-        </td>
     </tr>
 </table>
 
+<!--Таблица вывода результата-->
 <table class="table_2">
     <tr>
         <th>Компания</th>
@@ -236,8 +235,9 @@
         <th>Агент</th>
     </tr>
     {% for bso in bso_list %}
+    <!--pop-up История БСО-->
     <div class="pop_up" id="{{ bso.id }}">
-        <div class="pop_up_container">
+        <div class="pop_up_container history">
             <div class="pop_up_body">
                 {% for history in bso.history %}
                 <div class="history_date">{{ history.date_at }}:</div>
@@ -247,6 +247,7 @@
             </div>
         </div>
     </div>
+    <!--Основная таблица-->
     <tr class="tr" data-path="{{ bso.id }}">
         <td>{{ bso.company }}</td>
         <td>{{ bso.series }}</td>
@@ -263,8 +264,8 @@
     {% endfor %}
 </table>
 
+<!--Пагинация-->
 <br>---<br>
-
 {% if page.has_previous %}
     <a href="{{ link }}page={{ page.previous_page_number }}" class="button">Назад</a>
 {% endif %}
@@ -283,6 +284,7 @@
     <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
 {% endif %}
 
+<!--Скрипт для pop-up-->
 <script>
     const openPopUp = document.querySelectorAll('.button');
     const openPopUpTr = document.querySelectorAll('.tr');
@@ -327,11 +329,15 @@
         });
     });
 </script>
+
+<!--Скрипт сохранения активности окна выдачи БСО агенту-->
 <script>
     if (document.getElementById('page_2').value > 1) {
         document.getElementById('bso_in_agents').classList.add('active');
     }
 </script>
+
+<!--Скрипт проставления всех чек-боксов одник кликом-->
 <script>
     var Check = document.querySelectorAll('#td_checkbox');
 

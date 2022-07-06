@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Agent, Bso, PolicyAgents, HistoryBso
+from .models import Agent, Bso, PolicyAgents, HistoryBso, Channel
 
 
 @admin.register(Agent)
@@ -20,3 +20,8 @@ class PolicyAgentsAdmin(admin.ModelAdmin):
 @admin.register(HistoryBso)
 class HistoryBsoAgentsAdmin(admin.ModelAdmin):
     list_display = ['id', 'status', 'date_at', 'bso']
+
+
+@admin.register(Channel)
+class ChannelAgentsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']

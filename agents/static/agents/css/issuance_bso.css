@@ -86,7 +86,7 @@ a {
         color: #000; /* Цвет текста */
 }
 
-.button, .pagi-button, .add_button {
+.button, .pagi-button, .add_button, .but, .errors-button {
     border: 1px solid #333; /* Рамка */
     border-radius: 5px;
     font-size: 12px;
@@ -94,7 +94,7 @@ a {
     padding: 5px 15px; /* Поля */
     color: #000; /* Цвет текста */
   }
-.button:hover, .pagi-button:hover, .add_button:hover {
+.button:hover, .pagi-button:hover, .add_button:hover, .but:hover, .errors-button:hover {
     box-shadow: 0 0 5px rgba(0,0,0,0.3); /* Тень */
     background: linear-gradient(to bottom, #fcfff4, #e9e9ce); /* Градиент */
     color: #000; /* Цвет текста */
@@ -123,13 +123,15 @@ a {
 }
 
 .history_date {
-    width: 30%;
+    width: 25%;
     float: left;
     border-bottom: 1px solid #000;
 }
 
 .history_name {
     width: 70%;
+    float: left;
+    margin-left: 2%;
     border-bottom: 1px solid #000;
 }
 
@@ -153,4 +155,97 @@ a {
 
 .th_checkbox, .td_checkbox{
     width: 5%;
+}
+
+.uploads {
+    height: 150px;
+}
+
+.add_agents, .created_status {
+    height: 200px;
+    width: 35%;
+    max-width: 450px;
+}
+
+.unloads {
+    height: 250px;
+}
+
+.uploads_bso {
+    height: 400px;
+}
+
+.top_table {
+    float: left;
+    width: 85%;
+}
+
+.top_table form {
+    float: left;
+}
+
+.top_table select, .top_table input {
+    float: left;
+    height: 30px;
+}
+
+.step_upload {
+    width: 40%;
+    height: 500px;
+    margin-left: 30%;
+    margin-top: 5%;
+    padding: 20px;
+}
+
+.name_for_output {
+    margin-top: 1%;
+    text-align: right;
+    margin-right: 5%;
+    float: left;
+    width: 45%;
+}
+
+.name_for_upload {
+    margin-top: 1%;
+    float: left;
+    width: 45%;
+}
+
+.but {
+    position: absolute;
+    bottom: 50px;
+    right: 50px;
+}
+
+.th {
+    border-bottom: 1px solid #000;
+}
+
+.history {
+    width: 20%;
+    min-width: 500px;
+}
+
+.pop_up_body {
+    width: 85%;
+}
+
+.errors_unload {
+    width: 15%;
+    min-width: 250px;
+    height: 150px;
+    margin-left: 40%;
+    margin-top: 5%;
+    padding: 1%;
+}
+
+.errors_name, .errors_value {
+    float: left;
+    width: 50%;
+}
+
+.errors-button {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
 }
