@@ -73,7 +73,6 @@ class HistoryBso(models.Model):
     class Meta:
         verbose_name = 'История БСО'
         verbose_name_plural = 'История БСО'
-        ordering = ['-date_at']
 
     def __str__(self):
         return f'{self.status}'

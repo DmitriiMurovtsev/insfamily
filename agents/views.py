@@ -140,6 +140,14 @@ def issuance_bso(request):
                 if len(bso_for_change) > 0:
                     number_for_errors += 1
                     new_status = StatusBso.objects.get(id=request.POST['status_for_change'])
+
+                    if new_status.name == 'Чистый':
+                        bso_for_change[0].clear = True
+                        bso_for_change[0].save()
+                    else:
+                        bso_for_change[0].clear = False
+                        bso_for_change[0].save()
+
                     HistoryBso(
                         date_at=datetime.datetime.now().date(),
                         status=new_status,
@@ -184,11 +192,20 @@ def issuance_bso(request):
         if 'bso_id' in request.POST:
             bso_for_edit = Bso.objects.get(id=int(request.POST['bso_id']))
             new_status = StatusBso.objects.get(id=request.POST['status_for_change'])
+
+            if new_status.name == 'Чистый':
+                bso_for_edit.clear = True
+                bso_for_edit.save()
+            else:
+                bso_for_edit.clear = False
+                bso_for_edit.save()
+
             HistoryBso(
                 date_at=datetime.datetime.now().date(),
                 status=new_status,
                 bso=bso_for_edit,
             ).save()
+
             policy_for_edit = PolicyAgents.objects.filter(bso=bso_for_edit)
             if len(policy_for_edit) > 0:
                 policy_for_edit[0].status = new_status
