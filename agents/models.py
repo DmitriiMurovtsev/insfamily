@@ -27,6 +27,8 @@ class Agent(models.Model):
     name = models.CharField(max_length=50, verbose_name='Наименование агента')
     storage_time = models.IntegerField(verbose_name='Время хранения бланков')
     date_at = models.DateField(auto_now_add=True, verbose_name='дата создания агента')
+    financial = models.ForeignKey('NameFinancial', on_delete=models.DO_NOTHING, verbose_name='Финансовая политика',
+                                  blank=True, null=True)
 
     class Meta:
         verbose_name = 'Агент'
@@ -100,3 +102,47 @@ class Channel(models.Model):
     def __str__(self):
         return self.name
 
+
+class NameFinancial(models.Model):
+    # Наименование фин. политики
+    name = models.CharField(max_length=200, verbose_name='Наименование')
+    date_start = models.DateField(verbose_name='Дата начала действия')
+
+    class Meta:
+        verbose_name = 'Фин. политика'
+        verbose_name_plural = 'Фин. политика'
+
+    def __str__(self):
+        return self.name
+
+
+class Financial(models.Model):
+    # Финансовая политика
+    name = models.ForeignKey(NameFinancial, on_delete=models.CASCADE, verbose_name='Фин. политика')
+    type_policy = models.ForeignKey(Type, on_delete=models.CASCADE, verbose_name='Тип полиса')
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Компания')
+    channel = models.ForeignKey(Channel, on_delete=models.DO_NOTHING, verbose_name='Канал продаж')
+    agent_com = models.DecimalField(decimal_places=2, max_digits=6, verbose_name='КВ агента')
+
+    class Meta:
+        verbose_name = 'Элемент фин. политики'
+        verbose_name_plural = 'Элементы фин. политики'
+
+    def __str__(self):
+        return self.type_policy.name
+
+
+class InputCom(models.Model):
+    # Входящая комиссия
+    date_start = models.DateField(verbose_name='Дата начала действия')
+    type_policy = models.ForeignKey(Type, on_delete=models.CASCADE, verbose_name='Тип полиса')
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Компания')
+    channel = models.ForeignKey(Channel, on_delete=models.DO_NOTHING, verbose_name='Канал продаж')
+    value = models.DecimalField(decimal_places=2, max_digits=6, verbose_name='КВ агента')
+
+    class Meta:
+        verbose_name = 'Входящая комиссия'
+        verbose_name_plural = 'Входящая комиссия'
+
+    def __str__(self):
+        return self.type_policy.name

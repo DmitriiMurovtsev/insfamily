@@ -1,0 +1,223 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'agents/css/financial.css' %}">
+
+<!--Верхняя таблица-->
+<div class="top_table">
+    <div class="el">
+        <a href="/agents/financial/" class="button">КВ вход</a>
+    </div>
+    <div class="el">
+        <form method="get">
+            <input hidden name="agent_count" type="text">
+            <button class="button">Сетка КВ</button>
+        </form>
+    </div>
+</div>
+
+<!--Страница входящего КВ-->
+{% if com_count == 0 %}
+<!--Добавление входящего КВ-->
+<form class="form_add_input_com" method="post">
+    {% csrf_token %}
+    <div class="headers f">Добавить вход. КВ</div>
+    <input hidden name="add_input_com" type="text">
+    <div class="el_">Компания:</div>
+    <div class="el_">
+        <select name="company">
+            {% for company in company %}
+            <option value="{{ company.id }}">{{ company }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="el_">Канал продаж:</div>
+    <div class="el_">
+        <select name="channel">
+            {% for channel in channel %}
+            <option value="{{ channel.id }}">{{ channel }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="el_">Дата начала:</div>
+    <div class="el_">
+        <input name="date_start" value="{{ date_now }}" type="date">
+    </div>
+    <div class="el_">Тип полиса:</div>
+    <div class="el_">
+        <select name="type_policy">
+            {% for type_policy in type_policy %}
+            <option value="{{ type_policy.id }}">{{ type_policy }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="el_">Вход КВ:</div>
+    <div class="el_">
+        <input required name="input_com_value" type="number" step="0.01">
+    </div>
+    <button class="button but">Создать</button>
+</form>
+
+<!--Вывод списка входящего КВ-->
+<div class="com">
+    <div class="accordion">
+        <!--Сортировка по СК-->
+        {% for company, channel_ in company_dict.items %}
+        <div class="accordion_item top_item">
+            <div class="accordion_header top" data-path="{{ company }}">
+                {{ company }}
+            </div>
+            <div class="accordion_body" id="{{ company }}">
+                <!--Сортировка по Каналу продаж-->
+                <div class="headers">Канал продаж:</div>
+                {% for channel, date_start_ in channel_.items %}
+                <div class="accordion_item">
+                    <div class="accordion_header middle" data-path="{{ company }}-{{ channel }}">
+                        {{ channel }}
+                    </div>
+                    <!--Сортировка по Дате начала действия-->
+                    <div class="accordion_body" id="{{ company }}-{{ channel }}">
+                        {% for date_start, values_ in date_start_.items %}
+                            <div class="bottom"><b>{{ date_start }}</b></div>
+                            <!--Сортировка по типу полиса-->
+                            {% for type_policy, value in values_.items %}
+                            <div class="low">
+                                {{ type_policy }}: {{ value }}%
+                            </div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!--Страница КВ агента-->
+
+{% if com_count == 1 %}
+<!--Добавление сетки КВ-->
+<form class="form_add_input_com fin" method="post">
+    {% csrf_token %}
+    <div class="headers f">Добавить фин. сетку</div>
+    <input hidden name="add_name_financial" type="text">
+    <div class="el_">Наименование:</div>
+    <div class="el_">
+        <input name="name_financial" type="text">
+    </div>
+    <div class="el_">Дата начала:</div>
+    <div class="el_">
+        <input name="date_start" value="{{ date_now }}" type="date">
+    </div>
+    <button class="button but">Создать</button>
+</form>
+
+<!--Вывод списка сеток КВ без редактирования-->
+<div class="com">
+    <div class="accordion">
+        <!--Сортировка по сеткам КВ-->
+        {% for name_financial, companies in fin_name.items %}
+        <div class="accordion_item top_item">
+            <div class="accordion_header top" data-path="{{ name_financial }}">
+                {{ name_financial }}
+            </div>
+            <div class="accordion_body" id="{{ name_financial }}">
+                <div class="headers">Страховая компания:</div>
+                <form class="for_edit" method="post">
+                    {% csrf_token %}
+                    <input hidden name="name_for_edit" value="{{ name_financial.id }}" type="text">
+                    <button class="button">Редактировать</button>
+                </form>
+                <!--Сортировка по Компаниям-->
+                {% for company, channels in companies.items %}
+                <div class="accordion_item">
+                    <div class="accordion_header middle" data-path="{{ name_financial }} {{ company }}">
+                        {{ company }}
+                    </div>
+                    <div class="accordion_body" id="{{ name_financial }} {{ company }}">
+                        <!--Сортировка по Каналу продаж-->
+                        <div class="headers">Канал продаж:</div>
+                        {% for channel, financials_channel in channels.items %}
+                        <div class="accordion_item">
+                            <div class="accordion_header middle to" data-path="{{ name_financial }} {{ company }} {{ channel }}">
+                                {{ channel }}
+                            </div>
+                            <div class="accordion_body" id="{{ name_financial }} {{ company }} {{ channel }}">
+                                <!--Сортировка по Типу полиса-->
+                                {% for values in financials_channel %}
+                                <div class="low">
+                                    {{ values.type_policy }}: {{ values.agent_com }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if com_count == 2 %}
+<!--Редактирование фин. сетки-->
+<div class="com">
+    <div class="accordion">
+        <form method="post">
+            {% csrf_token %}
+            <input hidden name="name_id" value="{{ name_id }}" type="text">
+            {% for company_, channels in company_dict_for_edit.items %}
+            <div class="accordion_item top_item">
+                <div class="accordion_header top" data-path="{{ company_ }}">
+                    {{ company_ }}
+                </div>
+                <div class="accordion_body" id="{{ company_ }}">
+                    {% for channel_, type_policy in channels.items %}
+                    <div class="headers">Канал продаж:</div>
+                    <div class="accordion_item">
+                        <div class="accordion_header middle" data-path="{{ company_ }} {{ channel_ }}">
+                            {{ channel_ }}
+                        </div>
+                        <div class="accordion_body" id="{{ company_ }} {{ channel_ }}">
+                            {% for type_name, value in type_policy.items %}
+                            <div class="low type_name">{{ type_name }}</div>
+                            <input name="value_{{ company_.id }}_{{ channel_.id }}_{{ type_name.id }}" type="text" step="0.01" value="{{ value }}">
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            <button class="button edit">Сохранить</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!--Скрипт открытия и закрытия аккордеона-->
+<script>
+    const headers = document.querySelectorAll('.accordion_header');
+
+    headers.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-path');
+            if (document.getElementById(path).classList.contains('show')) {
+                document.getElementById(path).classList.remove('show');
+            } else {
+                document.getElementById(path).classList.add('show');
+            }
+        });
+    });
+</script>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Склад БСО
+{% endblock %}

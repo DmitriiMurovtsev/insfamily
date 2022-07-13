@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import issuance_bso, receivable, unload_receivable, unload_errors
+from .views import issuance_bso, receivable, unload_receivable, unload_errors, financial
 
 
 urlpatterns = [
@@ -8,4 +8,5 @@ urlpatterns = [
     path('receivable/', receivable, name='receivable'),
     path('unload_receivable/', unload_receivable, name='unload_receivable'),
     path('unload_errors/', unload_errors, name='unload_errors'),
+    path('financial/', financial, name='financial'),
 ]

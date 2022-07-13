@@ -10,7 +10,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
-from .models import Agent, Bso, PolicyAgents, HistoryBso, StatusBso, Channel
+from .models import Agent, Bso, PolicyAgents, HistoryBso, StatusBso, Channel, NameFinancial, Financial, InputCom
 from main.models import Company, Type
 
 from main.views import get_start_end_date
@@ -653,3 +653,203 @@ def unload_errors(request):
     wb.save(response)
 
     return response
+
+
+@login_required(login_url='login')
+def financial(request):
+    # финансовая политика
+    date_now = datetime.datetime.now().date().strftime("%Y-%m-%d")
+    company_dict = ''
+    fin_name = ''
+    name_id = ''
+    company_dict_for_edit = ''
+    com_count = 0
+
+    if request.method == 'POST':
+        # добавление входящего кв
+        if 'add_input_com' in request.POST:
+            new_input_com, created = InputCom.objects.get_or_create(
+                company_id=request.POST['company'],
+                channel_id=request.POST['channel'],
+                date_start=request.POST['date_start'],
+                type_policy_id=request.POST['type_policy'],
+                defaults={
+                    'value': request.POST['input_com_value'],
+                }
+            )
+
+            if not created:
+                new_input_com.value = request.POST['input_com_value']
+                new_input_com.save()
+
+        # добавление фин. сетки
+        if 'add_name_financial' in request.POST:
+            new_name_financial, created = NameFinancial.objects.get_or_create(
+                name=request.POST['name_financial'],
+                date_start=request.POST['date_start'],
+            )
+
+        # редактирование фин. сетки
+        if 'name_id' in request.POST:
+            com_count = 2
+            for value in request.POST:
+                if 'value' not in value:
+                    continue
+                values = value.split("_")
+
+                if float(request.POST[value].replace(',', '.')) == 0:
+                    fin_for_del = Financial.objects.filter(
+                        name_id=request.POST['name_id'],
+                        company_id=values[1],
+                        channel_id=values[2],
+                        type_policy_id=values[3],
+                    )
+                    if len(fin_for_del) > 0:
+                        fin_for_del.delete()
+                    continue
+
+                new_financial, created = Financial.objects.get_or_create(
+                    name_id=request.POST['name_id'],
+                    company_id=values[1],
+                    channel_id=values[2],
+                    type_policy_id=values[3],
+                    defaults={
+                        'agent_com': float(request.POST[value].replace(',', '.')),
+                    }
+                )
+
+                if not created:
+                    new_financial.agent_com = float(request.POST[value].replace(',', '.'))
+                    new_financial.save()
+
+    input_com = InputCom.objects.all()
+    name_financial = NameFinancial.objects.all()
+    company = Company.objects.all()
+    type_policy = Type.objects.all()
+    channel = Channel.objects.all()
+
+    # выгрузка КВ агентов
+    if 'agent_count' in request.GET:
+        com_count = 1
+
+    # подготовка к редактированию фин. сетки
+    if 'name_for_edit' in request.POST:
+        com_count = 2
+        name_id = request.POST['name_for_edit']
+
+    # сортировка для вывода входящего КВ
+    if com_count == 0:
+        # все компании, по которым есть вход кв
+        inp_company_ids = set(com.company.id for com in input_com)
+
+        # сортировка: "компания"-"канал продаж"-"дата начала"-"тип полиса: кв"
+        company_dict = {}
+        for company_id in inp_company_ids:
+            # список всех каналов продаж для конкретной ск по которым есть вход кв
+            input_com_company = input_com.filter(company_id=company_id)
+            inp_channel_ids = set(com.channel.id for com in input_com_company)
+
+            company_name = Company.objects.get(id=company_id)
+            channel_dict = {}
+            for channel_id in inp_channel_ids:
+                # разбивка по датам начала действия вход кв конкретного канала продаж конкретной ск
+                input_com_channel = input_com_company.filter(channel_id=channel_id)
+                inp_date = set(com.date_start for com in input_com_channel)
+                inp_date = sorted(list(inp_date), reverse=True)
+
+                channel_name = Channel.objects.get(id=channel_id)
+                date_dict = {}
+                for date_start in inp_date:
+                    # отбор по дате начала действия
+                    inp_com_values = input_com_channel.filter(date_start=date_start)
+
+                    temp_dict = {}
+                    for com_values in inp_com_values:
+                        # итоговые значения кв
+                        temp_dict[com_values.type_policy.name] = com_values.value
+                    date_dict[date_start] = temp_dict
+                channel_dict[channel_name.name] = date_dict
+            company_dict[company_name.name] = channel_dict
+
+    # сортировка для вывода фин. сеток
+    if com_count == 1:
+        # все финансовые сетки
+        name_financial_ids = set(name_fin.id for name_fin in name_financial)
+
+        # сортировка: "фин. сетка"-"компания"-"канал продаж"-"дата начала"-"тип полиса: кв"
+        fin_name = {}
+        for name_fin_id in name_financial_ids:
+            # список всех компаний, которые добавленны в конкретную сетку
+            financial_for_name = Financial.objects.filter(name_id=name_fin_id)
+            fin_company_ids = set(fin.company.id for fin in financial_for_name)
+
+            financial_name = NameFinancial.objects.get(id=name_fin_id)
+            fin_company = {}
+            for company_id in fin_company_ids:
+                # список всех каналов продаж по каждой компании из списка
+                financial_for_company = financial_for_name.filter(company_id=company_id)
+                fin_channel_id = set(fin.channel.id for fin in financial_for_company)
+
+                name_company = Company.objects.get(id=company_id)
+                fin_channel = {}
+                for channel_id in fin_channel_id:
+                    # итоговые значения
+                    financial_for_channel = financial_for_company.filter(channel_id=channel_id)
+
+                    name_channel = Channel.objects.get(id=channel_id)
+                    fin_channel[name_channel] = financial_for_channel
+                fin_company[name_company] = fin_channel
+            fin_name[financial_name] = fin_company
+
+    # сортировка сеток для редактирования
+    if com_count == 2:
+        # все компании, по которым есть вход кв
+        inp_company_ids = set(com.company.id for com in input_com)
+
+        # сортировка: "компания"-"канал продаж"-"тип полиса"
+        company_dict_for_edit = {}
+        for company_id in inp_company_ids:
+            # список всех каналов продаж для конкретной ск по которым есть вход кв
+            input_com_company = input_com.filter(company_id=company_id)
+            inp_channel_ids = set(com.channel.id for com in input_com_company)
+
+            company_name = Company.objects.get(id=company_id)
+            channel_dict_for_edit = {}
+            for channel_id in inp_channel_ids:
+                # разбивка по типу полисов конкретного канала продаж конкретной ск
+                input_com_channel = input_com_company.filter(channel_id=channel_id)
+                type_policy_for_edit = {
+                    input_c.type_policy: input_c.type_policy.id for input_c in input_com_channel
+                }
+
+                # проставляем текущие значения кв агента в текущей сетке, если такого нет, то = 0
+                for type_name, type_id in type_policy_for_edit.items():
+                    financial_for_edit = Financial.objects.filter(
+                        name_id=name_id,
+                        company_id=company_id,
+                        channel_id=channel_id,
+                        type_policy_id=type_id,
+                    )
+
+                    if len(financial_for_edit) > 0:
+                        type_policy_for_edit[type_name] = financial_for_edit[0].agent_com
+                    else:
+                        type_policy_for_edit[type_name] = 0
+
+                channel_name = Channel.objects.get(id=channel_id)
+                channel_dict_for_edit[channel_name] = type_policy_for_edit
+            company_dict_for_edit[company_name] = channel_dict_for_edit
+
+    context = {
+        'company_dict': company_dict,
+        'company_dict_for_edit': company_dict_for_edit,
+        'fin_name': fin_name,
+        'name_id': name_id,
+        'com_count': com_count,
+        'date_now': date_now,
+        'company': company,
+        'type_policy': type_policy,
+        'channel': channel,
+    }
+
+    return render(request, 'agents/financial.html', context)

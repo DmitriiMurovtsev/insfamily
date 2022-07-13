@@ -1,0 +1,178 @@
+.accordion_body.show {
+    display: block;
+}
+
+.accordion_body {
+    position: relative;
+    display: none;
+    margin-left: 2%;
+}
+
+.accordion_header {
+    border: 1px solid #5555;
+    text-align: left;
+    padding: 2px;
+    border-radius: 5px;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.accordion {
+    padding: 2px;
+    position: relative;
+}
+
+.button {
+    border: 1px solid #333;
+    border-radius: 5px;
+    font-size: 12px;
+    display: inline-block;
+    padding: 5px 15px;
+    color: #000;
+    background-color: #FFFFFF;
+}
+
+.button:hover {
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    background: linear-gradient(to bottom, #fcfff4, #e9e9ce);
+    color: #000;
+}
+
+.com {
+    border-radius: 5px;
+    float: left;
+    width: 85%;
+}
+
+.top_table {
+    border-radius: 5px;
+    float: left;
+    width: 80%;
+    margin-top: 5px;
+}
+
+.el {
+    float: left;
+    margin-right: 1%;
+}
+
+a {
+    text-decoration: none;
+}
+
+.el_ {
+    float: left;
+    width: 50%;
+}
+
+.th {
+    width: 80%;
+}
+
+.form_add_input_com {
+    border: 1px solid #5555;
+
+    position: relative;
+    font-size: 14px;
+    border-radius: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    float: left;
+    width: 300px;
+    height: 200px;
+}
+
+.form_add_input_com input, .form_add_input_com select {
+    margin: 1px;
+    width: 180px;
+}
+
+.accordion_item {
+    width: 50%;
+}
+
+.headers {
+    font-size: 10px;
+    color: #999;
+}
+
+.top {
+    padding: 5px;
+    margin-top: 10px;
+    font-size: 22px;
+}
+
+.top:hover, .middle:hover {
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    background: linear-gradient(to bottom, #fcfff4, #e9e9ce);
+}
+
+.middle {
+    padding: 5px;
+    font-size: 16px;
+}
+
+.to {
+    font-size: 12px;
+    margin-left: 5%;
+}
+
+.bottom {
+    font-size: 12px;
+    margin-left: 5%;
+    margin-top: 10px;
+    border-bottom: 1px solid #000;
+    border-radius: 0px 0px 10px;
+    width: 50%;
+}
+
+.low {
+    margin-left: 10%;
+}
+
+.but {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+.f {
+    position: absolute;
+    top: -12px;
+    right: -10px;
+    background-color: #FFFFFF;
+    border: 1px solid #5555;
+    padding: 2px;
+}
+
+.fin {
+    height: 120px;
+}
+
+.for_edit {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+.type_name {
+    float: left;
+    margin-right: 5px;
+    width: 40%;
+}
+
+.accordion_body input {
+    height: 20px;
+    width: 100px;
+}
+
+.edit {
+    margin-top: 1%;
+    margin-left: 40%;
+}
+
+.top_item {
+    border-left: 1px solid #5555;
+    border-radius: 10px;
+}
