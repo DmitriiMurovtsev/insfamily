@@ -1,11 +1,12 @@
 {% extends 'main/base.html' %}
 {% load static %}
 {% block content %}
+<link rel="stylesheet" href="{% static 'main/css/osago.css' %}">
 
 {% if text_upload == '' %}
 <span style="color:red; position: relative; font-size: 15px; font-weight: bold;">{{ error }}</span>
 {% endif %}
-<link rel="stylesheet" href="{% static 'main/css/osago.css' %}">
+
 <div class="pop_up" id="1">
 <div class="pop_up_container">
     <div class="pop_up_close" data-close="1" id="pop_up_close">&#10006</div>
@@ -27,6 +28,7 @@
             </form>
     </div>
 </div>
+
 <form name="policy" class="add-policy" method="post">
     {% csrf_token %}
     <table class="table_1">
@@ -109,19 +111,48 @@
             <td>
                 <table class="table_2">
                     <caption><h5>Клиент</h5></caption>
-                    <tr><td><b>ФИО</b></td><td><input name="full_name" placeholder="ФИО" required></td></tr>
-                    <tr><td><b>Дата рождения</b></td><td><input type="date" name="birthday" required></td></tr>
-                    {% if user.agent == False %}
-                        <tr><tr><td><b>Телефон</b></td><td><input name="phone" pattern="[0-9]{10}" value="9111111111"></td></tr>
-                        <tr><td><b>Почта</b></td><td><input type="email" name="email" value="1@mail.ru"></td></tr>
-                    {% endif %}
+                    <tr>
+                        <td>
+                            <b>ФИО</b>
+                        </td>
+                        <td>
+                            <input name="full_name" placeholder="ФИО" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Дата рождения</b>
+                        </td>
+                        <td>
+                            <input id="birthday" type="text" name="birthday" required>
+                            <div class="error" id="error_birthday"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Телефон</b>
+                        </td>
+                        <td>
+                            <input id="phone" name="phone" pattern="[0-9]{10}" value="9111111111" required>
+                            <div class="error" id="error_phone"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Почта</b>
+                        </td>
+                        <td>
+                            <input type="email" name="email" value="1@mail.ru">
+                        </td>
+                    </tr>
                 </table>
             </td>
         </tr>
         <tr>
             <td><button class="button sale" type="submit">Внести продажу</button></td>
         </tr>
-        <tr><td>
+        <tr>
+            <td>
             <span style="color:green; position: relative; font-size: 15px; font-weight: bold;">{{ text }}</span>
             </td>
         </tr>
@@ -239,6 +270,47 @@
             document.getElementById(path).classList.remove('active');
         });
     });
+</script>
+
+<script>
+    var phoneNumber = document.getElementById('phone');
+    var birthday = document.getElementById('birthday');
+
+    phoneNumber.oninput = function() {
+        phoneNumber.value = phoneNumber.value.replace(/[^0-9]/g, '');
+        if (phoneNumber.value.slice(0, 1) == '9') {
+            phoneNumber.value = phoneNumber.value.slice(0, 10);
+            error_phone.innerHTML = '';
+        } else if (phoneNumber.value.slice(0, 1) == '8' | phoneNumber.value.slice(0, 1) == '7') {
+            phoneNumber.value = phoneNumber.value.slice(1, 11);
+            error_phone.innerHTML = '';
+        } else {
+            phoneNumber.value = '9' + phoneNumber.value.slice(1, 10);
+            error_phone.innerHTML = 'Перепроверь номер телефона!';
+        }
+    };
+
+    birthday.oninput = function() {
+        birthday.value = birthday.value.replace(/[^0-9]/g, '');
+        if (birthday.value.length > 2 & birthday.value.length < 5) {
+            birthday.value = birthday.value.slice(0, 2) + '.' + birthday.value.slice(2, 4);
+        } else if (birthday.value.length > 4) {
+            birthday.value = (
+                birthday.value.slice(0, 2) + '.' + birthday.value.slice(2, 4) + '.' + birthday.value.slice(4, 8)
+            );
+
+            if (birthday.value.length == 10) {
+                newDate = new Date(birthday.value.slice(6, 10), Number(birthday.value.slice(3, 5)-1), birthday.value.slice(0, 2));
+                if (newDate.getFullYear() == birthday.value.slice(6, 10) &&  newDate.getMonth()+1 == birthday.value.slice(3, 5) && newDate.getDate() == birthday.value.slice(0, 2)) {
+                    error_birthday.innerHTML = '';
+                } else {
+                    error_birthday.innerHTML = 'Введена неверная дата';
+                }
+            }
+        }
+    };
+
+
 </script>
 
 {% endblock %}
