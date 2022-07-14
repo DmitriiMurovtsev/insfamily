@@ -553,7 +553,8 @@ def addpolicy(request):
                 first_name=first_name,
                 middle_name=middle_name,
                 last_name=last_name,
-                birthday=request.POST.get('birthday'),
+                birthday=f"{request.POST.get('birthday')[6:10]}-{request.POST.get('birthday')[3:5]}-"
+                         f"{request.POST.get('birthday')[0:2]}",
                 defaults={
                     'phone': request.POST.get('phone'),
                     'email': request.POST.get('email')
