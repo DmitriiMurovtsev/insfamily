@@ -481,11 +481,6 @@ def receivable(request):
                 sheet['B1'] = 'БСО'
                 sheet['C1'] = 'Тип ошибки'
 
-                wb.save('agents/file/errors.xlsx')
-
-                wb = openpyxl.load_workbook('agents/file/errors.xlsx')
-                sheet = wb['Sheet']
-
                 str_number = 2
                 for error, text in errors.items():
                     sheet[str_number][0].value = str_number - 1

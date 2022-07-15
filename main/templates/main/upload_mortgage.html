@@ -1,9 +1,63 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'agents/css/issuance_bso.css' %}">
 
-<br>
-    <form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input hidden name="upload" type="text">
+    <input type="file" name="file">
+    <button type="submit">Загрузить</button>
+</form>
+
+<!--Загрузка заявок из файла 2 этап-->
+<div id="step_upload_pop_up" class="pop_up">
+    <div class="pop_up_container step_upload">
+        <div class="pop_up_close"></div>
+        <form method="post">
         {% csrf_token %}
-        {{ form }}
-        <button type="submit">Загрузить</button>
-        {{ text }}
-    </form>
-<br>
+            <input hidden id="step_upload" name="step_upload" type="number" value="{{ step_upload }}">
+            <div class="name_for_output th">Поле в базе данных</div>
+            <div class="name_for_upload th">Поле в файле</div>
+            {% for name_for_output, name_for_upload in headers_for_upload.items %}
+            <div class="name_for_output">{{ name_for_output }}:</div>
+            <div class="name_for_upload">
+                <select name="{{ name_for_upload }}">
+                    {% for col, val in headers.items %}
+                    <option value="{{ col }}">{{ val }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+            <button class="but">Загрузить</button>
+        </form>
+    </div>
+</div>
+
+<!--Ошибки при загрузке-->
+<div id="errors_unload_pop_up" class="pop_up">
+    <div class="pop_up_container errors_unload">
+        <form method="post">
+        {% csrf_token %}
+            <input hidden id="errors_unload" name="errors_unload" type="number" value="{{ errors_unload }}">
+            <div class="errors_name">Загруженно:</div>
+            <div class="errors_value">{{ number }}</div>
+            <div class="errors_name">Не загруженно:</div>
+            <div class="errors_value">{{ errors_count }}</div>
+            <button class="errors-button">Выгрузить</button>
+        </form>
+        <div class="pop_up_close" data-close="errors_unload_pop_up">&#10006</div>
+    </div>
+</div>
+
+<!--Скрипт для открытия второго этапа загрузки продаж-->
+<script>
+    if (document.getElementById("step_upload").value == 1) {
+       document.getElementById("step_upload_pop_up").classList.add("active");
+    }
+</script>
+
+<!--Скрипт для открытия ошибок загрузки-->
+<script>
+    if (document.getElementById("errors_unload").value == 1) {
+       document.getElementById("errors_unload_pop_up").classList.add("active");
+    }
+</script>

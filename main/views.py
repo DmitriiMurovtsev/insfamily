@@ -1,5 +1,6 @@
 import datetime
 import csv
+import os
 
 import openpyxl
 from django.contrib.auth.decorators import login_required
@@ -812,45 +813,154 @@ def unload_mortgage(request):
 def upload_mortgage(request):
     # Загрузка заявок ипотечных заявок
     text = ''
-    form = UploadFileForm()
+    step_upload = 0
     if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            text = 'Загружено'
-            with open('main/file/mortgage.csv', 'wb') as file:
-                for row in request.FILES['file'].chunks():
-                    file.write(row)
+        # первый этап загрузки файла
+        if 'upload' in request.POST:
+            step_upload = 1
+            headers_for_upload = {
+                'ФИО': 'full_name',
+                'Дата рождения': 'birthday',
+                'Телефон': 'phone',
+                'Почта': 'email',
+                'Банк': 'bank',
+                'Дата окончания': 'date_end',
+            }
 
-            with open('main/file/mortgage.csv', 'r', encoding='cp1251', newline='') as file_1:
-                reader = csv.DictReader(file_1, delimiter=';')
-                for row in reader:
-                    if len(row['Дата рождения']) > 0:
-                        birthday = datetime.datetime.strptime(row['Дата рождения'], "%d.%m.%Y")
-                    client, created = Client.objects.get_or_create(
-                        first_name=row['Имя'],
-                        middle_name=row['Отчество'],
-                        last_name=row['Фамилия'],
-                        birthday=birthday,
-                        defaults={
-                            'phone': row['Телефон'],
-                            'email': row['Почта'],
-                        }
-                    )
+            wb = openpyxl.load_workbook(filename=request.FILES['file'])
+            sheet = wb.worksheets[0]
 
-                    bank, created = Bank.objects.get_or_create(name=row['Банк'])
+            col = 0
+            headers = {}
+            while True:
+                try:
+                    if sheet[1][col].value is None or sheet[1][col].value == '':
+                        break
+                    headers[col] = sheet[1][col].value
+                    col += 1
+                except:
+                    break
 
-                    MortgagePolicy.objects.get_or_create(
-                        date_end=datetime.datetime.strptime(row['Дата окончания'], "%d.%m.%Y"),
-                        bank=bank,
-                        client=client,
-                        defaults={
-                            'user': request.user,
-                        }
-                    )
+            wb.save('main/file/upload.xlsx')
+
+            context = {
+                'step_upload': step_upload,
+                'headers': headers,
+                'headers_for_upload': headers_for_upload,
+            }
+
+            return render(request, 'main/upload_mortgage.html', context)
+
+        # второй этап загрузки агентских продаж из файла
+        if 'step_upload' in request.POST:
+            errors = {}
+
+            full_name_col = int(request.POST['full_name'])
+            birthday_col = int(request.POST['birthday'])
+            phone_col = int(request.POST['phone'])
+            email_col = int(request.POST['email'])
+            bank_col = int(request.POST['bank'])
+            date_end_col = int(request.POST['date_end'])
+
+            wb = openpyxl.load_workbook('main/file/upload.xlsx')
+            sheet = wb.worksheets[0]
+
+            number = 0
+            row = 2
+            while True:
+                if sheet[row][0].value is None or sheet[row][0].value == '':
+                    break
+
+                if not isinstance(sheet[row][birthday_col].value, datetime.date):
+                    errors[sheet[row][full_name_col].value] = 'Дата рождения - нужен формат даты'
+                    row += 1
+                    continue
+                if not isinstance(sheet[row][date_end_col].value, datetime.date):
+                    errors[sheet[row][full_name_col].value] = 'Дата окончания - нужен формат даты'
+                    row += 1
+                    continue
+
+                full_name = sheet[row][full_name_col].value
+
+                while full_name[-1] == ' ':
+                    full_name = full_name[:-1]
+                last_name = full_name.split()[0].capitalize()
+                first_name = full_name.split()[1].capitalize()
+                middle_name = ''
+                if len(full_name.split()) > 2:
+                    for name in full_name.split()[2:]:
+                        middle_name = middle_name + name.capitalize() + " "
+                    middle_name = middle_name[:-1]
+
+                client, created = Client.objects.get_or_create(
+                    last_name=last_name,
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    birthday=sheet[row][birthday_col].value,
+                    defaults={
+                        'phone': sheet[row][phone_col].value,
+                        'email': sheet[row][email_col].value,
+                    }
+                )
+
+                bank, created = Bank.objects.get_or_create(name=sheet[row][bank_col].value)
+
+                new_mortgage = MortgagePolicy(
+                    user_id=request.user.id,
+                    date_end=sheet[row][date_end_col].value,
+                    client=client,
+                    bank=bank,
+                )
+                new_mortgage.save()
+                number += 1
+                row += 1
+
+            os.remove('main/file/upload.xlsx')
+
+            # сохраняем файл с ошибками загрузки
+            if len(errors) > 0:
+                errors_unload = 1
+                errors_count = len(errors)
+
+                wb = openpyxl.Workbook()
+                sheet = wb['Sheet']
+
+                sheet['A1'] = '№'
+                sheet['B1'] = 'ФИО'
+                sheet['C1'] = 'Тип ошибки'
+
+                str_number = 2
+                for error, text in errors.items():
+                    sheet[str_number][0].value = str_number - 1
+                    sheet[str_number][1].value = error
+                    sheet[str_number][2].value = text
+                    str_number += 1
+
+                wb.save('main/file/errors.xlsx')
+
+                context = {
+                    'errors_count': errors_count,
+                    'errors_unload': errors_unload,
+                    'step_upload': step_upload,
+                    'number': number,
+                }
+
+                return render(request, 'main/upload_mortgage.html', context)
+
+        # выгрузка ошибок при загрузке
+        if 'errors_unload' in request.POST:
+            wb = openpyxl.load_workbook('main/file/errors.xlsx')
+
+            response = HttpResponse(content_type='application/vnd.ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="receivable.xlsx"'
+
+            wb.save(response)
+
+            return response
 
     context = {
-        'form': form,
         'text': text,
+        'step_upload': step_upload,
     }
 
     return render(request, 'main/upload_mortgage.html', context)
