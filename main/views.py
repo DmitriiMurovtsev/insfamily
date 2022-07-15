@@ -1655,13 +1655,52 @@ def search(request):
         if 'search' in request.GET:
             # поиск по страхователю или по номеру полиса
             selected['search'] = request.GET['search']
-            result = Policy.objects.filter(
-                Q(client__last_name__iregex=request.GET.get('search')) |
-                Q(client__first_name__iregex=request.GET.get('search')) |
-                Q(client__middle_name__iregex=request.GET.get('search')) |
-                Q(number__iregex=request.GET.get('search')) |
-                Q(series__iregex=request.GET.get('search'))
-            )
+            search_list = request.GET['search']
+            search_0 = ''
+            search_1 = ''
+            search_2 = ''
+            if search_list != '':
+                while search_list[-1] == " ":
+                    search_list = search_list[:-1]
+                    if len(search_list) == 0:
+                        break
+                if len(search_list) != 0:
+                    while search_list[0] == " ":
+                        search_list = search_list[1:]
+                        if len(search_list) == 0:
+                            break
+                if len(search_list) != 0:
+                    while "  " in search_list:
+                        search_list = search_list.replace("  ", " ")
+                    search_list = search_list.split(" ")
+                    if len(search_list) > 1:
+                        search_0 = search_list[0]
+                        search_1 = search_list[1]
+                        if len(search_list) > 2:
+                            for name in search_list[2:]:
+                                search_2 = search_2 + name + " "
+                            search_2 = search_2[:-1]
+            if len(search_list) != 0:
+                result = Policy.objects.filter(
+                    Q(client__last_name__iregex=request.GET.get('search')) |
+                    Q(client__first_name__iregex=request.GET.get('search')) |
+                    Q(client__middle_name__iregex=request.GET.get('search')) |
+                    Q(number__iregex=request.GET.get('search')) |
+                    Q(series__iregex=request.GET.get('search'))
+                    )
+
+                if len(result) == 0 and search_0 != '':
+                    if search_2 != '':
+                        result = Policy.objects.filter(
+                            Q(client__last_name__iregex=search_0) &
+                            Q(client__first_name__iregex=search_1) &
+                            Q(client__middle_name__iregex=search_2)
+                        )
+                    elif search_1 != '':
+                        result = Policy.objects.filter(
+                            Q(client__last_name__iregex=search_0) &
+                            Q(client__first_name__iregex=search_1)
+                        )
 
         if len(result) > 0:
             for policy in result:
