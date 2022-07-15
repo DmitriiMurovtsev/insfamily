@@ -3,18 +3,17 @@
     text-align: center;
     width: calc(20% + (80% - 20%) * ((100vw - 320px) / (1900 - 320)));
 }
-
 .table_1 th {
     font-weight: normal;
     padding: 3px 3px;
 }
+
 .table_2 {
     margin-top: 15px;
     font-size: calc(7px + (12 - 7) * ((100vw - 320px) / (1900 - 320)));
     text-align: center;
     width: calc(20% + (60% - 20%) * ((100vw - 320px) / (1900 - 320)));
 }
-
 .table_2 th {
   font-weight: normal;
   border-bottom: 2px solid #6678b1;
@@ -23,15 +22,12 @@
   border-right: 1px solid #B0C4DE;
   padding: 3px 3px;
 }
-
 .table_2 tr:hover td {
   background: #E6E6FA;
 }
-
 .table_2 tr:nth-child(2n) {
   background: #FFEBCD;
 }
-
 .table_2 td {
   border-top: 1px solid #e8edff;
   border-left: 1px solid #B0C4DE;
@@ -61,11 +57,9 @@ input, select {
     display: none;
     z-index: 2;
 }
-
 .pop_up.active {
     display: block;
 }
-
 .pop_up_container {
     position: relative;
     border-radius: 10px;
@@ -74,23 +68,19 @@ input, select {
     margin-top: 5%;
     background-color: #FFFFFF;
 }
-
 .pop_up_body input:focus {
     outline: none;
 }
-
 .pop_up_body button {
     cursor: pointer;
     margin: 15px;
 }
-
 .pop_up_close {
     cursor: pointer;
     position: absolute;
     top: 15px;
     right: 15px;
 }
-
 .pop_up_body {
     border-radius: 10px;
     font-size: 12px;
@@ -113,20 +103,7 @@ input, select {
     clear: left;
 }
 
-.button {
-    border: 1px solid #333; /* Рамка */
-    display: inline-block;
-    background: #FFFFFF;
-    padding: 5px 15px; /* Поля */
-    color: #000; /* Цвет текста */
-  }
-.button:hover {
-    box-shadow: 0 0 5px rgba(0,0,0,0.3); /* Тень */
-    background: linear-gradient(to bottom, #fcfff4, #e9e9ce); /* Градиент */
-    color: #000; /* Цвет текста */
-   }
-
-   a {
+a {
     text-decoration: none;
         color: #000; /* Цвет текста */
 }
@@ -138,6 +115,7 @@ input, select {
     display: inline-block;
     padding: 5px 15px; /* Поля */
     color: #000; /* Цвет текста */
+    background: #FFFFFF;
   }
 .button:hover {
     box-shadow: 0 0 5px rgba(0,0,0,0.3); /* Тень */
@@ -145,9 +123,9 @@ input, select {
     color: #000; /* Цвет текста */
    }
 
-  .check {
-    background: #808080;
-  }
+.check {
+background: #808080;
+}
 
 a {
     text-decoration: none;
@@ -168,4 +146,15 @@ a {
     position: absolute;
     bottom: 0px;
     right: 0px;
+}
+
+.top_form {
+    width: 80%;
+    float: left;
+}
+
+.search {
+    float: left;
+    margin-right: 1%;
+    width: 10%;
 }

@@ -1,0 +1,311 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/css/accept.css' %}">
+
+<div class="top_form">
+  <form method="get">
+    <input class="search" name="search" value="{{ selected.search }}" type="text">
+    <button class="button">Поиск</button>
+  </form>
+</div>
+
+<table class="table_2">
+        <tr>
+            <th>Тип продажи</th>
+            <th>Тип полиса</th>
+            <th>Серия и номер</th>
+            <th>Компания</th>
+            <th>Канал продаж</th>
+            <th>Премия</th>
+            <th>Входящее КВ %</th>
+            <th>Клиент</th>
+            <th>Менеджер</th>
+            <th>Оформлен</th>
+            <th>Начало действия</th>
+            <th>Окончание действия</th>
+            {% if user.admin %}
+            <th>Статус</th>
+            <th colspan="2">Действия</th>
+            {% endif %}
+        </tr>
+        {% for policy in policy_list %}
+        <tr>
+            <td>
+                {% if policy.status == 'newbiz' %}
+                Новый бизнес
+                {% elif policy.status == 'prolongation' %}
+                Пролонгация
+                {% elif policy.status == 'transition' %}
+                Переход
+                {% elif policy.status == 'addendum' %}
+                Аддендум
+                {% elif policy.status == 'payment' %}
+                Очередной взнос
+                {% endif %}
+            </td>
+            <td>{{ policy.type }}</td>
+            <td>{{ policy.series }} {{ policy.number }}</td>
+            <td>{{ policy.company }}</td>
+            <td>{{ policy.channel }}</td>
+            <td>{{ policy.sp }}</td>
+            <td>{{ policy.commission }}%</td>
+            <td>{{ policy.client }}</td>
+            <td>{{ policy.user }}</td>
+            <td>{{ policy.date_registration }}</td>
+            <td>{{ policy.date_start }}</td>
+            <td>{{ policy.date_end }}</td>
+            {% if policy.sale_report is not None %}
+            <td>
+                АКТ {{ policy.sale_report.name }} от {{ policy.sale_report.date_create }}
+            </td>
+            <td>---</td>
+            <td>---</td>
+            {% elif policy.accept %}
+            <td>
+                Проведён
+            </td>
+                {% if policy.sale_report is None %}
+                    <td>---</td>
+                    <td>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input hidden type="text" name="policy_id_for_return" value="{{ policy.id }}">
+                            <button class="button">В сверки</button>
+                        </form>
+                    </td>
+                {% else %}
+                    <td>---</td>
+                    <td>---</td>
+                {% endif %}
+            {% else %}
+            <td>
+                Сверки
+            </td>
+                {% if user.admin == True and not policy.accept %}
+                    <div class="pop_up" id="{{ policy.id }}">
+                    <div class="pop_up_container">
+                        <div class="pop_up_close" data-close="{{ policy.id }}" id="pop_up_close">&#10006</div>
+                        <div class="pop_up_body" id="pop_up_body">
+                            <form class="form_1" method="post">
+                            {% csrf_token %}
+                                <div class="str1">
+                                    <div class="col">Тип продажи</div>
+                                    <div class="col">
+                                        <select name="Тип_продажи">
+                                            {% if policy.status == 'newbiz' %}
+                                            <option value="newbiz" selected>Новый бизнес</option>
+                                            <option value="prolongation">Пролонгация</option>
+                                            <option value="transition">Переход</option>
+                                            <option value="addendum">Аддендум</option>
+                                            {% elif policy.status == 'prolongation' %}
+                                            <option value="newbiz">Новый бизнес</option>
+                                            <option value="prolongation" selected>Пролонгация</option>
+                                            <option value="transition">Переход</option>
+                                            <option value="addendum">Аддендум</option>
+                                            {% elif policy.status == 'transition' %}
+                                            <option value="newbiz">Новый бизнес</option>
+                                            <option value="prolongation">Пролонгация</option>
+                                            <option value="transition" selected>Переход</option>
+                                            <option value="addendum">Аддендум</option>
+                                            {% elif policy.status == 'addendum' %}
+                                            <option value="newbiz">Новый бизнес</option>
+                                            <option value="prolongation">Пролонгация</option>
+                                            <option value="transition">Переход</option>
+                                            <option value="addendum" selected>Аддендум</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Тип полиса</div>
+                                    <div class="col">
+                                        <select name="type">
+                                        {% for type in types %}
+                                        {% if type == policy.type %}
+                                        <option value="{{ type.id }}" selected>{{ type }}</option>
+                                            {% else %}
+                                        <option value="{{ type.id }}">{{ type }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Серия</div>
+                                    <div class="col">
+                                        <input type="text" name="series" value="{{ policy.series }}">
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Номер</div>
+                                    <div class="col">
+                                        <input type="text" name="number" value="{{ policy.number }}">
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Компания</div>
+                                    <div class="col">
+                                        <select name="company">
+                                        {% for company in companies %}
+                                        {% if company == policy.company %}
+                                        <option value="{{ company.id }}" selected>{{ company }}</option>
+                                            {% else %}
+                                        <option value="{{ company.id }}">{{ company }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Канал</div>
+                                    <div class="col">
+                                        <select name="channel">
+                                        {% for channel in channels %}
+                                        {% if channel == policy.channel %}
+                                            <option value="{{ channel.id }}" selected>{{ channel }}</option>
+                                        {% else %}
+                                            <option value="{{ channel.id }}">{{ channel }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Премия</div>
+                                    <div class="col">
+                                        <input type="text" name="sp" value='{{ policy.sp }}'>
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Входящее КВ</div>
+                                    <div class="col">
+                                        <input name="commission" pattern="\d+(.\d{2})?" value="{{ policy.commission }}">
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Дата оформления</div>
+                                    <div class="col">
+                                        <input type="date" name="date_registration" value="{{ policy.date_registration_for_edit }}">
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Дата начала</div>
+                                    <div class="col">
+                                        <input type="date" name="date_start" value="{{ policy.date_start_for_edit }}">
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Дата окончания</div>
+                                    <div class="col">
+                                        <input type="date" name="date_end" value="{{ policy.date_end_for_edit }}">
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Клиент</div>
+                                    <div class="col">
+                                        <input name="full_name_client" value="{{ policy.client }}">
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <div class="col">Менеджер</div>
+                                    <div class="col">
+                                        <select name="user">
+                                        {% for user in users %}
+                                        {% if user == policy.user %}
+                                            <option value="{{ user.id }}" selected>{{ user }}</option>
+                                        {% else %}
+                                            <option value="{{ user.id }}">{{ user }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="str1">
+                                    <button class="button" type="submit">Сохранить</button>
+                                    {{ text }}
+                                </div>
+                                <div class="str1">
+                                    <input hidden name="id_policy_for_edit" value="{{ policy.id }}">
+                                </div>
+                            </form>
+                            <form class="form_delete" method="post">
+                                {% csrf_token %}
+                                <input hidden type="text" name="policy_id_for_delete" value="{{ policy.id }}">
+                                <button class="for_delete button" type="submit">Удалить</button>
+                            </form>
+                        </div>
+                    </div>
+                    </div>
+                    <td>
+                        <button id="open_pop_up" class="button" data-path="{{ policy.id }}">
+                            Редактировать
+                        </button>
+                    </td>
+                    <td>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input hidden name="id_policy_for_accept" value="{{ policy.id }}">
+                            <button class="button">Провести</button>
+                        </form>
+                    </td>
+                {% else %}
+                    <td>---</td>
+                    <td>---</td>
+                {% endif %}
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </table>
+
+<div class="pagi">
+    <div class="pagi_line">---</div>
+{% if page.has_previous %}
+    <a href="{{ link }}page={{ page.previous_page_number }}" class="button">Назад</a>
+{% endif %}
+
+{% for p in paginator.page_range %}
+{% if page.number|add:'-3' < p and page.number|add:'3' > p %}
+    {% if p != page.number %}
+        <a href="{{ link }}page={{ p }}" class="button">{{ p }}</a>
+    {% else %}
+        <b class="button check">{{ p }}</b>
+    {% endif %}
+{% endif %}
+{% endfor %}
+
+{% if page.has_next %}
+    <a href="{{ link }}page={{ page.next_page_number }}" class="button">Далее</a>
+{% endif %}
+</div>
+
+<script>
+    const openPopUp = document.querySelectorAll('.button');
+    const closePopUp = document.querySelectorAll('.pop_up_close');
+    const popUp = document.querySelectorAll('.pop_up');
+
+    openPopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-path');
+
+            popUp.forEach((el) => {
+                el.classList.remove('active');
+            })
+
+            document.getElementById(path).classList.add('active');
+        });
+    });
+
+    closePopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-close');
+            document.getElementById(path).classList.remove('active');
+        });
+    });
+
+</script>
+
+{% endblock %}
+{% block title %}
+    InsFamily - Поиск
+{% endblock %}

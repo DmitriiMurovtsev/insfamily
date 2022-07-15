@@ -1,9 +1,9 @@
 from django.urls import path
 
 from .views import statistic, a_reporting, addpolicy, redirect_login, unload_files, \
-    register_user, mortgage, unload_mortgage, policy_edit, search_policy, commission, accept, unload_accept, \
+    register_user, mortgage, unload_mortgage, policy_edit, commission, accept, unload_accept, \
     commission_delete, upload_policy, upload_mortgage, add_type_channel_company, get_expenses, unload_expenses, \
-    create_sale_report, get_sale_reports, base_upload
+    create_sale_report, get_sale_reports, base_upload, search
 
 urlpatterns = [
     path('', redirect_login, name='redirect_login'),
@@ -15,7 +15,6 @@ urlpatterns = [
     path('mortgage/', mortgage, name='mortgage'),
     path('unload_mortgage/', unload_mortgage, name='unload_mortgage'),
     path('policy_edit/', policy_edit, name='policy_edit'),
-    path('search_policy/', search_policy, name='search_policy'),
     path('commission/', commission, name='commission'),
     path('accept/', accept, name='accept'),
     path('unload_accept/', unload_accept, name='unload_accept'),
@@ -28,4 +27,5 @@ urlpatterns = [
     path('create_sale_report/', create_sale_report, name='create_sale_report'),
     path('sale_reports/', get_sale_reports, name='sale_reports'),
     path('base_upload/', base_upload, name='base_upload'),
+    path('search/', search, name='search'),
 ]

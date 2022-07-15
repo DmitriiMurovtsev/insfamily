@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'main/css/reporting.css' %}">
-    <form class="reporting" method="get">
+<form class="reporting" method="get">
         {% csrf_token %}
         <table class="table_1">
             <tr>
@@ -82,14 +82,13 @@
                 </td>
                 {% endif %}
             </tr>
-
         </table>
     </form>
 <form method="get">
-    <td><input class="search" value="{{ selected.search }}" name="search" type="text">
-    <button class="button">Поиск</button></td>
+    <input class="search" value="{{ selected.search }}" name="search" type="text">
+    <button class="button">Поиск</button>
 </form>
-    <table class="table_2">
+<table class="table_2">
         <tr>
             <th>Тип продажи</th>
             <th>Тип полиса</th>

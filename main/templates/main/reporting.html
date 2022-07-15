@@ -69,19 +69,19 @@
                 <input type="date" value="{{ date_end }}" name="date_end">
             </td>
             <td>
-                <input class="btn btn-success" formaction="{% url 'reporting' %}" type="submit" formmethod="get" value="Просмотр">
+                <input class="button" formaction="{% url 'reporting' %}" type="submit" formmethod="get" value="Просмотр">
             </td>
             {% if user.admin == True or user.agent == True %}
             <td>
-                <input class="btn btn-success" formaction="{% url 'unload_files' %}" type="submit" formmethod="get" value="Выгрузить">
+                <input class="button" formaction="{% url 'unload_files' %}" type="submit" formmethod="get" value="Выгрузить">
             </td>
             {% endif %}
         </tr>
     </table>
 </form>
 <form method="get">
-<td><input class="search" value="{{ selected.search }}" name="search" type="text">
-<button class="button">Поиск</button></td>
+<input class="search" value="{{ selected.search }}" name="search" type="text">
+<button class="button">Поиск</button>
 </form>
 <table class="table_2">
         <tr>

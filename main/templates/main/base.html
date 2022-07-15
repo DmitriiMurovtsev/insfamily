@@ -33,6 +33,9 @@
         </ul>
         {% endif %}
         <ul class="ul">
+            {% if user.admin %}
+            <a href="{% url 'search' %}"><li>Общий поиск</li></a>
+            {% endif %}
             <a href="{% url 'statistic' %}"><li>Статистика продаж</li></a>
             <a href="{% url 'reporting' %}"><li>Сверки</li></a>
             <a href="{% url 'accept' %}"><li>Проведено</li></a>

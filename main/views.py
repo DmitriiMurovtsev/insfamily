@@ -1094,39 +1094,6 @@ def mortgage(request):
 
 
 @login_required(login_url='login')
-def search_policy(request):
-    selected = {}
-    result = ''
-    text = ''
-    if request.method == 'POST':
-        if request.POST.get('value') != '':
-            if request.POST.get('target') == 'series':
-                result = Policy.objects.filter(series__icontains=request.POST.get('value'))
-            elif request.POST.get('target') == 'number':
-                result = Policy.objects.filter(number__icontains=request.POST.get('value'))
-            elif request.POST.get('target') == 'last_name':
-                result = Policy.objects.filter(client__last_name__icontains=request.POST.get('value'))
-            elif request.POST.get('target') == 'first_name':
-                result = Policy.objects.filter(client__first_name__icontains=request.POST.get('value'))
-            elif request.POST.get('target') == 'middle_name':
-                result = Policy.objects.filter(client__middle_name__icontains=request.POST.get('value'))
-
-            if request.user.admin == False:
-                result = result.filter(user_id=request.user.id)
-
-            selected['target'] = request.POST.get('target')
-            selected['value'] = request.POST.get('value')
-
-    context = {
-        'result': result,
-        'text': text,
-        'selected': selected,
-    }
-
-    return render(request, 'main/search_policy.html', context)
-
-
-@login_required(login_url='login')
 def commission(request):
     if request.method == 'POST':
         if Type.objects.get(id=request.POST.get('type')).name == 'Ипотечный':
@@ -1614,3 +1581,137 @@ def get_sale_reports(request):
 @login_required(login_url='login')
 def base_upload(request):
     pass
+
+
+@login_required(login_url='login')
+def search(request):
+    # общий поиск по базе
+    if request.user.admin:
+        selected = {}
+        result = {}
+        policy_list = []
+
+        type = Type.objects.all()
+        company = Company.objects.all()
+        channel = Channel.objects.all()
+        users = User.objects.all()
+
+        if request.method == 'POST':
+            # вернуть полис в сверки
+            if request.method == 'POST' and request.user.admin and 'policy_id_for_return' in request.POST:
+                policy_for_return = Policy.objects.get(id=request.POST.get('policy_id_for_return'))
+                policy_for_return.accept = False
+                policy_for_return.save()
+
+            # удалить полис
+            if 'policy_id_for_delete' in request.POST and request.user.admin:
+                Policy.objects.get(id=request.POST.get('policy_id_for_delete')).delete()
+
+            # провести полис
+            if 'id_policy_for_accept' in request.POST:
+                policy_for_accept = Policy.objects.get(id=request.POST.get('id_policy_for_accept'))
+                policy_for_accept.accept = True
+                policy_for_accept.save()
+
+            # редактировать полис
+            if 'id_policy_for_edit' in request.POST:
+                policy_for_edit = Policy.objects.get(id=request.POST.get('id_policy_for_edit'))
+
+                full_name = request.POST['full_name_client']
+                if f'{policy_for_edit.client.last_name} {policy_for_edit.client.first_name} ' \
+                   f'{policy_for_edit.client.middle_name}' != full_name:
+
+                    client_for_edit = policy_for_edit.client
+
+                    while full_name[-1] == ' ':
+                        full_name = full_name[:-1]
+                    last_name = full_name.split()[0].capitalize()
+                    first_name = full_name.split()[1].capitalize()
+                    middle_name = ''
+                    if len(full_name.split()) > 2:
+                        for name in full_name.split()[2:]:
+                            middle_name = middle_name + name.capitalize() + " "
+                        middle_name = middle_name[:-1]
+
+                    client_for_edit.last_name = last_name
+                    client_for_edit.first_name = first_name
+                    client_for_edit.middle_name = middle_name
+                    client_for_edit.save()
+
+                policy_for_edit.type = Type.objects.get(id=request.POST.get('type'))
+                policy_for_edit.status = request.POST.get('Тип_продажи')
+                policy_for_edit.number = request.POST.get('number')
+                policy_for_edit.series = request.POST.get('series')
+                policy_for_edit.company = Company.objects.get(id=request.POST.get('company'))
+                policy_for_edit.channel = Channel.objects.get(id=request.POST.get('channel'))
+                policy_for_edit.sp = float(request.POST.get('sp').replace(',', '.'))
+                policy_for_edit.commission = float(request.POST.get('commission').replace(',', '.'))
+                policy_for_edit.date_registration = request.POST.get('date_registration')
+                policy_for_edit.date_start = request.POST.get('date_start')
+                policy_for_edit.date_end = request.POST.get('date_end')
+                policy_for_edit.user = User.objects.get(id=request.POST.get('user'))
+                policy_for_edit.save()
+
+        if 'search' in request.GET:
+            # поиск по страхователю или по номеру полиса
+            selected['search'] = request.GET['search']
+            result = Policy.objects.filter(
+                Q(client__last_name__iregex=request.GET.get('search')) |
+                Q(client__first_name__iregex=request.GET.get('search')) |
+                Q(client__middle_name__iregex=request.GET.get('search')) |
+                Q(number__iregex=request.GET.get('search')) |
+                Q(series__iregex=request.GET.get('search'))
+            )
+
+        if len(result) > 0:
+            for policy in result:
+                commission_rur = '{:.2f}'.format(policy.commission / 100 * policy.sp)
+                temp_dict = {
+                    'status': policy.status,
+                    'accept': policy.accept,
+                    'sale_report': policy.sale_report,
+                    'type': policy.type,
+                    'series': policy.series,
+                    'number': policy.number,
+                    'company': policy.company,
+                    'channel': policy.channel,
+                    'sp': policy.sp,
+                    'commission': policy.commission,
+                    'commission_rur': commission_rur,
+                    'client': policy.client,
+                    'user': policy.user,
+                    'date_registration': policy.date_registration,
+                    'date_registration_for_edit': policy.date_registration.strftime("%Y-%m-%d"),
+                    'date_start': policy.date_start,
+                    'date_start_for_edit': policy.date_start.strftime("%Y-%m-%d"),
+                    'date_end': policy.date_end,
+                    'date_end_for_edit': policy.date_end.strftime("%Y-%m-%d"),
+                    'id': policy.id,
+                }
+                policy_list.append(temp_dict)
+
+        # ссылка с параметрами для пагинации
+        link = '?'
+        for key, value in request.GET.items():
+            if key == 'page':
+                continue
+            link = link + f'{key}={value}&'
+
+        paginator = Paginator(policy_list, 20)
+        current_page = request.GET.get('page', 1)
+        page = paginator.get_page(current_page)
+
+        context = {
+            'selected': selected,
+            'result': result,
+            'policy_list': page.object_list,
+            'users': users,
+            'companies': company,
+            'channels': channel,
+            'types': type,
+            'page': page,
+            'link': link,
+            'paginator': paginator,
+        }
+
+        return render(request, 'main/search.html', context)
