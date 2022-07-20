@@ -48,16 +48,18 @@
     <div class="col_statistic_1">Детализация</div>
     {% for expenses in expenses_for_filter %}
     {% if expenses.salary %}
-    <div class="col_statistic">{{ expenses.name }}(ЗП)</div><div class="col_statistic">{{ expenses.value }}</div><div class="col_statistic">{{ expenses.date_expenses }}</div>
+    <div class="col_statistic name">{{ expenses.name }}(ЗП)</div><div class="col_statistic">{{ expenses.value }}</div><div class="col_statistic">{{ expenses.date_expenses }}</div>
     {% else %}
-    <div class="col_statistic">{{ expenses.name }}</div><div class="col_statistic">{{ expenses.value }}</div><div class="col_statistic">{{ expenses.date_expenses }}</div>
+    <div class="col_statistic name">{{ expenses.name }}</div><div class="col_statistic">{{ expenses.value }}</div><div class="col_statistic">{{ expenses.date_expenses }}</div>
     {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        <input hidden type="text" name="expenses_for_delete">
-        <input hidden type="text" name="expenses_id_for_delete" value="{{ expenses.id }}">
-        <button class="button delete">Удалить</button>
-    </form>
+    <div class="col_statistic">
+        <form method="post">
+            {% csrf_token %}
+            <input hidden type="text" name="expenses_for_delete">
+            <input hidden type="text" name="expenses_id_for_delete" value="{{ expenses.id }}">
+            <button class="button delete">Удалить</button>
+        </form>
+    </div>
     {% endfor %}
 </div>
 

@@ -65,17 +65,21 @@ input, select {
 }
 
 .delete {
-    margin-top: 2px;
-    margin-left: 2%;
     font-size: calc(3px + (12 - 3) * ((100vw - 320px) / (1900 - 320)));
-    width: 21%;
+    width: 75px;
+    height: 25px;
 }
 
 .col_statistic {
     margin-top: 2px;
     float: left;
-    width: 25%;
+    width: 15%;
+    height: 27px;
     font-size: calc(3px + (14 - 3) * ((100vw - 320px) / (1900 - 320)));
+}
+
+.name {
+    width: 50%;
 }
 
 .col_statistic_1 {
