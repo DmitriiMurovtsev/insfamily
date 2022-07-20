@@ -1,5 +1,5 @@
 .statistic_expenses, .filter_expenses, .final_statistics, .form_expenses {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .form_expenses {
@@ -42,7 +42,7 @@ input, select {
 .statistic_expenses {
     border-right: 1px solid;
     margin-top: 5px;
-    width: 35%;
+    width: 45%;
     height: 80vh;
     float: left;
 }

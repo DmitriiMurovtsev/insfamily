@@ -1386,7 +1386,7 @@ def get_expenses(request):
             selected['date_end'] = request.GET['date_end']
             expenses_for_filter = Expenses.objects.filter(
                 date_expenses__gte=request.GET['date_start'],
-                date_expenses__lte=request.GET['date_end'],
+                date_expenses__lt=request.GET['date_end'],
             )
             if request.GET['name_expenses'] != 'all':
                 expenses_for_filter = expenses_for_filter.filter(name=request.GET['name_expenses'])
@@ -1398,7 +1398,10 @@ def get_expenses(request):
                 else:
                     expenses_for_filter = expenses_for_filter.filter(salary=False)
         else:
-            expenses_for_filter = expenses
+            expenses_for_filter = Expenses.objects.filter(
+                date_expenses__gte=date_start,
+                date_expenses__lt=date_end,
+            )
 
         sum_expenses = sum(ex.value for ex in expenses_for_filter)
         sum_for_final_statistic = {}
@@ -1430,7 +1433,7 @@ def unload_expenses(request):
                 # выгрузка расходов
                 expenses_for_filter = Expenses.objects.filter(
                     date_expenses__gte=request.POST['date_start'],
-                    date_expenses__lte=request.POST['date_end'],
+                    date_expenses__lt=request.POST['date_end'],
                     sale_report=None,
                 )
                 if request.POST['name_expenses'] != 'all':
@@ -1482,14 +1485,14 @@ def create_sale_report(request):
 
         policies = Policy.objects.filter(
            date_registration__gte=request.POST['date_start_for_report'],
-           date_registration__lte=request.POST['date_end_for_report'],
+           date_registration__lt=request.POST['date_end_for_report'],
            accept=True,
            sale_report=None,
         )
 
         expenses = Expenses.objects.filter(
            date_expenses__gte=request.POST['date_start_for_report'],
-           date_expenses__lte=request.POST['date_end_for_report'],
+           date_expenses__lt=request.POST['date_end_for_report'],
            sale_report=None,
         )
 
