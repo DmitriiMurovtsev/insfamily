@@ -3,22 +3,26 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'prolongations/css/status_change.css' %}">
 
-{% if user.username == 'DMurovtsev' %}
-<br>
-    <form action="" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="file" id="id_file">
-    <button type="submit">Отправить</button>
-    </form>
-<br>
-{% endif %}
+<!--Форма загрузки пролонгаций-->
+<div class="form_upload">
+    {% if user.username == 'DMurovtsev' %}
+        <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input hidden type="text" name="upload">
+        <input type="file" name="file" id="id_file">
+        <button type="submit">Отправить</button>
+        </form>
+    {% endif %}
+</div>
 
+<!--Форма поиска-->
 <form action="" method="get">
     <input type="text" name="search">
     <button class="button">Найти</button>
     {{ text_search }}
 </form>
 
+<!--Таблица клиентов со статусом-->
 <table class="table_2">
     <tr>
         <th>Тип полиса</th>
@@ -38,7 +42,7 @@
             <td>{{ policy.date_end|slice:":10" }}</td>
             <td>{{ policy.client }}</td>
             <td>
-                <select name="status">
+                <select data-path="{{ policy.id }}_status" class="status" name="status">
                     {% for status in status %}
                         {% if status.name == 'В работе' %}
                             <option value="{{ status.id }}" selected>{{ status }}</option>
@@ -54,30 +58,191 @@
             </td>
         </form>
     </tr>
+
+    <!--Выбор загрузить файл или внести вручную-->
+    <div class="pop_up" id="{{ policy.id }}_status">
+        <div class="pop_up_container pop_up_1">
+            <button class="button" data-path="{{ policy.id }}_1">Загрузить файл</button>
+            <button class="button" data-path="{{ policy.id }}_2">Внести вручную</button>
+            <div class="pop_up_close" data-close="{{ policy.id }}_status">&#10006</div>
+        </div>
+    </div>
+
+    <!--Форма загрузки файла-->
+    <div class="pop_up" id="{{ policy.id }}_1">
+        <div class="pop_up_container pop_up_1">
+            <div class="form_upload">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input hidden type="text" name="upload_file">
+                    <input hidden name="policy_up" value="{{ policy.id }}" type="text">
+                    <input hidden name="client_id" value="{{ policy.client.id }}" type="text">
+                    <input hidden id="{{ policy.id }}_status1" name="status" value="" type="text">
+                    <input type="file" name="file">
+                    <button type="submit">Сохранить</button>
+                </form>
+                <div class="pop_up_close" data-close="{{ policy.id }}_1">&#10006</div>
+            </div>
+        </div>
+    </div>
+
+    <!--Форма ввода продажи вручную-->
+    <div class="pop_up" id="{{ policy.id }}_2">
+        <div class="pop_up_container pop_up_2">
+            <form method="post">
+                {% csrf_token %}
+                <input hidden name="add_new_policy" type="text">
+                <input hidden name="policy_up" value="{{ policy.id }}" type="text">
+                <input hidden id="{{ policy.id }}_status2" name="status" value="" type="text">
+                <div class="policy_data">
+                    <div class="top_name">Полис</div>
+                    <div class="name_col">Тип продажи</div>
+                    <input class="val_col" readonly value="Пролонгация" type="text">
+                    <div class="name_col">Оплата</div>
+                    <input class="val_col" readonly value="Безнал" type="text">
+                    <div class="name_col">Тип полиса</div>
+                    <input name="policy_type" class="val_col" readonly value="{{ policy.type }}" type="text">
+                    <div class="name_col">Серия</div>
+                    <input required name="policy_series" value="ХХХ" class="val_col" type="text">
+                    <div class="name_col">Номер</div>
+                    <input required name="policy_number" class="val_col" type="text">
+                    <div class="name_col">Страховая премия</div>
+                    <input required name="sp" class="val_col" step="0.01" type="number">
+                    <div class="name_col">Страховая компания</div>
+                    <input name="policy_company" class="val_col" readonly value="{{ policy.company }}" type="text">
+                    <div class="name_col">Канал продаж</div>
+                    <input name="policy_channel" class="val_col" readonly value="{{ policy.channel }}" type="text">
+                    <div class="name_col">Дата оформления</div>
+                    <input required class="val_col" name="date_registration" type="date">
+                    <div class="name_col">Начало</div>
+                    <input required class="val_col" name="date_start" type="date">
+                    <div class="name_col">Окончание</div>
+                    <input required class="val_col" name="date_end" type="date">
+                </div>
+                <div class="client_data">
+                    <div class="top_name">Клиент</div>
+                    <input hidden name="client_id" value="{{ policy.client.id }}" type="text">
+                    <div class="name_col">ФИО</div>
+                    <input class="val_col" readonly value="{{ policy.client }}" type="text">
+                    <div class="name_col">Телефон</div>
+                    <input required name="client_phone" class="val_col" value="{{ policy.client.phone }}" type="text">
+                    <div class="name_col">Почта</div>
+                    {% if policy.client.email is not None %}
+                    <input required name="client_email" class="val_col" value="{{ policy.client.email }}" type="text">
+                    {% else %}
+                    <input required name="client_email" value="" class="val_col" type="text">
+                    {% endif %}
+                </div>
+                <button class="button new_policy">Сохранить</button>
+            </form>
+            <div class="pop_up_close close_2" data-close="{{ policy.id }}_2">&#10006</div>
+        </div>
+    </div>
     {% endfor %}
 </table>
 
-<br>---<br>
+<!--Ошибки при обработке файла-->
+<div class="pop_up" id="errors">
+    <div class="pop_up_container pop_up_errors errors">
+        <input hidden id="error_count" value="{{ error_count }}" type="text">
+        {{ error }}<br>
+        Нужно заполнить данные вручную
+        <div class="pop_up_close" data-close="errors">&#10006</div>
+    </div>
+</div>
 
-{% if page.has_previous %}
-    <a href="?page={{ page.previous_page_number }}" class="button">Назад</a>
-{% endif %}
-
-
-{% for p in paginator.page_range %}
-{% if page.number|add:'-3' < p and page.number|add:'3' > p %}
-    {% if p != page.number %}
-        <a href="?page={{ p }}" class="button">{{ p }}</a>
-    {% else %}
-        <b class="button check">{{ p }}</b>
+<!--Пагинация-->
+<div class="pagi">
+    <br>---<br>
+    {% if page.has_previous %}
+        <a href="?page={{ page.previous_page_number }}" class="button">Назад</a>
     {% endif %}
-{% endif %}
-{% endfor %}
 
 
-{% if page.has_next %}
-    <a href="?page={{ page.next_page_number }}" class="button">Далее</a>
-{% endif %}
+    {% for p in paginator.page_range %}
+    {% if page.number|add:'-3' < p and page.number|add:'3' > p %}
+        {% if p != page.number %}
+            <a href="?page={{ p }}" class="button">{{ p }}</a>
+        {% else %}
+            <b class="button check">{{ p }}</b>
+        {% endif %}
+    {% endif %}
+    {% endfor %}
+
+
+    {% if page.has_next %}
+        <a href="?page={{ page.next_page_number }}" class="button">Далее</a>
+    {% endif %}
+</div>
+
+<!--Скрипт для pop-up-->
+<script>
+    const openPopUp = document.querySelectorAll('.button');
+    const closePopUp = document.querySelectorAll('.pop_up_close');
+    const popUp = document.querySelectorAll('.pop_up');
+    const status = document.querySelectorAll('.status');
+
+    status.forEach((el) => {
+        el.addEventListener("change", (e) => {
+            if (el.options[el.selectedIndex].text == 'Оформлен') {
+                let path = e.currentTarget.getAttribute('data-path');
+
+                document.getElementById(path.concat(1)).value = el.options[el.selectedIndex].value;
+                document.getElementById(path.concat(2)).value = el.options[el.selectedIndex].value;
+
+                popUp.forEach((el) => {
+                    el.classList.remove('active');
+                })
+
+                document.getElementById(path).classList.add('active');
+            }
+        });
+    });
+
+    openPopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            let path = e.currentTarget.getAttribute('data-path');
+
+            popUp.forEach((el) => {
+                el.classList.remove('active');
+            })
+
+            document.getElementById(path).classList.add('active');
+        });
+    });
+
+    closePopUp.forEach((el) => {
+        el.addEventListener("click", (e) => {
+            status.forEach((el) => {
+                el.selectedIndex = 0;
+            })
+
+            let path = e.currentTarget.getAttribute('data-close');
+            document.getElementById(path).classList.remove('active');
+        });
+    });
+
+</script>
+
+<!--Скрипт текущей даты-->
+<script>
+    date_registration = document.getElementsByName('date_registration');
+    date_start = document.getElementsByName('date_start');
+
+    date = new Date();
+    dateNow = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String((date.getDate()-10)).padStart(2, '0');
+
+    date_registration.forEach((el) => {
+        el.value = dateNow;
+    });
+</script>
+
+<!--Скрипт для открытия ошибок обработки файла-->
+<script>
+    if (document.getElementById("error_count").value == 1) {
+       document.getElementById("errors").classList.add("active");
+    }
+</script>
 
 {% endblock %}
 {% block title %}

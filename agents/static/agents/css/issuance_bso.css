@@ -13,12 +13,10 @@
     margin-left: 10px;
     font-size: calc(8px + (15 - 8) * ((100vw - 320px) / (1900 - 320)));
 }
-
 .table_2 tr {
     font-size: 12px;
     border-bottom: 1px solid #6678b1;
 }
-
 .table_2 th {
   font-weight: normal;
   font-size: 12px;
@@ -28,7 +26,6 @@
   border-right: 1px solid #B0C4DE;
   padding: 3px 3px;
 }
-
 .table_2 td {
     width: calc(50px + (150 - 50) * ((100vw - 320px) / (1900 - 320)));
 }
@@ -43,11 +40,9 @@
     display: none;
     z-index: 2;
 }
-
 .pop_up.active {
     display: block;
 }
-
 .pop_up_container {
     background-color: #FFFFFF;
     position: relative;
@@ -58,23 +53,19 @@
     margin-left: 40%;
     margin-top: 10%;
 }
-
 .pop_up_body {
     width: 90%;
     height: 90%;
     margin-left: 5%;
     padding: 1%;
 }
-
 .pop_up_body input:focus {
     outline: none;
 }
-
 .pop_up_body button {
     cursor: pointer;
     margin: 15px;
 }
-
 .pop_up_close {
     cursor: pointer;
     position: absolute;

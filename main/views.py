@@ -627,8 +627,9 @@ def addpolicy(request):
                         }
                     )
 
-                if created == False:
+                if not created:
                     error = f'Полис с номером {request.POST.get("series")} {request.POST.get("number")} уже есть в базе'
+
                 else:
                     text = 'Запись успешно добавлена'
                     if Type.objects.get(id=request.POST.get('Тип_полиса')).name == 'Ипотечный':
