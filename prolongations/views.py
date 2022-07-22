@@ -146,7 +146,7 @@ def status_change(request):
             )
 
         if request.method == 'POST':
-            # загрузка из файла
+            # загрузка базы из файла
             if 'upload' in request.POST:
                 form = UploadFileForm(request.POST, request.FILES)
                 if form.is_valid():

@@ -124,7 +124,7 @@ class Policy(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING, related_name='policy',
                                 verbose_name='Страховая компания')
     type = models.ForeignKey(Type, related_name='policy', on_delete=models.DO_NOTHING, verbose_name='Тип полиса')
-    series = models.CharField(max_length=20, verbose_name='Серия полиса', blank=True)
+    series = models.CharField(max_length=20, verbose_name='Серия полиса', blank=True, null=True)
     number = models.CharField(max_length=30, verbose_name='Номер полиса')
     date_registration = models.DateField(verbose_name='Дата оформления')
     date_start = models.DateField(verbose_name='Дата начала действия')

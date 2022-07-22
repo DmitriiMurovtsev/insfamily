@@ -400,6 +400,7 @@ def addpolicy(request):
     # Добавление нового полиса
     error = ''
     errors_upload = {}
+    step_upload = 0
     text = ''
     text_upload = ''
     type = Type.objects.all()
@@ -408,136 +409,274 @@ def addpolicy(request):
     channel = Channel.objects.all()
 
     if request.method == 'POST':
+        # первый этап загрузки файла
         if 'upload' in request.POST:
-            # загрузка продаж из файла
-            wb = load_workbook(filename=request.FILES['file'])
+            headers = {}
+            headers_for_upload = {
+                'Тип полиса': 'policy_type',
+                'Тип продажи': 'pay_type',
+                'Серия': 'policy_series',
+                'Номер': 'policy_number',
+                'Компания': 'policy_company',
+                'Канал продаж': 'policy_channel',
+                'Дата оформления': 'date_registration',
+                'Дата начала': 'date_start',
+                'Дата окончания': 'date_end',
+                'Премия': 'policy_sp',
+                'Страхователь': 'policy_client',
+                'Дата рождения': 'birthday',
+                'Телефон': 'phone',
+                'Почта': 'email',
+                'Менеджер': 'policy_manager',
+            }
+
+            wb = openpyxl.load_workbook(filename=request.FILES['file'])
             sheet = wb.worksheets[0]
-            count = 0
-            for row in range(2, sheet.max_row+1):
-                # пропускаем пустую строчку
-                if sheet[row][0].value is None:
+
+            col = 0
+            step_upload = 1
+            while True:
+                try:
+                    if sheet[1][col].value is None or sheet[1][col].value == '':
+                        break
+                    headers[col] = sheet[1][col].value
+                    col += 1
+
+                except:
+                    break
+
+            wb.save('main/file/upload.xlsx')
+
+            context = {
+                'step_upload': step_upload,
+                'headers': headers,
+                'headers_for_upload': headers_for_upload,
+                'types': type,
+                'companys': company,
+                'channels': channel,
+                'banks': banks,
+                'error': error,
+                'text': text,
+                'text_upload': text_upload,
+            }
+
+            return render(request, 'main/osago.html', context)
+
+        # второй этап загрузки агентских продаж из файла
+        elif 'step_upload' in request.POST:
+            errors = {}
+
+            pay_type_col = int(request.POST['pay_type'])
+            type_col = int(request.POST['policy_type'])
+            series_col = int(request.POST['policy_series'])
+            number_col = int(request.POST['policy_number'])
+            company_col = int(request.POST['policy_company'])
+            channel_col = int(request.POST['policy_channel'])
+            date_registration_col = int(request.POST['date_registration'])
+            date_start_col = int(request.POST['date_start'])
+            date_end_col = int(request.POST['date_end'])
+            policy_sp_col = int(request.POST['policy_sp'])
+            client_col = int(request.POST['policy_client'])
+            policy_manager_col = int(request.POST['policy_manager'])
+            if request.POST['birthday'] != 'none':
+                birthday_col = int(request.POST['birthday'])
+            else:
+                birthday_col = -1
+            if request.POST['phone'] != 'none':
+                phone_col = int(request.POST['phone'])
+            else:
+                phone_col = -1
+            if request.POST['email'] != 'none':
+                email_col = int(request.POST['email'])
+            else:
+                email_col = -1
+
+            wb = openpyxl.load_workbook('main/file/upload.xlsx')
+            sheet = wb.worksheets[0]
+
+            number = 0
+            row = 2
+            while True:
+                if sheet[row][0].value is None or sheet[row][0].value == '':
+                    break
+                if birthday_col != -1:
+                    if sheet[row][birthday_col].value != '' and sheet[row][birthday_col].value is not None:
+                        if not isinstance(sheet[row][birthday_col].value, datetime.date):
+                            errors[f'{sheet[row][series_col].value} {sheet[row][number_col].value}'] = \
+                                'Дата рождения - нужен формат даты'
+                            row += 1
+                            continue
+                if not isinstance(sheet[row][date_end_col].value, datetime.date):
+                    errors[f'{sheet[row][series_col].value} {sheet[row][number_col].value}'] = \
+                        'Дата оформления - нужен формат даты'
+                    row += 1
+                    continue
+                if not isinstance(sheet[row][date_end_col].value, datetime.date):
+                    errors[f'{sheet[row][series_col].value} {sheet[row][number_col].value}'] = \
+                        'Дата начала - нужен формат даты'
+                    row += 1
+                    continue
+                if not isinstance(sheet[row][date_end_col].value, datetime.date):
+                    errors[f'{sheet[row][series_col].value} {sheet[row][number_col].value}'] = \
+                        'Дата окончания - нужен формат даты'
+                    row += 1
                     continue
 
-                status = '-'
+                full_name = sheet[row][client_col].value
 
-                if sheet[row][0].value.lower() == 'новый бизнес':
-                    status = 'newbiz'
-                elif sheet[row][0].value.lower() == 'пролонгация':
-                    status = 'prolongation'
-                elif sheet[row][0].value.lower() == 'переход':
-                    status = 'transition'
-                elif sheet[row][0].value.lower() == 'аддендум':
-                    status = 'addendum'
-
-                if isinstance(sheet[row][7].value, str):
-                    date_registration = f'{sheet[row][7].value[6:10]}-' \
-                                        f'{sheet[row][7].value[3:5]}-' \
-                                        f'{sheet[row][7].value[0:2]}'
-                else:
-                    date_registration = f'{sheet[row][7].value.year}-' \
-                                        f'{sheet[row][7].value.month}-' \
-                                        f'{sheet[row][7].value.day}'
-
-                if isinstance(sheet[row][8].value, str):
-                    date_start = f'{sheet[row][8].value[6:10]}-' \
-                                        f'{sheet[row][8].value[3:5]}-' \
-                                        f'{sheet[row][8].value[0:2]}'
-                else:
-                    date_start = f'{sheet[row][8].value.year}-' \
-                                        f'{sheet[row][8].value.month}-' \
-                                        f'{sheet[row][8].value.day}'
-
-                if isinstance(sheet[row][9].value, str):
-                    date_end = f'{sheet[row][9].value[6:10]}-' \
-                                        f'{sheet[row][9].value[3:5]}-' \
-                                        f'{sheet[row][9].value[0:2]}'
-                else:
-                    date_end = f'{sheet[row][9].value.year}-' \
-                                        f'{sheet[row][9].value.month}-' \
-                                        f'{sheet[row][9].value.day}'
-
-                type_for_created, created = Type.objects.get_or_create(name=sheet[row][1].value)
-                company_for_created, created = Company.objects.get_or_create(name=sheet[row][3].value)
-                channel_for_created, created = Channel.objects.get_or_create(name=sheet[row][4].value)
-
-                user = User.objects.get(
-                    last_name=sheet[row][11].value.split()[0],
-                    first_name=sheet[row][11].value.split()[1],
-                )
-
+                while full_name[-1] == ' ':
+                    full_name = full_name[:-1]
+                last_name = full_name.split()[0].capitalize()
+                first_name = full_name.split()[1].capitalize()
                 middle_name = ''
-                if len(sheet[row][10].value.split()) == 3:
-                    middle_name = sheet[row][10].value.split(" ")[2]
-                elif len(sheet[row][10].value.split()) > 3:
-                    middle_name = f'{sheet[row][10].value.split()[2]} {sheet[row][10].value.split()[3]}'
-
-                client, created = Client.objects.get_or_create(
-                    last_name=sheet[row][10].value.split()[0],
-                    first_name=sheet[row][10].value.split()[1],
-                    middle_name=middle_name,
-                )
-
-                if len(str(sheet[row][2].value).split()) == 2:
-                    series = sheet[row][2].value.split()[0]
-                    number = sheet[row][2].value.split()[1]
+                if len(full_name.split()) > 2:
+                    for name in full_name.split()[2:]:
+                        middle_name = middle_name + name.capitalize() + " "
+                    middle_name = middle_name[:-1]
+                if phone_col != -1:
+                    phone_ = sheet[row][phone_col].value
                 else:
-                    series = ''
-                    number = sheet[row][2].value
+                    phone_ = '9111111111'
+                if email_col != -1:
+                    email_ = sheet[row][email_col].value
+                else:
+                    email_ = '1@mail.ru'
+                if birthday_col != -1:
+                    client, created = Client.objects.get_or_create(
+                        last_name=last_name,
+                        first_name=first_name,
+                        middle_name=middle_name,
+                        birthday=sheet[row][birthday_col].value,
+                        defaults={
+                            'phone': phone_,
+                            'email': email_,
+                        }
+                    )
+                else:
+                    client, created = Client.objects.get_or_create(
+                        last_name=last_name,
+                        first_name=first_name,
+                        middle_name=middle_name,
+                        defaults={
+                            'phone': phone_,
+                            'email': email_,
+                        }
+                    )
 
-                policy, created = Policy.objects.get_or_create(
-                    series=series,
-                    number=number,
+                company_ = Company.objects.get_or_create(name=sheet[row][company_col].value)[0]
+                channel_ = Channel.objects.get_or_create(name=sheet[row][channel_col].value)[0]
+                if len(sheet[row][type_col].value.split()) > 1:
+                    type_ = Type.objects.get_or_create(name=sheet[row][type_col].value.split()[0])[0]
+                    bank_ = Bank.objects.get_or_create(name=sheet[row][type_col].value.split()[1])[0]
+                else:
+                    type_ = Type.objects.get_or_create(name=sheet[row][type_col].value)[0]
+                    bank_ = ''
+                user_ = User.objects.get(
+                    last_name=sheet[row][policy_manager_col].value.split()[0],
+                    first_name=sheet[row][policy_manager_col].value.split()[1],
+                )
+                if 'пролонг' in sheet[row][pay_type_col].value.lower():
+                    type_pay_ = 'prolongation'
+                elif 'взнос' in sheet[row][pay_type_col].value.lower():
+                    type_pay_ = 'payment'
+                elif 'адд' in sheet[row][pay_type_col].value.lower():
+                    type_pay_ = 'addendum'
+                else:
+                    type_pay_ = 'newbiz'
+
+                new_policy, created = Policy.objects.get_or_create(
+                    series=sheet[row][series_col].value,
+                    number=sheet[row][number_col].value,
+                    company_id=company_.id,
                     defaults={
-                        'status': status,
-                        'type': type_for_created,
-                        'company': company_for_created,
-                        'channel': channel_for_created,
-                        'sp': float(str(sheet[row][5].value).replace(' ', '').replace(',', '.')),
-                        'commission': float(str(sheet[row][6].value).replace(' ', '').replace(',', '.')),
-                        'date_registration': date_registration,
-                        'date_start': date_start,
-                        'date_end': date_end,
-                        'user': user,
-                        'client': client,
+                        'client_id': client.id,
+                        'user_id': user_.id,
+                        'channel_id': channel_.id,
+                        'type_id': type_.id,
+                        'date_registration': sheet[row][date_registration_col].value,
+                        'date_start': sheet[row][date_start_col].value,
+                        'date_end': sheet[row][date_end_col].value,
+                        'commission': 0,
+                        'sp': sheet[row][policy_sp_col].value,
+                        'status': type_pay_,
+
                     }
                 )
 
                 if created:
-                    count += 1
+                    number += 1
+                    if bank_ != '':
+                        new_policy.bank = bank_.id
+                        new_policy.save()
+
+                    commission_objects = Commission.objects.filter(
+                        type=new_policy.type,
+                        channel=new_policy.channel,
+                        company=new_policy.company,
+                        date_start__lte=new_policy.date_registration,
+                    )
+
+                    if len(commission_objects) > 0:
+                        if new_policy.type.name == 'Ипотечный':
+                            commission_objects = commission_objects.filter(bank=Bank.objects.get(name=new_policy.bank))
+
+                        if len(commission_objects) > 0:
+                            new_policy.commission = commission_objects.order_by('-date_start')[0].value
+                            new_policy.save()
+
                 else:
-                    errors_upload[f'{series} {number}'] = 'Полис уже есть в базе'
+                    errors[f'{sheet[row][series_col].value} {sheet[row][number_col].value}'] = \
+                        f'Полис уже есть в базе'
+                row += 1
 
-            text_upload = f'Загруженно {count} из {count + len(errors_upload)}'
+            os.remove('main/file/upload.xlsx')
 
-            if len(errors_upload) > 0:
-                wb_errors = openpyxl.Workbook()
-                sheet = wb_errors['Sheet']
+            # сохраняем файл с ошибками загрузки
+            if len(errors) > 0:
+                errors_unload = 1
+                errors_count = len(errors)
 
-                sheet['A1'] = 'Номер'
+                wb = openpyxl.Workbook()
+                sheet = wb['Sheet']
+
+                sheet['A1'] = '№'
                 sheet['B1'] = 'БСО'
-                sheet['C1'] = 'Ошибка'
-
-                wb_errors.save(f'main/file/wb_errors.xlsx')
-
-                wb_errors = openpyxl.load_workbook(f'main/file/wb_errors.xlsx')
-                sheet = wb_errors['Sheet']
+                sheet['C1'] = 'Тип ошибки'
 
                 str_number = 2
-                count_policy = 1
-                for policy, error in errors_upload.items():
-                    sheet[str_number][0].value = count_policy
-                    sheet[str_number][1].value = policy
-                    sheet[str_number][2].value = error
-
+                for error, text in errors.items():
+                    sheet[str_number][0].value = str_number - 1
+                    sheet[str_number][1].value = error
+                    sheet[str_number][2].value = text
                     str_number += 1
 
-                response = HttpResponse(content_type='application/vnd.ms-excel')
-                response['Content-Disposition'] = 'attachment; filename="wb_errors.xlsx"'
+                wb.save('main/file/errors.xlsx')
 
-                wb_errors.save(response)
+                context = {
+                    'errors_count': errors_count,
+                    'errors_unload': errors_unload,
+                    'step_upload': step_upload,
+                    'number': number,
+                    'types': type,
+                    'companys': company,
+                    'channels': channel,
+                    'banks': banks,
+                }
 
-                return response
+                return render(request, 'main/osago.html', context)
 
+        # выгрузка ошибок при загрузке
+        elif 'errors_unload' in request.POST:
+            wb = openpyxl.load_workbook('main/file/errors.xlsx')
+
+            response = HttpResponse(content_type='application/vnd.ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="receivable.xlsx"'
+
+            wb.save(response)
+
+            return response
+
+        # одиночное внесение продажи
         else:
             full_name = request.POST['full_name']
             while full_name[-1] == ' ':
@@ -657,7 +796,7 @@ def addpolicy(request):
                             policy.commission = commission_objects.order_by('-date_start')[0].value
                             policy.save()
 
-    data = {
+    context = {
         'types': type,
         'companys': company,
         'channels': channel,
@@ -667,7 +806,7 @@ def addpolicy(request):
         'text_upload': text_upload,
     }
 
-    return render(request, 'main/osago.html', data)
+    return render(request, 'main/osago.html', context)
 
 
 @login_required(login_url='login')
@@ -1180,12 +1319,13 @@ def commission_delete(request):
 
 @login_required(login_url='login')
 def accept(request):
-    # Просмотр и выгрузка проведенных полисов
+    # Возврат в сверки
     if request.method == 'POST' and request.user.admin and 'policy_id_for_return' in request.POST:
         policy_for_return = Policy.objects.get(id=request.POST.get('policy_id_for_return'))
         policy_for_return.accept = False
         policy_for_return.save()
 
+    # Просмотр и выгрузка проведенных полисов
     selected = {}
     policy_list = []
     if request.GET.get('date_start') == None and request.GET.get('date_end') == None:
@@ -1233,7 +1373,6 @@ def accept(request):
             if request.GET.get('Тип полиса') != 'all':
                 selected['type'] = int(request.GET.get('Тип полиса'))
                 result = result.filter(type=request.GET.get('Тип полиса'))
-
     if len(result) > 0:
         for policy in result:
             commission_rur = '{:.2f}'.format(policy.commission / 100 * policy.sp)

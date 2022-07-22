@@ -120,7 +120,11 @@
                 {% endif %}
             </td>
             <td>{{ policy.type }}</td>
+            {% if policy.series != None %}
             <td>{{ policy.series }} {{ policy.number }}</td>
+            {% else %}
+            <td>{{ policy.number }}</td>
+            {% endif %}
             <td>{{ policy.company }}</td>
             <td>{{ policy.channel }}</td>
             <td>{{ policy.sp }}</td>

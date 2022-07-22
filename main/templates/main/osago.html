@@ -3,17 +3,14 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'main/css/osago.css' %}">
 
-{% if text_upload == '' %}
-<span style="color:red; position: relative; font-size: 15px; font-weight: bold;">{{ error }}</span>
-{% endif %}
-
+<!--Выбор файла для загрузки-->
 <div class="pop_up" id="1">
-<div class="pop_up_container">
+<div class="pop_up_container upload">
     <div class="pop_up_close" data-close="1" id="pop_up_close">&#10006</div>
-    <form class="upload" method="post" enctype="multipart/form-data">
+        <form class="form_upload" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input hidden type="text" name="upload" value="upload">
-            <table class="upload">
+            <table>
             <tr>
                 <td>
                     <input type="file" class="file" name="file" id="id_file">
@@ -21,11 +18,52 @@
             </tr>
             <tr>
                 <td>
-                    <input class="button save" type="submit" value="Сохранить">
+                    <button class="button save" type="submit">Сохранить</button>
                 </td>
             </tr>
             </table>
-            </form>
+        </form>
+    </div>
+</div>
+
+<!--Загрузка заявок из файла 2 этап-->
+<div id="step_upload_pop_up" class="pop_up">
+    <div class="pop_up_container step_upload">
+        <div class="pop_up_close"></div>
+        <form class="form_upload" method="post">
+        {% csrf_token %}
+            <input hidden id="step_upload" name="step_upload" type="number" value="{{ step_upload }}">
+            <div class="name_for_output th">Поле в базе данных</div>
+            <div class="name_for_upload th">Поле в файле</div>
+            {% for name_for_output, name_for_upload in headers_for_upload.items %}
+            <div class="name_for_output">{{ name_for_output }}:</div>
+            <div class="name_for_upload">
+                <select name="{{ name_for_upload }}">
+                    <option value="none">------</option>
+                    {% for col, val in headers.items %}
+                    <option value="{{ col }}">{{ val }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+            <button class="button but">Загрузить</button>
+        </form>
+    </div>
+</div>
+
+<!--Ошибки при загрузке-->
+<div id="errors_unload_pop_up" class="pop_up">
+    <div class="pop_up_container errors_unload">
+        <form method="post">
+        {% csrf_token %}
+            <input hidden id="errors_unload" name="errors_unload" type="number" value="{{ errors_unload }}">
+            <div class="errors_name">Загруженно:</div>
+            <div class="errors_value">{{ number }}</div>
+            <div class="errors_name">Не загруженно:</div>
+            <div class="errors_value">{{ errors_count }}</div>
+            <button class="button errors-button">Выгрузить</button>
+        </form>
+        <div class="pop_up_close" data-close="errors_unload_pop_up">&#10006</div>
     </div>
 </div>
 
@@ -311,6 +349,20 @@
     };
 
 
+</script>
+
+<!--Скрипт для открытия второго этапа загрузки продаж-->
+<script>
+    if (document.getElementById("step_upload").value == 1) {
+       document.getElementById("step_upload_pop_up").classList.add("active");
+    }
+</script>
+
+<!--Скрипт для открытия ошибок загрузки-->
+<script>
+    if (document.getElementById("errors_unload").value == 1) {
+       document.getElementById("errors_unload_pop_up").classList.add("active");
+    }
 </script>
 
 {% endblock %}

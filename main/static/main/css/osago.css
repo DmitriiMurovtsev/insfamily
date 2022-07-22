@@ -59,18 +59,18 @@ select {
 }
 
 .pop_up_container {
+    margin: auto;
+    margin-top: 200px;
     border-radius: 15px;
     padding: 15px;
-    width: 30%;
-    height: 30%;
+    width: 400px;
+    height: 600px;
     background-color: #FFFFFF;
-    margin-left: 25%;
-    margin-top: 12.5%;
 }
 
 .pop_up_close {
     cursor: pointer;
-    float: right;
+    position: absolute;
     top: 10px;
     right: 10px;
 }
@@ -95,9 +95,10 @@ a {
    }
 
 .upload {
+    position: relative;
     padding: 5px;
-    width: 50%;
-    margin: auto;
+    width: 250px;
+    height: 150px;
 }
 
 .open {
@@ -107,10 +108,9 @@ a {
 }
 
 .save {
-    width: 50%;
-    padding: 5px;
-    margin-top: 20px;
-    font-size: 12px;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
 }
 
 .file {
@@ -131,4 +131,58 @@ a {
 .error {
     color: red;
     font-size: 10px;
+}
+
+.step_upload {
+    position: relative;
+    font-size: 12px;
+    width: 650px;
+    height: 650px;
+    margin-top: 5%;
+    padding: 20px;
+}
+
+.name_for_output {
+    margin-top: 1%;
+    text-align: right;
+    margin-right: 5%;
+    float: left;
+    width: 45%;
+}
+
+.name_for_upload {
+    margin-top: 1%;
+    float: left;
+    width: 45%;
+}
+
+.but {
+    position: absolute;
+    bottom: 25px;
+    right: 50px;
+}
+
+.th {
+    border-bottom: 1px solid #000;
+}
+
+.errors_unload {
+    position: relative;
+    width: 15%;
+    min-width: 250px;
+    height: 150px;
+    margin: auto;
+    margin-top: 10%;
+    padding: 1%;
+}
+
+.errors_name, .errors_value {
+    float: left;
+    width: 50%;
+}
+
+.errors-button {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
 }
